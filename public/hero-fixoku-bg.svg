@@ -1,0 +1,61 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgMain" x1="0" y1="0" x2="1600" y2="900" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#140021"></stop>
+      <stop offset="35%" stop-color="#2A0B46"></stop>
+      <stop offset="68%" stop-color="#5B165A"></stop>
+      <stop offset="100%" stop-color="#FF7A00"></stop>
+    </linearGradient>
+
+    <radialGradient id="glowTopRight" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1420 110) rotate(145) scale(420 280)">
+      <stop offset="0%" stop-color="#FFD36A" stop-opacity="0.95"></stop>
+      <stop offset="35%" stop-color="#FF8A00" stop-opacity="0.45"></stop>
+      <stop offset="100%" stop-color="#FF8A00" stop-opacity="0"></stop>
+    </radialGradient>
+
+    <radialGradient id="glowBottomLeft" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(140 760) rotate(8) scale(420 220)">
+      <stop offset="0%" stop-color="#FF7A00" stop-opacity="0.30"></stop>
+      <stop offset="100%" stop-color="#FF7A00" stop-opacity="0"></stop>
+    </radialGradient>
+
+    <linearGradient id="lineGlow" x1="880" y1="150" x2="1540" y2="110" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FF5B20"></stop>
+      <stop offset="50%" stop-color="#FF8A00"></stop>
+      <stop offset="100%" stop-color="#FFD86A"></stop>
+    </linearGradient>
+
+    <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="3" r="2" fill="#FFB66E" fill-opacity="0.22"></circle>
+    </pattern>
+
+    <filter id="softBlur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="18"></feGaussianBlur>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bgMain)"></rect>
+  <rect width="1600" height="900" fill="url(#glowTopRight)"></rect>
+  <rect width="1600" height="900" fill="url(#glowBottomLeft)"></rect>
+
+  <rect x="720" y="0" width="560" height="260" fill="url(#dots)" opacity="0.72"></rect>
+
+  <ellipse cx="1260" cy="440" rx="260" ry="180" fill="#FFF0D8" fill-opacity="0.10" filter="url(#softBlur)"></ellipse>
+  <ellipse cx="1120" cy="430" rx="180" ry="110" fill="#FFFFFF" fill-opacity="0.05" filter="url(#softBlur)"></ellipse>
+
+  <path d="M835 170C1020 135 1195 135 1515 92" stroke="url(#lineGlow)" stroke-width="8" stroke-linecap="round"></path>
+  <path d="M820 194C995 155 1185 160 1492 124" stroke="url(#lineGlow)" stroke-opacity="0.75" stroke-width="4.5" stroke-linecap="round"></path>
+  <path d="M805 220C1005 180 1180 188 1470 160" stroke="url(#lineGlow)" stroke-opacity="0.40" stroke-width="2.5" stroke-linecap="round"></path>
+
+  <path d="M0 765C210 690 355 760 530 700C720 635 890 760 1110 700C1285 650 1430 700 1600 665V900H0V765Z" fill="#31083C" fill-opacity="0.34"></path>
+  <path d="M0 825C200 775 390 818 585 760C790 700 980 815 1160 770C1325 730 1460 772 1600 742V900H0V825Z" fill="#1E032B" fill-opacity="0.50"></path>
+
+  <g opacity="0.72">
+    <circle cx="60" cy="720" r="4" fill="#FF972E"></circle>
+    <circle cx="108" cy="746" r="3" fill="#FF972E"></circle>
+    <circle cx="152" cy="704" r="3" fill="#FF972E"></circle>
+    <circle cx="188" cy="760" r="4" fill="#FF972E"></circle>
+    <circle cx="242" cy="724" r="3" fill="#FF972E"></circle>
+    <circle cx="292" cy="772" r="4" fill="#FF972E"></circle>
+    <circle cx="340" cy="734" r="3" fill="#FF972E"></circle>
+  </g>
+</svg>
