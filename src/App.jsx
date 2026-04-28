@@ -1923,6 +1923,71 @@ function App() {
     </div>
   </div>
 </section>
+<section className="fixoku-experience-section">
+  <div className="fixoku-experience-container">
+    <div className="fixoku-experience-head">
+      <h2>
+        <span>Fixoku</span> Eğitim Deneyimi
+      </h2>
+      <p>
+        Fixoku yazılımı, kitap çalışmaları ve uzman eğitmen desteği ile
+        öğrenciler için özel bir öğrenme deneyimi sunar.
+      </p>
+    </div>
+
+    <div className="fixoku-experience-hero">
+      <div className="fixoku-bg-shape fixoku-bg-shape-left"></div>
+      <div className="fixoku-bg-shape fixoku-bg-shape-right"></div>
+
+      <div className="fixoku-label label-left-top">Okuma Hızı Analizi</div>
+      <div className="fixoku-label label-right-top">Dikkat Egzersizleri</div>
+      <div className="fixoku-label label-left-bottom">Konsantrasyon Egzersizleri</div>
+      <div className="fixoku-label label-right-bottom">Gelişim Grafikleri</div>
+
+      <img src="/laptop.png" alt="Fixoku eğitim paneli" className="fixoku-laptop-img" />
+    </div>
+
+    <div className="fixoku-experience-cards">
+      <div className="fixoku-exp-card">
+        <div className="exp-card-icon ai-icon">AI</div>
+        <h3>Yapay Zeka<br />Destekli Analiz</h3>
+        <p>Yazılım, öğrencinin performansını analiz ederek gelişimini raporlar.</p>
+      </div>
+
+      <div className="fixoku-exp-card">
+        <div className="exp-card-icon">
+          <svg viewBox="0 0 64 64" fill="none">
+            <path d="M32 8l22 10-22 10L10 18 32 8Z" stroke="currentColor" strokeWidth="4" />
+            <path d="M20 28v12c0 7 5 12 12 12s12-5 12-12V28" stroke="currentColor" strokeWidth="4" />
+            <path d="M16 42l-6 8M48 42l6 8" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+          </svg>
+        </div>
+        <h3>Kişiye Özel<br />Eğitim Programı</h3>
+        <p>Sistem öğrencinin seviyesine göre egzersizleri otomatik ayarlar.</p>
+      </div>
+
+      <div className="fixoku-exp-card">
+        <div className="exp-card-icon green-icon">
+          <svg viewBox="0 0 64 64" fill="none">
+            <path d="M10 46l13-13 11 9 18-25" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M43 17h9v9" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+            <path d="M18 52V40M32 52V34M46 52V25" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+          </svg>
+        </div>
+        <h3>Gelişim Takibi</h3>
+        <p>Öğrencinin ilerlemesi grafiklerle düzenli olarak takip edilir.</p>
+      </div>
+    </div>
+
+    <div className="fixoku-experience-bottom">
+      <h2><span>Kimler Fixoku</span> Eğitiminden Faydalanabilir?</h2>
+      <p>
+        Fixoku eğitimi; okuma hızını, dikkatini, anlama becerisini ve sınav
+        performansını geliştirmek isteyen öğrenciler için uygundur.
+      </p>
+    </div>
+  </div>
+</section>
 <section className="benefits-faq-section">
   <div className="benefits-faq-container">
     <div className="benefits-block">
