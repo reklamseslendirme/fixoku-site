@@ -1729,6 +1729,200 @@ function App() {
     </div>
   </div>
 </section>
+<section className="trainer-stories-section">
+  <div className="trainer-stories-container">
+    <div className="trainer-stories-heading">
+      <h2 className="trainer-stories-title">
+        <span>Fixoku</span> Eğitmenleri Ne Söylüyor?
+      </h2>
+
+      <p className="trainer-stories-subtitle">
+        Fixoku eğitmenleri, sistemin öğrenciler üzerindeki etkilerini ve eğitim
+        sürecindeki deneyimlerini anlatıyor.
+      </p>
+    </div>
+
+    <div className="trainer-stories-panel">
+      <div className="trainer-stories-grid">
+        <a href="#" className="trainer-story-card trainer-story-card-1">
+          <div className="trainer-story-badge">Fixoku Eğitmeni / Ankara</div>
+
+          <div className="trainer-story-media">
+            <div className="trainer-story-avatar">
+              <svg viewBox="0 0 120 120" fill="none">
+                <circle cx="60" cy="42" r="22" fill="rgba(255,255,255,0.92)" />
+                <path
+                  d="M25 104c5-26 20-40 35-40s30 14 35 40"
+                  fill="rgba(255,255,255,0.88)"
+                />
+                <path
+                  d="M38 42c4-21 40-21 44 0"
+                  stroke="#ef6418"
+                  strokeWidth="8"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </div>
+
+            <div className="trainer-story-overlay" />
+
+            <div className="trainer-story-play">
+              <svg viewBox="0 0 64 64" fill="none">
+                <circle cx="32" cy="32" r="30" fill="rgba(255,255,255,0.18)" />
+                <circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.42)" strokeWidth="2" />
+                <path d="M27 21l16 11-16 11V21z" fill="white" />
+              </svg>
+            </div>
+
+            <div className="trainer-story-meta">
+              <div className="trainer-story-quote">
+                “Fixoku ile öğrencilerde gerçekten çok hızlı gelişim gördük.”
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <a href="#" className="trainer-story-card trainer-story-card-2">
+          <div className="trainer-story-badge">Fixoku Eğitmeni / Ankara</div>
+
+          <div className="trainer-story-media">
+            <div className="trainer-story-avatar">
+              <svg viewBox="0 0 120 120" fill="none">
+                <circle cx="60" cy="42" r="22" fill="rgba(255,255,255,0.92)" />
+                <path
+                  d="M25 104c5-26 20-40 35-40s30 14 35 40"
+                  fill="rgba(255,255,255,0.88)"
+                />
+                <path
+                  d="M38 38c7-18 38-18 44 0"
+                  stroke="#5a137d"
+                  strokeWidth="8"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </div>
+
+            <div className="trainer-story-overlay" />
+
+            <div className="trainer-story-play">
+              <svg viewBox="0 0 64 64" fill="none">
+                <circle cx="32" cy="32" r="30" fill="rgba(255,255,255,0.18)" />
+                <circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.42)" strokeWidth="2" />
+                <path d="M27 21l16 11-16 11V21z" fill="white" />
+              </svg>
+            </div>
+
+            <div className="trainer-story-meta">
+              <div className="trainer-story-quote">
+                “Fixoku, odaklanma becerilerini müthiş artırıyor.”
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <a href="#" className="trainer-story-card trainer-story-card-3">
+          <div className="trainer-story-badge">Fixoku Eğitmeni / Ankara</div>
+
+          <div className="trainer-story-media">
+            <div className="trainer-story-avatar">
+              <svg viewBox="0 0 120 120" fill="none">
+                <circle cx="60" cy="42" r="22" fill="rgba(255,255,255,0.92)" />
+                <path
+                  d="M25 104c5-26 20-40 35-40s30 14 35 40"
+                  fill="rgba(255,255,255,0.88)"
+                />
+                <path
+                  d="M34 45c10-26 42-26 52 0"
+                  stroke="#ef6418"
+                  strokeWidth="8"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </div>
+
+            <div className="trainer-story-overlay" />
+
+            <div className="trainer-story-play">
+              <svg viewBox="0 0 64 64" fill="none">
+                <circle cx="32" cy="32" r="30" fill="rgba(255,255,255,0.18)" />
+                <circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.42)" strokeWidth="2" />
+                <path d="M27 21l16 11-16 11V21z" fill="white" />
+              </svg>
+            </div>
+
+            <div className="trainer-story-meta">
+              <div className="trainer-story-quote">
+                “Kitap ve yazılım desteği eğitim sürecini çok güçlendiriyor.”
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <a href="#" className="trainer-story-card trainer-story-card-4">
+          <div className="trainer-story-badge">Fixoku Eğitmeni / Ankara</div>
+
+          <div className="trainer-story-media">
+            <div className="trainer-story-avatar">
+              <svg viewBox="0 0 120 120" fill="none">
+                <circle cx="60" cy="42" r="22" fill="rgba(255,255,255,0.92)" />
+                <path
+                  d="M25 104c5-26 20-40 35-40s30 14 35 40"
+                  fill="rgba(255,255,255,0.88)"
+                />
+                <path
+                  d="M40 34c8-14 32-14 40 0"
+                  stroke="#5a137d"
+                  strokeWidth="8"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </div>
+
+            <div className="trainer-story-overlay" />
+
+            <div className="trainer-story-play">
+              <svg viewBox="0 0 64 64" fill="none">
+                <circle cx="32" cy="32" r="30" fill="rgba(255,255,255,0.18)" />
+                <circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.42)" strokeWidth="2" />
+                <path d="M27 21l16 11-16 11V21z" fill="white" />
+              </svg>
+            </div>
+
+            <div className="trainer-story-meta">
+              <div className="trainer-story-quote">
+                “Öğrencilerimizde kalıcı bir okuma alışkanlığı kazanıyoruz.”
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div className="trainer-apply-panel">
+      <h3>
+        Siz de <span>Fixoku</span> Eğitmeni Olabilirsiniz
+      </h3>
+
+      <p>
+        Fixoku eğitmeni olarak kendi eğitim programınızı başlatabilir ve
+        öğrencilerinizin gelişimine katkı sağlayabilirsiniz.
+      </p>
+
+      <a href="#" className="trainer-apply-btn">
+        <span>Eğitmen Başvurusu Yap</span>
+        <svg viewBox="0 0 24 24" fill="none">
+          <path
+            d="M5 12h14M13 6l6 6-6 6"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
 <section className="benefits-faq-section">
   <div className="benefits-faq-container">
     <div className="benefits-block">
