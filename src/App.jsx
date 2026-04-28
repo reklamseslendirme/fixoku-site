@@ -19,18 +19,66 @@ function App() {
   const [activeTrainerVideo, setActiveTrainerVideo] = useState(null);
 
   const trainerStories = useMemo(
-    () => [
-      { title: "Dynavit Deneyimi", role: "Fixoku Eğitmeni", badge: "Fixoku Eğitmeni / Ankara", video: "/dynavit.mp4", poster: "/story-1.jpg" },
-      { title: "Ayşe Öğretmen", role: "Fixoku Eğitmeni", badge: "Fixoku Eğitmeni / İstanbul", video: "/dynavit.mp4", poster: "/story-2.jpg" },
-      { title: "Mehmet Öğretmen", role: "Fixoku Eğitmeni", badge: "Fixoku Eğitmeni / İzmir", video: "/dynavit.mp4", poster: "/story-3.jpg" },
-      { title: "Zeynep Öğretmen", role: "Fixoku Eğitmeni", badge: "Fixoku Eğitmeni / Bursa", video: "/dynavit.mp4", poster: "/story-4.jpg" },
-      { title: "Elif Öğretmen", role: "Fixoku Eğitmeni", badge: "Fixoku Eğitmeni / Ankara", video: "/dynavit.mp4", poster: "/story-1.jpg" },
-      { title: "Can Öğretmen", role: "Fixoku Eğitmeni", badge: "Fixoku Eğitmeni / Antalya", video: "/dynavit.mp4", poster: "/story-2.jpg" },
-      { title: "Merve Öğretmen", role: "Fixoku Eğitmeni", badge: "Fixoku Eğitmeni / Konya", video: "/dynavit.mp4", poster: "/story-3.jpg" },
-      { title: "Burak Öğretmen", role: "Fixoku Eğitmeni", badge: "Fixoku Eğitmeni / Eskişehir", video: "/dynavit.mp4", poster: "/story-4.jpg" },
-    ],
-    []
-  );
+  () => [
+    {
+      title: "Burak Öğretmen",
+      role: "Fixoku Eğitmeni",
+      badge: "Fixoku Eğitmeni / Antalya",
+      video: "/dynavit.mp4",
+      poster: "/egitici1.jpeg",
+    },
+    {
+      title: "Ayşe Öğretmen",
+      role: "Fixoku Eğitmeni",
+      badge: "Fixoku Eğitmeni / Ankara",
+      video: "/dynavit.mp4",
+      poster: "/egitici2.jpeg",
+    },
+    {
+      title: "Mehmet Öğretmen",
+      role: "Fixoku Eğitmeni",
+      badge: "Fixoku Eğitmeni / İstanbul",
+      video: "/dynavit.mp4",
+      poster: "/egitici3.jpeg",
+    },
+    {
+      title: "Zeynep Öğretmen",
+      role: "Fixoku Eğitmeni",
+      badge: "Fixoku Eğitmeni / İzmir",
+      video: "/dynavit.mp4",
+      poster: "/egitici4.jpeg",
+    },
+    {
+      title: "Elif Öğretmen",
+      role: "Fixoku Eğitmeni",
+      badge: "Fixoku Eğitmeni / Bursa",
+      video: "/dynavit.mp4",
+      poster: "/egitici1.jpeg",
+    },
+    {
+      title: "Can Öğretmen",
+      role: "Fixoku Eğitmeni",
+      badge: "Fixoku Eğitmeni / Konya",
+      video: "/dynavit.mp4",
+      poster: "/egitici2.jpeg",
+    },
+    {
+      title: "Merve Öğretmen",
+      role: "Fixoku Eğitmeni",
+      badge: "Fixoku Eğitmeni / Eskişehir",
+      video: "/dynavit.mp4",
+      poster: "/egitici3.jpeg",
+    },
+    {
+      title: "Kemal Öğretmen",
+      role: "Fixoku Eğitmeni",
+      badge: "Fixoku Eğitmeni / Adana",
+      video: "/dynavit.mp4",
+      poster: "/egitici4.jpeg",
+    },
+  ],
+  []
+);
 
   const trainerVisibleStories = useMemo(() => {
     return Array.from({ length: 4 }, (_, i) => trainerStories[(trainerStoryIndex + i) % trainerStories.length]);
