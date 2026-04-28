@@ -14,6 +14,43 @@ function App() {
   });
 
   const [testCounter, setTestCounter] = useState(0);
+
+  const [trainerStoryIndex, setTrainerStoryIndex] = useState(0);
+  const [activeTrainerVideo, setActiveTrainerVideo] = useState(null);
+
+  const trainerStories = useMemo(
+    () => [
+      { title: "Dynavit Deneyimi", role: "Fixoku Eğitmeni", badge: "Fixoku Eğitmeni / Ankara", video: "/dynavit.mp4", poster: "/story-1.jpg" },
+      { title: "Ayşe Öğretmen", role: "Fixoku Eğitmeni", badge: "Fixoku Eğitmeni / İstanbul", video: "/dynavit.mp4", poster: "/story-2.jpg" },
+      { title: "Mehmet Öğretmen", role: "Fixoku Eğitmeni", badge: "Fixoku Eğitmeni / İzmir", video: "/dynavit.mp4", poster: "/story-3.jpg" },
+      { title: "Zeynep Öğretmen", role: "Fixoku Eğitmeni", badge: "Fixoku Eğitmeni / Bursa", video: "/dynavit.mp4", poster: "/story-4.jpg" },
+      { title: "Elif Öğretmen", role: "Fixoku Eğitmeni", badge: "Fixoku Eğitmeni / Ankara", video: "/dynavit.mp4", poster: "/story-1.jpg" },
+      { title: "Can Öğretmen", role: "Fixoku Eğitmeni", badge: "Fixoku Eğitmeni / Antalya", video: "/dynavit.mp4", poster: "/story-2.jpg" },
+      { title: "Merve Öğretmen", role: "Fixoku Eğitmeni", badge: "Fixoku Eğitmeni / Konya", video: "/dynavit.mp4", poster: "/story-3.jpg" },
+      { title: "Burak Öğretmen", role: "Fixoku Eğitmeni", badge: "Fixoku Eğitmeni / Eskişehir", video: "/dynavit.mp4", poster: "/story-4.jpg" },
+    ],
+    []
+  );
+
+  const trainerVisibleStories = useMemo(() => {
+    return Array.from({ length: 4 }, (_, i) => trainerStories[(trainerStoryIndex + i) % trainerStories.length]);
+  }, [trainerStories, trainerStoryIndex]);
+
+  const goTrainerPrev = () => {
+    setTrainerStoryIndex((prev) => prev === 0 ? trainerStories.length - 1 : prev - 1);
+  };
+
+  const goTrainerNext = () => {
+    setTrainerStoryIndex((prev) => (prev + 1) % trainerStories.length);
+  };
+
+  useEffect(() => {
+    const trainerInterval = setInterval(() => {
+      setTrainerStoryIndex((prev) => (prev + 1) % trainerStories.length);
+    }, 10000);
+    return () => clearInterval(trainerInterval);
+  }, [trainerStories.length]);
+
   useEffect(() => {
   const target = 12000;
   const duration = 3000;
@@ -1729,199 +1766,51 @@ function App() {
     </div>
   </div>
 </section>
-<section className="trainer-stories-section">
-  <div className="trainer-stories-container">
-    <div className="trainer-stories-heading">
-      <h2 className="trainer-stories-title">
-        <span>Fixoku</span> Eğitmenleri Ne Söylüyor?
-      </h2>
-
-      <p className="trainer-stories-subtitle">
-        Fixoku eğitmenleri, sistemin öğrenciler üzerindeki etkilerini ve eğitim
-        sürecindeki deneyimlerini anlatıyor.
-      </p>
+<section className="trainer-videos-section">
+  <div className="trainer-videos-container">
+    <div className="trainer-videos-heading">
+      <h2 className="trainer-videos-title"><span>Fixoku</span> Eğitmenleri Ne Söylüyor?</h2>
+      <p className="trainer-videos-subtitle">Fixoku eğitmenleri, sistemin öğrenciler üzerindeki etkilerini ve eğitim sürecindeki deneyimlerini anlatıyor.</p>
     </div>
-
-    <div className="trainer-stories-panel">
-      <div className="trainer-stories-grid">
-        <a href="#" className="trainer-story-card trainer-story-card-1">
-          <div className="trainer-story-badge">Fixoku Eğitmeni / Ankara</div>
-
-          <div className="trainer-story-media">
-            <div className="trainer-story-avatar">
-              <svg viewBox="0 0 120 120" fill="none">
-                <circle cx="60" cy="42" r="22" fill="rgba(255,255,255,0.92)" />
-                <path
-                  d="M25 104c5-26 20-40 35-40s30 14 35 40"
-                  fill="rgba(255,255,255,0.88)"
-                />
-                <path
-                  d="M38 42c4-21 40-21 44 0"
-                  stroke="#ef6418"
-                  strokeWidth="8"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </div>
-
-            <div className="trainer-story-overlay" />
-
-            <div className="trainer-story-play">
-              <svg viewBox="0 0 64 64" fill="none">
-                <circle cx="32" cy="32" r="30" fill="rgba(255,255,255,0.18)" />
-                <circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.42)" strokeWidth="2" />
-                <path d="M27 21l16 11-16 11V21z" fill="white" />
-              </svg>
-            </div>
-
-            <div className="trainer-story-meta">
-              <div className="trainer-story-quote">
-                “Fixoku ile öğrencilerde gerçekten çok hızlı gelişim gördük.”
+    <div className="trainer-videos-panel">
+      <button type="button" className="trainer-slider-arrow trainer-slider-prev" onClick={goTrainerPrev} aria-label="Önceki video">‹</button>
+      <div className="trainer-videos-grid">
+        {trainerVisibleStories.map((story, index) => (
+          <button type="button" className="trainer-video-card" key={story.title + "-" + index} onClick={() => setActiveTrainerVideo(story)}>
+            <div className="trainer-video-badge">{story.badge}</div>
+            <div className="trainer-video-media" style={{ backgroundImage: "url(" + story.poster + ")" }}>
+              <div className="trainer-video-overlay" />
+              <div className="trainer-video-play">
+                <svg viewBox="0 0 64 64" fill="none">
+                  <circle cx="32" cy="32" r="30" fill="rgba(255,255,255,0.2)" />
+                  <circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.45)" strokeWidth="2" />
+                  <path d="M27 21l17 11-17 11V21z" fill="white" />
+                </svg>
+              </div>
+              <div className="trainer-video-meta">
+                <div className="trainer-video-name">{story.title}</div>
+                <div className="trainer-video-role">{story.role}</div>
               </div>
             </div>
-          </div>
-        </a>
-
-        <a href="#" className="trainer-story-card trainer-story-card-2">
-          <div className="trainer-story-badge">Fixoku Eğitmeni / Ankara</div>
-
-          <div className="trainer-story-media">
-            <div className="trainer-story-avatar">
-              <svg viewBox="0 0 120 120" fill="none">
-                <circle cx="60" cy="42" r="22" fill="rgba(255,255,255,0.92)" />
-                <path
-                  d="M25 104c5-26 20-40 35-40s30 14 35 40"
-                  fill="rgba(255,255,255,0.88)"
-                />
-                <path
-                  d="M38 38c7-18 38-18 44 0"
-                  stroke="#5a137d"
-                  strokeWidth="8"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </div>
-
-            <div className="trainer-story-overlay" />
-
-            <div className="trainer-story-play">
-              <svg viewBox="0 0 64 64" fill="none">
-                <circle cx="32" cy="32" r="30" fill="rgba(255,255,255,0.18)" />
-                <circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.42)" strokeWidth="2" />
-                <path d="M27 21l16 11-16 11V21z" fill="white" />
-              </svg>
-            </div>
-
-            <div className="trainer-story-meta">
-              <div className="trainer-story-quote">
-                “Fixoku, odaklanma becerilerini müthiş artırıyor.”
-              </div>
-            </div>
-          </div>
-        </a>
-
-        <a href="#" className="trainer-story-card trainer-story-card-3">
-          <div className="trainer-story-badge">Fixoku Eğitmeni / Ankara</div>
-
-          <div className="trainer-story-media">
-            <div className="trainer-story-avatar">
-              <svg viewBox="0 0 120 120" fill="none">
-                <circle cx="60" cy="42" r="22" fill="rgba(255,255,255,0.92)" />
-                <path
-                  d="M25 104c5-26 20-40 35-40s30 14 35 40"
-                  fill="rgba(255,255,255,0.88)"
-                />
-                <path
-                  d="M34 45c10-26 42-26 52 0"
-                  stroke="#ef6418"
-                  strokeWidth="8"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </div>
-
-            <div className="trainer-story-overlay" />
-
-            <div className="trainer-story-play">
-              <svg viewBox="0 0 64 64" fill="none">
-                <circle cx="32" cy="32" r="30" fill="rgba(255,255,255,0.18)" />
-                <circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.42)" strokeWidth="2" />
-                <path d="M27 21l16 11-16 11V21z" fill="white" />
-              </svg>
-            </div>
-
-            <div className="trainer-story-meta">
-              <div className="trainer-story-quote">
-                “Kitap ve yazılım desteği eğitim sürecini çok güçlendiriyor.”
-              </div>
-            </div>
-          </div>
-        </a>
-
-        <a href="#" className="trainer-story-card trainer-story-card-4">
-          <div className="trainer-story-badge">Fixoku Eğitmeni / Ankara</div>
-
-          <div className="trainer-story-media">
-            <div className="trainer-story-avatar">
-              <svg viewBox="0 0 120 120" fill="none">
-                <circle cx="60" cy="42" r="22" fill="rgba(255,255,255,0.92)" />
-                <path
-                  d="M25 104c5-26 20-40 35-40s30 14 35 40"
-                  fill="rgba(255,255,255,0.88)"
-                />
-                <path
-                  d="M40 34c8-14 32-14 40 0"
-                  stroke="#5a137d"
-                  strokeWidth="8"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </div>
-
-            <div className="trainer-story-overlay" />
-
-            <div className="trainer-story-play">
-              <svg viewBox="0 0 64 64" fill="none">
-                <circle cx="32" cy="32" r="30" fill="rgba(255,255,255,0.18)" />
-                <circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.42)" strokeWidth="2" />
-                <path d="M27 21l16 11-16 11V21z" fill="white" />
-              </svg>
-            </div>
-
-            <div className="trainer-story-meta">
-              <div className="trainer-story-quote">
-                “Öğrencilerimizde kalıcı bir okuma alışkanlığı kazanıyoruz.”
-              </div>
-            </div>
-          </div>
-        </a>
+          </button>
+        ))}
       </div>
+      <button type="button" className="trainer-slider-arrow trainer-slider-next" onClick={goTrainerNext} aria-label="Sonraki video">›</button>
     </div>
-
     <div className="trainer-apply-panel">
-      <h3>
-        Siz de <span>Fixoku</span> Eğitmeni Olabilirsiniz
-      </h3>
-
-      <p>
-        Fixoku eğitmeni olarak kendi eğitim programınızı başlatabilir ve
-        öğrencilerinizin gelişimine katkı sağlayabilirsiniz.
-      </p>
-
-      <a href="#" className="trainer-apply-btn">
-        <span>Eğitmen Başvurusu Yap</span>
-        <svg viewBox="0 0 24 24" fill="none">
-          <path
-            d="M5 12h14M13 6l6 6-6 6"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </a>
+      <h3>Siz de <span>Fixoku</span> Eğitmeni Olabilirsiniz</h3>
+      <p>Fixoku eğitmeni olarak kendi eğitim programınızı başlatabilir ve öğrencilerinizin gelişimine katkı sağlayabilirsiniz.</p>
+      <a href="#" className="trainer-apply-btn"><span>Eğitmen Başvurusu Yap</span><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg></a>
     </div>
   </div>
+  {activeTrainerVideo && (
+    <div className="trainer-video-modal" onClick={() => setActiveTrainerVideo(null)}>
+      <div className="trainer-video-modal-inner" onClick={(e) => e.stopPropagation()}>
+        <button type="button" className="trainer-video-close" onClick={() => setActiveTrainerVideo(null)} aria-label="Videoyu kapat">×</button>
+        <video src={activeTrainerVideo.video} controls autoPlay playsInline className="trainer-video-player" />
+      </div>
+    </div>
+  )}
 </section>
 <section className="fixoku-experience-section">
   <div className="fixoku-experience-container">
