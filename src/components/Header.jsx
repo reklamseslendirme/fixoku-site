@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useState } from "react";
 
 function Header() {
@@ -104,9 +105,9 @@ function Header() {
                 )}
               </div>
 
-              <button type="button" className="nav-link">
-                İLETİŞİM
-              </button>
+              <Link to="/iletisim" className="nav-link">
+  İLETİŞİM
+</Link>
             </nav>
 
             <div className="top-actions">
