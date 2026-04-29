@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
+import ReadingSpeedTest from "./ReadingSpeedTest";
 
 function App() {
   const [activeMenu, setActiveMenu] = useState("");
   const [activeSlide, setActiveSlide] = useState(0);
+  const [isReadingTestOpen, setIsReadingTestOpen] = useState(false);
 
   const [engineActiveModule, setEngineActiveModule] = useState(0);
   const [engineFeedStart, setEngineFeedStart] = useState(0);
@@ -511,6 +513,7 @@ function App() {
 
   return (
     <div className="page">
+      <ReadingSpeedTest isOpen={isReadingTestOpen} onClose={() => setIsReadingTestOpen(false)} />
       <div className="top-header">
         <div className="top-header-inner">
           <div className="top-left">
@@ -661,7 +664,7 @@ function App() {
                   </div>
 
                   <div className="slide-buttons slide-buttons-student">
-                    <button type="button" className="slide-btn slide-btn-orange">
+                    <button type="button" className="slide-btn slide-btn-orange" onClick={() => setIsReadingTestOpen(true)}>
                       <span className="slide-btn-icon">
                         <svg viewBox="0 0 24 24" fill="none">
                           <path
@@ -1236,7 +1239,7 @@ function App() {
             seviyesini hemen ölçün.
           </p>
 
-          <button type="button" className="free-test-btn free-test-btn-orange">
+          <button type="button" className="free-test-btn free-test-btn-orange" onClick={() => setIsReadingTestOpen(true)}>
             <span className="free-test-btn-check" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <path

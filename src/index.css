@@ -7363,3 +7363,473 @@ img {
   background-position: center center !important;
   background-repeat: no-repeat !important;
 }
+
+/* =========================================================
+   OKUMA VE ANLAMA TESTI MODAL CSS
+   Bu bloğu index.css dosyanızın en altına ekleyin.
+========================================================= */
+
+.reading-test-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  background: rgba(14, 0, 24, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.reading-test-modal {
+  position: relative;
+  width: min(1040px, 100%);
+  max-height: min(92vh, 920px);
+  overflow: auto;
+  border-radius: 34px;
+  padding: 26px;
+  color: #44105f;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(255, 191, 126, 0.45), transparent 28%),
+    radial-gradient(circle at 90% 8%, rgba(190, 154, 255, 0.35), transparent 28%),
+    linear-gradient(180deg, #fff7ff 0%, #f8edf8 100%);
+  border: 1px solid rgba(255, 255, 255, 0.88);
+  box-shadow: 0 34px 90px rgba(0, 0, 0, 0.38);
+}
+
+.reading-test-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  color: white;
+  background: linear-gradient(135deg, #ef6418, #ff8a00);
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 800;
+  z-index: 2;
+}
+
+.reading-test-top {
+  min-height: 44px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.reading-test-back {
+  min-height: 38px;
+  padding: 0 16px;
+  border-radius: 999px;
+  color: #5a137d;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(90, 19, 125, 0.12);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.reading-test-progress {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reading-test-progress span {
+  width: 34px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(90, 19, 125, 0.14);
+}
+
+.reading-test-progress span.active {
+  background: linear-gradient(90deg, #ef6418, #ff9a1f);
+}
+
+.reading-test-screen {
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 14px 4px 4px;
+  text-align: center;
+}
+
+.reading-test-screen-wide {
+  max-width: 940px;
+  text-align: left;
+}
+
+.reading-test-kicker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 16px;
+  margin-bottom: 14px;
+  border-radius: 999px;
+  color: #ef6418;
+  background: rgba(239, 100, 24, 0.1);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.reading-test-screen h2 {
+  margin: 0 0 12px;
+  color: #4f126f;
+  font-size: clamp(28px, 4vw, 46px);
+  line-height: 1.05;
+  font-weight: 950;
+  letter-spacing: -0.8px;
+}
+
+.reading-test-screen p {
+  max-width: 720px;
+  margin: 0 auto 22px;
+  color: rgba(79, 18, 111, 0.78);
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+.reading-level-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin: 26px 0 18px;
+}
+
+.reading-level-card {
+  min-height: 150px;
+  padding: 20px;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 2px solid rgba(90, 19, 125, 0.08);
+  color: #4f126f;
+  box-shadow: 0 18px 44px rgba(90, 19, 125, 0.08);
+  transition: 0.25s ease;
+}
+
+.reading-level-card:hover,
+.reading-level-card.selected {
+  transform: translateY(-4px);
+  border-color: #ef6418;
+  box-shadow: 0 22px 54px rgba(239, 100, 24, 0.18);
+}
+
+.reading-level-card span {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 44px;
+}
+
+.reading-level-card strong {
+  display: block;
+  font-size: 24px;
+  font-weight: 950;
+}
+
+.reading-sublevel-box {
+  margin: 10px auto 22px;
+  padding: 18px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(90, 19, 125, 0.1);
+}
+
+.reading-sublevel-box > strong {
+  display: block;
+  margin-bottom: 12px;
+  color: #4f126f;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.reading-sublevel-box div {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.reading-sublevel-box button {
+  min-height: 48px;
+  padding: 0 24px;
+  border-radius: 999px;
+  color: #5a137d;
+  background: white;
+  border: 2px solid rgba(90, 19, 125, 0.12);
+  font-weight: 900;
+}
+
+.reading-sublevel-box button.selected {
+  color: white;
+  background: linear-gradient(135deg, #ef6418, #ff8a00);
+  border-color: transparent;
+}
+
+.reading-primary-btn {
+  min-height: 58px;
+  padding: 0 30px;
+  border-radius: 999px;
+  color: white;
+  background: linear-gradient(135deg, #ef6418, #ff8a00);
+  font-size: 18px;
+  font-weight: 950;
+  box-shadow: 0 18px 34px rgba(239, 100, 24, 0.24);
+}
+
+.reading-primary-btn:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.reading-info-card,
+.reading-result-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 26px 0;
+}
+
+.reading-info-card div,
+.reading-result-grid div {
+  padding: 20px 16px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(90, 19, 125, 0.08);
+  box-shadow: 0 16px 34px rgba(90, 19, 125, 0.08);
+}
+
+.reading-info-card strong,
+.reading-result-grid strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #ef6418;
+  font-size: 36px;
+  line-height: 1;
+  font-weight: 950;
+}
+
+.reading-info-card span,
+.reading-result-grid span {
+  color: rgba(79, 18, 111, 0.72);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.reading-text-box {
+  max-height: 48vh;
+  overflow: auto;
+  margin: 18px 0 22px;
+  padding: 26px;
+  border-radius: 26px;
+  color: #331044;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(90, 19, 125, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.85);
+}
+
+.reading-text-box p {
+  max-width: none;
+  margin: 0 0 18px;
+  color: #331044;
+  font-size: 18px;
+  line-height: 1.75;
+  text-align: left;
+}
+
+.reading-text-box p:last-child {
+  margin-bottom: 0;
+}
+
+.reading-question-card {
+  margin: 22px auto;
+  padding: 24px;
+  border-radius: 28px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(90, 19, 125, 0.1);
+}
+
+.reading-question-card h3 {
+  margin: 0 0 18px;
+  color: #4f126f;
+  font-size: 22px;
+  line-height: 1.35;
+}
+
+.reading-options {
+  display: grid;
+  gap: 12px;
+}
+
+.reading-options button {
+  min-height: 56px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 18px;
+  text-align: left;
+  color: #4f126f;
+  background: white;
+  border: 2px solid rgba(90, 19, 125, 0.1);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.reading-options button.selected {
+  border-color: #ef6418;
+  background: rgba(239, 100, 24, 0.08);
+}
+
+.reading-options button span {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: white;
+  background: linear-gradient(135deg, #5a137d, #8f4cc5);
+  font-weight: 950;
+}
+
+.reading-question-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.reading-question-actions button {
+  min-height: 48px;
+  padding: 0 20px;
+  border-radius: 999px;
+  color: white;
+  background: linear-gradient(135deg, #5a137d, #8f4cc5);
+  font-weight: 900;
+}
+
+.reading-question-actions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.reading-result-screen > p {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.reading-lead-box {
+  margin-top: 24px;
+  padding: 24px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(90, 19, 125, 0.1);
+}
+
+.reading-lead-box h3 {
+  margin: 0 0 16px;
+  color: #4f126f;
+  font-size: 24px;
+  font-weight: 950;
+}
+
+.reading-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.reading-form-grid input {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 16px;
+  border-radius: 16px;
+  outline: none;
+  color: #4f126f;
+  background: white;
+  border: 2px solid rgba(90, 19, 125, 0.1);
+  font: inherit;
+  font-weight: 700;
+}
+
+.reading-form-grid input:focus {
+  border-color: #ef6418;
+}
+
+.reading-cta-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.reading-cta-row a {
+  min-height: 50px;
+  padding: 0 18px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  background: linear-gradient(135deg, #20b15a, #25d366);
+  font-weight: 950;
+}
+
+.reading-cta-row a:last-child {
+  background: linear-gradient(135deg, #ef6418, #ff8a00);
+}
+
+@media (max-width: 768px) {
+  .reading-test-overlay {
+    padding: 10px;
+    align-items: flex-start;
+  }
+
+  .reading-test-modal {
+    max-height: calc(100vh - 20px);
+    padding: 18px;
+    border-radius: 24px;
+  }
+
+  .reading-test-top {
+    padding-right: 42px;
+  }
+
+  .reading-test-progress span {
+    width: 22px;
+  }
+
+  .reading-level-grid,
+  .reading-info-card,
+  .reading-result-grid,
+  .reading-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .reading-level-card {
+    min-height: 112px;
+  }
+
+  .reading-text-box {
+    max-height: 54vh;
+    padding: 18px;
+  }
+
+  .reading-text-box p {
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
+  .reading-test-screen h2 {
+    font-size: 28px;
+  }
+}
