@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import ReadingSpeedTest from "./ReadingSpeedTest";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import Iletisim from "./pages/Iletisim";
+import Iletisim from "./pages/iletisim";
 
 function App() {
   const [activeSlide, setActiveSlide] = useState(0);
