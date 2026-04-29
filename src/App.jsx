@@ -1818,6 +1818,7 @@ function App() {
 </section>
 <section className="benefits-faq-section">
   <div className="benefits-faq-container">
+
     <div className="benefits-block">
       <h2 className="benefits-title">
         Fixoku Eğitimi ile Öğrenciler Neler Kazanır?
@@ -1828,106 +1829,14 @@ function App() {
         akademik başarısını artırmaya yardımcı olur.
       </p>
 
-      <div className="benefits-wheel-wrap">
-  <div className="benefits-wheel-premium">
-    <div className="wheel-slice wheel-slice-1">
-      <div className="wheel-slice-content">
-        <div className="wheel-number">01</div>
-        <div className="wheel-heading">OKUMA HIZINDA ARTIŞ</div>
-        <div className="wheel-text">
-          Öğrenciler daha kısa sürede daha fazla metin okuyabilir.
-        </div>
+      {/* 🔥 ESKİ WHEEL SİLİNDİ – SVG EKLENDİ */}
+      <div className="benefits-infographic">
+        <img
+          src="/infografik_final.svg"
+          alt="Fixoku Eğitim Kazanımları"
+          className="benefits-infographic-img"
+        />
       </div>
-    </div>
-
-    <div className="wheel-slice wheel-slice-2">
-      <div className="wheel-slice-content">
-        <div className="wheel-number">02</div>
-        <div className="wheel-heading">OKUMA ALIŞKANLIĞI</div>
-        <div className="wheel-text">
-          Öğrencilerde kitap okuma alışkanlığı gelişir.
-        </div>
-      </div>
-    </div>
-
-    <div className="wheel-slice wheel-slice-3">
-      <div className="wheel-slice-content">
-        <div className="wheel-number">03</div>
-        <div className="wheel-heading">
-          DİKKAT VE ODAKLANMA
-          <br />
-          ANLAMA BECERİSİ
-        </div>
-        <div className="wheel-text">
-          Dikkat süresi artar ve konsantrasyon gelişir.
-        </div>
-      </div>
-    </div>
-
-    <div className="wheel-slice wheel-slice-4">
-      <div className="wheel-slice-content">
-        <div className="wheel-number">04</div>
-        <div className="wheel-heading">
-          SINAVLARDA
-          <br />
-          ZAMAN KAZANMA
-        </div>
-        <div className="wheel-text">
-          Paragraf soruları daha hızlı çözülür.
-        </div>
-      </div>
-    </div>
-
-    <div className="wheel-slice wheel-slice-5">
-      <div className="wheel-slice-content">
-        <div className="wheel-number">05</div>
-        <div className="wheel-heading">AKADEMİK BAŞARI</div>
-        <div className="wheel-text">
-          Derslerde başarı artışı görülür.
-        </div>
-      </div>
-    </div>
-
-    <div className="wheel-center-shell">
-      <div className="wheel-icon hub-icon hub-icon-1" aria-hidden="true">
-        <svg viewBox="0 0 48 48" fill="none">
-          <path d="M24 10l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6Z" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" />
-          <path d="M24 30v8M18 36h12" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
-        </svg>
-      </div>
-
-      <div className="wheel-icon hub-icon hub-icon-2" aria-hidden="true">
-        <svg viewBox="0 0 48 48" fill="none">
-          <path d="M24 12c3 0 5 2 5 5v2.2a7.7 7.7 0 0 1 4.2 2.4l1.6-1.1 3 5.2-1.8 1a8.8 8.8 0 0 1 0 4.8l1.8 1-3 5.2-1.6-1.1a7.7 7.7 0 0 1-4.2 2.4V39c0 3-2 5-5 5s-5-2-5-5v-2.2a7.7 7.7 0 0 1-4.2-2.4l-1.6 1.1-3-5.2 1.8-1a8.8 8.8 0 0 1 0-4.8l-1.8-1 3-5.2 1.6 1.1a7.7 7.7 0 0 1 4.2-2.4V17c0-3 2-5 5-5Z" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round" />
-          <circle cx="24" cy="28" r="5" stroke="currentColor" strokeWidth="2.2" />
-        </svg>
-      </div>
-
-      <div className="wheel-icon hub-icon hub-icon-3" aria-hidden="true">
-        <svg viewBox="0 0 48 48" fill="none">
-          <circle cx="22" cy="22" r="8" stroke="currentColor" strokeWidth="2.6" />
-          <path d="M28 28l8 8" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" />
-        </svg>
-      </div>
-
-      <div className="wheel-icon hub-icon hub-icon-4" aria-hidden="true">
-        <svg viewBox="0 0 48 48" fill="none">
-          <path d="M14 24c2-4 6-6 10-6 3 0 5 1 7 2" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-          <path d="M32 24c-2 4-6 6-10 6-3 0-5-1-7-2" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-          <path d="M31 16l1 8-8-1" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </div>
-
-      <div className="wheel-icon hub-icon hub-icon-5" aria-hidden="true">
-        <svg viewBox="0 0 48 48" fill="none">
-          <path d="M12 31l7-7 5 5 12-12" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M12 36h24" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
-          <path d="M12 36V16" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
-        </svg>
-      </div>
-    </div>
-  </div>
-</div>
     </div>
 
     <div className="process-block">
@@ -2033,6 +1942,7 @@ function App() {
         </details>
       </div>
     </div>
+
   </div>
 </section>
       <Footer />
