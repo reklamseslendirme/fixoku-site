@@ -175,6 +175,8 @@ export default function ReadingSpeedTest({ isOpen, onClose }) {
   const [answers, setAnswers] = useState({});
   const [questionIndex, setQuestionIndex] = useState(0);
   const [formData, setFormData] = useState({ parentName: "", phone: "", studentClass: "", city: "" });
+  const [readingWarning, setReadingWarning] = useState("");
+  const [showPhoneNumber, setShowPhoneNumber] = useState(false);
 
   useEffect(() => {
     if (!isOpen || step !== "reading" || !startedAt) return undefined;
@@ -193,7 +195,7 @@ export default function ReadingSpeedTest({ isOpen, onClose }) {
   const resultComment = getResultComment(speed, comprehension);
   const activeQuestion = selectedText?.questions?.[questionIndex];
   const canContinueFromLevel = level === "ortaokul" || level === "lise" || (level === "ilkokul" && subLevel);
-  const allAnswered = selectedText && selectedText.questions.every((_, index) => answers[index] !== undefined);
+
 
   const resetTest = () => {
     setStep("level");
@@ -244,10 +246,17 @@ export default function ReadingSpeedTest({ isOpen, onClose }) {
   };
 
   const finishReading = () => {
-    const seconds = Math.max(1, Math.round((Date.now() - startedAt) / 1000));
-    setReadingSeconds(seconds);
-    setStep("questions");
-  };
+  const seconds = Math.max(1, Math.round((Date.now() - startedAt) / 1000));
+
+  if (seconds < 40) {
+    setReadingWarning("Lütfen okumayı tamamlayın.");
+    return;
+  }
+
+  setReadingWarning("");
+  setReadingSeconds(seconds);
+  setStep("questions");
+};
 
   return (
     <div className="reading-test-overlay" role="dialog" aria-modal="true">
@@ -288,7 +297,14 @@ export default function ReadingSpeedTest({ isOpen, onClose }) {
               </div>
             )}
 
-            <button type="button" className="reading-primary-btn" disabled={!canContinueFromLevel} onClick={prepareTest}>Devam Et</button>
+<button
+  type="button"
+  className="reading-primary-btn"
+  disabled={!canContinueFromLevel}
+  onClick={prepareTest}
+>
+  Devam Et
+</button>
           </div>
         )}
 
@@ -302,7 +318,14 @@ export default function ReadingSpeedTest({ isOpen, onClose }) {
               <div><strong>Rastgele</strong><span>Metin</span></div>
             </div>
             <p>Hazır olduğunuzda testi başlatın. Metni kendi hızınızda okuyun. Okuma bitince “Okumayı Bitirdim” butonuna basın ve soruları cevaplayın.</p>
-            <button type="button" className="reading-primary-btn" onClick={startReading}>Testi Başlat</button>
+
+            <button
+              type="button"
+              className="reading-primary-btn"
+              onClick={startReading}
+            >
+              Testi Başlat
+            </button>
           </div>
         )}
 
@@ -313,7 +336,21 @@ export default function ReadingSpeedTest({ isOpen, onClose }) {
             <article className="reading-text-box">
               {selectedText.text.split("\n\n").map((paragraph, index) => <p key={index}>{paragraph}</p>)}
             </article>
-            <button type="button" className="reading-primary-btn" onClick={finishReading}>Okumayı Bitirdim</button>
+            <div className="reading-finish-row">
+  <button
+    type="button"
+    className="reading-primary-btn"
+    onClick={finishReading}
+  >
+    Okumayı Bitirdim
+  </button>
+
+  {readingWarning && (
+    <span className="reading-warning-text">
+      {readingWarning}
+    </span>
+  )}
+</div>
           </div>
         )}
 
@@ -321,22 +358,53 @@ export default function ReadingSpeedTest({ isOpen, onClose }) {
           <div className="reading-test-screen">
             <div className="reading-test-kicker">Anlama Soruları</div>
             <h2>Soru {questionIndex + 1} / {totalQuestions}</h2>
+
             <div className="reading-question-card">
               <h3>{activeQuestion.question}</h3>
+
               <div className="reading-options">
                 {activeQuestion.options.map((option, index) => (
-                  <button key={option} type="button" className={answers[questionIndex] === index ? "selected" : ""} onClick={() => setAnswers((prev) => ({ ...prev, [questionIndex]: index }))}>
-                    <span>{String.fromCharCode(65 + index)}</span>{option}
+                  <button
+                    key={option}
+                    type="button"
+                    className={answers[questionIndex] === index ? "selected" : ""}
+                    onClick={() =>
+                      setAnswers((prev) => ({
+                        ...prev,
+                        [questionIndex]: index,
+                      }))
+                    }
+                  >
+                    <span>{String.fromCharCode(65 + index)}</span>
+                    {option}
                   </button>
                 ))}
               </div>
             </div>
+
             <div className="reading-question-actions">
-              <button type="button" disabled={questionIndex === 0} onClick={() => setQuestionIndex((prev) => prev - 1)}>Önceki Soru</button>
+              <button
+                type="button"
+                disabled={questionIndex === 0}
+                onClick={() => setQuestionIndex((prev) => prev - 1)}
+              >
+                Önceki Soru
+              </button>
+
               {questionIndex < totalQuestions - 1 ? (
-                <button type="button" onClick={() => setQuestionIndex((prev) => prev + 1)}>Sonraki Soru</button>
+                <button
+                  type="button"
+                  onClick={() => setQuestionIndex((prev) => prev + 1)}
+                >
+                  Sonraki Soru
+                </button>
               ) : (
-                <button type="button" disabled={!allAnswered} onClick={() => setStep("result")}>Sonucu Gör</button>
+                <button
+                  type="button"
+                  onClick={() => setStep("result")}
+                >
+                  Sonucu Gör
+                </button>
               )}
             </div>
           </div>
@@ -363,18 +431,33 @@ export default function ReadingSpeedTest({ isOpen, onClose }) {
               </div>
               <div className="reading-cta-row">
   <a
-    href={`https://wa.me/905334789253?text=${encodeURIComponent(
-      `Merhaba FixOku, çocuğum için yaptığımız okuma testi sonucunda ${speed} kelime/dakika ve %${comprehension} anlama sonucu elde ettik. Bu seviyeye göre nasıl bir gelişim planı önerirsiniz? Detaylı bilgi almak isterim.`
-    )}`}
-    target="_blank"
-    rel="noreferrer"
-  >
-    WhatsApp ile Bilgi Al
-  </a>
+  href={`https://wa.me/905334789253?text=${encodeURIComponent(
+    `Merhaba FixOku, ben ${formData.parentName || "veli"}. ${
+      formData.city ? `Size ${formData.city} şehrinden yazıyorum.` : ""
+    } Çocuğum için yaptığımız okuma testi sonucunda ${speed} kelime/dakika ve %${comprehension} anlama sonucu elde ettik. Bu seviyeye göre nasıl bir gelişim planı önerirsiniz? Detaylı bilgi almak isterim.
 
-  <a href="tel:+902324620743">
-    Telefonla Bilgi Al
-  </a>
+*Velinin Adı Soyadı:* ${formData.parentName || "-"}
+*Telefon:* ${formData.phone || "-"}
+*Öğrencinin Sınıfı:* ${formData.studentClass || "-"}
+*Bulunduğumuz Şehir:* ${formData.city || "-"}`
+  )}`}
+  target="_blank"
+  rel="noreferrer"
+>
+  WhatsApp ile Bilgi Al
+</a>
+
+  {showPhoneNumber ? (
+    <strong className="reading-phone-number">0 533 478 92 53</strong>
+  ) : (
+    <button
+      type="button"
+      className="reading-phone-btn"
+      onClick={() => setShowPhoneNumber(true)}
+    >
+      Telefonla Bilgi Al
+    </button>
+  )}
 </div>
             </div>
           </div>
