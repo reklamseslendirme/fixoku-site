@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import ReadingSpeedTest from "./ReadingSpeedTest";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -8,8 +8,6 @@ import PanelApp from "./panel/PanelApp";
 
 
 function App() {
-  const location = useLocation();
-
   const [activeSlide, setActiveSlide] = useState(0);
   const [isReadingTestOpen, setIsReadingTestOpen] = useState(false);
 
@@ -375,17 +373,12 @@ function App() {
       type: "student",
       bg: "/1.webp",
       topBadge: "TÜRKİYE’NİN YAPAY ZEKA DESTEKLİ İLK HIZLI OKUMA EĞİTİM YAZILIMI",
-      mobileTopBadge: "TÜRKİYE’NİN AI DESTEKLİ İLK HIZLI OKUMA EĞİTİMİ",
       title: (
-        <span className="hero-title-mobile-wrap">
-          <span className="hero-title-line hero-title-line-1">
-            <span className="highlight">21 Günde</span>
-            <span className="hero-title-rest"> Okuma,</span>
-          </span>
-          <span className="hero-title-line hero-title-line-2">
-            Anlama, Dikkat ve Odaklanma Gelişimi
-          </span>
-        </span>
+        <>
+          <span className="highlight">21 Günde</span> Okuma, Anlama,
+          <br />
+          Dikkat ve Odaklanma Gelişimi
+        </>
       ),
       desc: (
         <>
@@ -488,23 +481,6 @@ function App() {
       ),
       stats: [
         {
-          icon: (
-            <svg viewBox="0 0 24 24" fill="none">
-              <path
-                d="M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM16 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M2.8 21c.7-4.2 2.9-6.4 5.2-6.4s4.5 2.2 5.2 6.4M12.8 15.6c.8-.8 1.9-1.2 3.2-1.2 2.2 0 4.2 2.1 4.9 6.1"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-            </svg>
-          ),
           text: (
             <>
               Yüzlerce
@@ -514,22 +490,6 @@ function App() {
           ),
         },
         {
-          icon: (
-            <svg viewBox="0 0 24 24" fill="none">
-              <path
-                d="M4 6.5C4 5.7 4.7 5 5.5 5H10c1.4 0 2.7.5 3.7 1.3.9-.8 2.2-1.3 3.6-1.3h1.2c.8 0 1.5.7 1.5 1.5V18c0 .6-.4 1-1 1h-1.7c-1.3 0-2.5.4-3.6 1.1A6.6 6.6 0 0 0 10 19H5.5c-.8 0-1.5-.7-1.5-1.5v-11Z"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M12.8 6.5V19.8"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-            </svg>
-          ),
           text: (
             <>
               Hızlı Okuma
@@ -539,21 +499,6 @@ function App() {
           ),
         },
         {
-          icon: (
-            <svg viewBox="0 0 24 24" fill="none">
-              <path
-                d="M12 3c-3.5 0-6 2.4-6 5.5 0 1.7.7 3 1.8 4.1.7.7 1.2 1.5 1.2 2.4V16h6v-1c0-.9.5-1.7 1.2-2.4C17.3 11.5 18 10.2 18 8.5 18 5.4 15.5 3 12 3Z"
-                stroke="currentColor"
-                strokeWidth="1.8"
-              />
-              <path
-                d="M9.5 19h5M10 16h4M10.5 21h3"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-            </svg>
-          ),
           text: (
             <>
               Dikkat
@@ -570,10 +515,6 @@ function App() {
       bg: "/2.webp",
     },
   ];
-
-  if (location.pathname.startsWith("/panel")) {
-    return <PanelApp />;
-  }
 
   return (
     <div className="page">
@@ -596,8 +537,7 @@ function App() {
                 <>
                   {slide.topBadge && (
                     <div className="hero-top-badge">
-                      <span className="desktop-badge-text">{slide.topBadge}</span>
-                      <span className="mobile-badge-text">{slide.mobileTopBadge || slide.topBadge}</span>
+                      <span>{slide.topBadge}</span>
                     </div>
                   )}
 
@@ -631,12 +571,11 @@ function App() {
                           />
                         </svg>
                       </span>
-                      <span className="desktop-btn-text">
+                      <span>
                         Çocuğumun Okuma
                         <br />
                         Seviyesini Ölç
                       </span>
-                      <span className="mobile-btn-text">Seviyeni Ölç</span>
                     </button>
 
                     <button type="button" className="slide-btn slide-btn-purple">
@@ -651,12 +590,11 @@ function App() {
                           />
                         </svg>
                       </span>
-                      <span className="desktop-btn-text">
+                      <span>
                         Eğitim Hakkında
                         <br />
                         Bilgi al
                       </span>
-                      <span className="mobile-btn-text">Eğitim hakkında</span>
                     </button>
                   </div>
                 </>
@@ -671,8 +609,7 @@ function App() {
                   <div className="trainer-pill-box">
                     {slide.stats.map((item, idx) => (
                       <div key={idx} className="trainer-pill-item">
-                        {item.icon && <span className="trainer-pill-icon">{item.icon}</span>}
-                        <span className="trainer-pill-text">{item.text}</span>
+                        {item.text}
                       </div>
                     ))}
                   </div>
