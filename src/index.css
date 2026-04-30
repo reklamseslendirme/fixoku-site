@@ -10115,3 +10115,420 @@ img {
     font-size: 27px !important;
   }
 }
+
+/* =========================================================
+   OKUMA TESTI - FONT KONTROLU VE ORTALAMA ALANI
+========================================================= */
+
+.reading-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 12px;
+}
+
+.reading-title-row h2 {
+  margin-bottom: 0;
+}
+
+.reading-font-controls {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(90, 19, 125, 0.1);
+  box-shadow: 0 12px 26px rgba(90, 19, 125, 0.08);
+}
+
+.reading-font-controls button {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  color: white;
+  background: linear-gradient(135deg, #ef6418, #ff8a00);
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 950;
+}
+
+.reading-font-controls span {
+  min-width: 48px;
+  color: #4f126f;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.reading-text-box p {
+  font-size: var(--reading-font-size, 18px);
+}
+
+.reading-average-box {
+  margin: 20px 0 24px;
+  padding: 20px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(90, 19, 125, 0.1);
+  box-shadow: 0 16px 34px rgba(90, 19, 125, 0.08);
+}
+
+.reading-average-box h3 {
+  margin: 0 0 14px;
+  color: #4f126f;
+  font-size: 24px;
+  font-weight: 950;
+}
+
+.reading-average-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.reading-average-grid div {
+  padding: 18px 16px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(239, 100, 24, 0.1), rgba(90, 19, 125, 0.06));
+  border: 1px solid rgba(239, 100, 24, 0.22);
+}
+
+.reading-average-grid span,
+.reading-average-grid small {
+  display: block;
+  color: rgba(79, 18, 111, 0.76);
+  font-weight: 900;
+}
+
+.reading-average-grid span {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.reading-average-grid strong {
+  display: block;
+  color: #ef6418;
+  font-size: 34px;
+  line-height: 1;
+  font-weight: 950;
+}
+
+.reading-average-grid small {
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .reading-title-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reading-font-controls {
+    align-self: flex-start;
+  }
+
+  .reading-average-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================================
+   NETFLIX STYLE MOBILE VIDEO SLIDERS - FINAL OVERRIDE
+   Egitmen videolari + Gercek Ogrenci Deneyimi
+========================================================= */
+
+@media (max-width: 768px) {
+  /* Section padding daha kompakt */
+  .trainer-videos-section,
+  .stories-section {
+    overflow: hidden !important;
+  }
+
+  /* Panel kenar bosluklari */
+  .trainer-videos-panel,
+  .stories-panel {
+    width: calc(100% + 32px) !important;
+    margin-left: -16px !important;
+    margin-right: -16px !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    overflow: visible !important;
+  }
+
+  /* Netflix tarzı yatay kaydirma */
+  .trainer-videos-grid,
+  .stories-grid {
+    display: flex !important;
+    grid-template-columns: none !important;
+    gap: 14px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory !important;
+    scroll-behavior: smooth !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 4px 16px 18px !important;
+    margin-left: -16px !important;
+    margin-right: -16px !important;
+  }
+
+  /* Scrollbar gizle */
+  .trainer-videos-grid::-webkit-scrollbar,
+  .stories-grid::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .trainer-videos-grid,
+  .stories-grid {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+
+  /* Kartlar: ekranda 1 tam + sonraki karttan bir parca gorunsun */
+  .trainer-video-card,
+  .story-card {
+    flex: 0 0 76vw !important;
+    width: 76vw !important;
+    max-width: 320px !important;
+    min-width: 240px !important;
+    scroll-snap-align: start !important;
+    border-radius: 22px !important;
+    transform: none !important;
+  }
+
+  /* Kart yukseklikleri */
+  .trainer-video-media,
+  .story-media {
+    min-height: 390px !important;
+    height: 390px !important;
+    border-radius: 22px !important;
+    background-size: cover !important;
+    background-position: center !important;
+  }
+
+  /* Egitmen kartinda kalin cerceveyi mobile uygun azalt */
+  .trainer-video-media {
+    border-width: 8px !important;
+  }
+
+  /* Badge ve metinleri mobilde rahatlat */
+  .trainer-video-badge,
+  .story-badge {
+    font-size: 11px !important;
+    line-height: 1.15 !important;
+    min-height: 34px !important;
+    padding: 7px 10px !important;
+    border-radius: 999px !important;
+  }
+
+  .trainer-video-name,
+  .story-name {
+    font-size: 18px !important;
+  }
+
+  .trainer-video-role,
+  .story-role {
+    font-size: 13px !important;
+  }
+
+  /* Egitmen oklarini ustte kalsin */
+  .trainer-slider-arrow {
+    z-index: 20 !important;
+  }
+
+  /* Kaydirilabilir oldugunu hissettiren yandan fade */
+  .trainer-videos-panel::after,
+  .stories-panel::after {
+    content: "" !important;
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 58px !important;
+    pointer-events: none !important;
+    z-index: 8 !important;
+    background: linear-gradient(90deg, rgba(255,255,255,0), rgba(246,239,247,0.96)) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .trainer-video-card,
+  .story-card {
+    flex-basis: 78vw !important;
+    width: 78vw !important;
+    max-width: 300px !important;
+  }
+
+  .trainer-video-media,
+  .story-media {
+    min-height: 360px !important;
+    height: 360px !important;
+  }
+}
+
+/* =========================================================
+   FINAL VIDEO SLIDER UPDATE
+   - Story oranı 9:16
+   - Öğrenci deneyimi: eğitmen poster/video sistemi
+   - Mobil: Netflix tarzı kaydırma, oklar gizli
+   - Desktop: öğrenci bölümüne oklar eklendi
+========================================================= */
+
+.trainer-video-card,
+.story-card {
+  aspect-ratio: 9 / 16;
+}
+
+.trainer-video-media,
+.story-media {
+  aspect-ratio: 9 / 16 !important;
+  height: auto !important;
+  min-height: auto !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+}
+
+.story-card {
+  border: 0 !important;
+  background: transparent !important;
+  cursor: pointer !important;
+  text-align: inherit !important;
+  font: inherit !important;
+  width: 100%;
+}
+
+.stories-panel {
+  padding-left: 54px !important;
+  padding-right: 54px !important;
+  overflow: visible !important;
+}
+
+.stories-grid {
+  margin-bottom: 28px !important;
+}
+
+.story-slider-arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 10;
+  width: 58px;
+  height: 58px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ef6418, #5a137d);
+  color: white;
+  font-size: 46px;
+  line-height: 1;
+  font-weight: 500;
+  box-shadow: 0 14px 24px rgba(0,0,0,.22);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.story-slider-arrow:hover {
+  transform: translateY(-50%) scale(1.08);
+  box-shadow: 0 18px 30px rgba(0,0,0,.28);
+}
+
+.story-slider-prev { left: -28px; }
+.story-slider-next { right: -28px; }
+
+@media (max-width: 1200px) {
+  .trainer-video-card,
+  .story-card {
+    aspect-ratio: 9 / 16;
+  }
+
+  .trainer-video-media,
+  .story-media {
+    aspect-ratio: 9 / 16 !important;
+    height: auto !important;
+    min-height: auto !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .trainer-slider-arrow,
+  .story-slider-arrow {
+    display: none !important;
+  }
+
+  .trainer-videos-panel,
+  .stories-panel {
+    padding-top: 18px !important;
+    padding-bottom: 22px !important;
+    overflow: visible !important;
+  }
+
+  .trainer-videos-grid,
+  .stories-grid {
+    display: flex !important;
+    grid-template-columns: none !important;
+    gap: 14px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory !important;
+    scroll-behavior: smooth !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 4px 16px 18px !important;
+    margin-left: -16px !important;
+    margin-right: -16px !important;
+  }
+
+  .trainer-video-card,
+  .story-card {
+    flex: 0 0 74vw !important;
+    width: 74vw !important;
+    max-width: 300px !important;
+    min-width: 230px !important;
+    aspect-ratio: 9 / 16 !important;
+    scroll-snap-align: start !important;
+    border-radius: 22px !important;
+  }
+
+  .trainer-video-media,
+  .story-media {
+    width: 100% !important;
+    aspect-ratio: 9 / 16 !important;
+    height: auto !important;
+    min-height: auto !important;
+    border-radius: 22px !important;
+  }
+
+  .trainer-video-badge,
+  .story-badge {
+    font-size: 11px !important;
+    line-height: 1.15 !important;
+    min-height: 34px !important;
+    padding: 7px 10px !important;
+    border-radius: 999px !important;
+  }
+
+  .trainer-video-play,
+  .story-play {
+    width: 78px !important;
+    height: 78px !important;
+  }
+
+  .trainer-video-name,
+  .story-name {
+    font-size: 18px !important;
+  }
+
+  .trainer-video-role,
+  .story-role {
+    font-size: 13px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .trainer-video-card,
+  .story-card {
+    flex-basis: 76vw !important;
+    width: 76vw !important;
+    max-width: 285px !important;
+  }
+}

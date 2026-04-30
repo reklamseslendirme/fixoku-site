@@ -26,6 +26,8 @@ function App() {
 
   const [trainerStoryIndex, setTrainerStoryIndex] = useState(0);
   const [activeTrainerVideo, setActiveTrainerVideo] = useState(null);
+  const [studentStoryIndex, setStudentStoryIndex] = useState(0);
+  const [activeStudentVideo, setActiveStudentVideo] = useState(null);
 
   const trainerStories = useMemo(
   () => [
@@ -93,12 +95,38 @@ function App() {
     return Array.from({ length: 4 }, (_, i) => trainerStories[(trainerStoryIndex + i) % trainerStories.length]);
   }, [trainerStories, trainerStoryIndex]);
 
+  const studentStories = useMemo(
+    () => [
+      { title: "Ali", role: "6. Sınıf Öğrencisi", badge: "Gerçek Öğrenci Deneyimi", video: trainerStories[0].video, poster: trainerStories[0].poster },
+      { title: "Ece", role: "8. Sınıf Öğrencisi", badge: "Gerçek Öğrenci Deneyimi", video: trainerStories[1].video, poster: trainerStories[1].poster },
+      { title: "Mert", role: "5. Sınıf Öğrencisi", badge: "Gerçek Öğrenci Deneyimi", video: trainerStories[2].video, poster: trainerStories[2].poster },
+      { title: "Ayşe Hanım", role: "Veli", badge: "Fixoku Velisi", video: trainerStories[3].video, poster: trainerStories[3].poster },
+      { title: "Zeynep", role: "7. Sınıf Öğrencisi", badge: "Gerçek Öğrenci Deneyimi", video: trainerStories[4].video, poster: trainerStories[4].poster },
+      { title: "Can", role: "4. Sınıf Öğrencisi", badge: "Gerçek Öğrenci Deneyimi", video: trainerStories[5].video, poster: trainerStories[5].poster },
+      { title: "Merve Hanım", role: "Veli", badge: "Fixoku Velisi", video: trainerStories[6].video, poster: trainerStories[6].poster },
+      { title: "Kemal", role: "8. Sınıf Öğrencisi", badge: "Gerçek Öğrenci Deneyimi", video: trainerStories[7].video, poster: trainerStories[7].poster },
+    ],
+    [trainerStories]
+  );
+
+  const studentVisibleStories = useMemo(() => {
+    return Array.from({ length: 4 }, (_, i) => studentStories[(studentStoryIndex + i) % studentStories.length]);
+  }, [studentStories, studentStoryIndex]);
+
   const goTrainerPrev = () => {
     setTrainerStoryIndex((prev) => prev === 0 ? trainerStories.length - 1 : prev - 1);
   };
 
   const goTrainerNext = () => {
     setTrainerStoryIndex((prev) => (prev + 1) % trainerStories.length);
+  };
+
+  const goStudentPrev = () => {
+    setStudentStoryIndex((prev) => prev === 0 ? studentStories.length - 1 : prev - 1);
+  };
+
+  const goStudentNext = () => {
+    setStudentStoryIndex((prev) => (prev + 1) % studentStories.length);
   };
 
   useEffect(() => {
@@ -1251,83 +1279,33 @@ function App() {
     </div>
 
     <div className="stories-panel">
+      <button type="button" className="story-slider-arrow story-slider-prev" onClick={goStudentPrev} aria-label="Önceki öğrenci videosu">‹</button>
+
       <div className="stories-grid">
-        <a href="#" className="story-card">
-          <div className="story-badge">Gerçek Öğrenci Deneyimi</div>
-          <div className="story-media story-media-1">
-            <div className="story-overlay" />
-            <div className="story-play">
-              <svg viewBox="0 0 64 64" fill="none">
-                <circle cx="32" cy="32" r="30" fill="rgba(255,255,255,0.18)" />
-                <circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.35)" strokeWidth="2" />
-                <path d="M27 21l16 11-16 11V21z" fill="white" />
-              </svg>
-            </div>
+        {studentVisibleStories.map((story, index) => (
+          <button type="button" className="story-card" key={story.title + "-" + index} onClick={() => setActiveStudentVideo(story)}>
+            <div className={`story-badge ${story.role === "Veli" ? "story-badge-parent" : ""}`}>{story.badge}</div>
+            <div className="story-media" style={{ backgroundImage: "url(" + story.poster + ")" }}>
+              <div className="story-overlay" />
+              <div className="story-play">
+                <svg viewBox="0 0 64 64" fill="none">
+                  <circle cx="32" cy="32" r="30" fill="rgba(255,255,255,0.18)" />
+                  <circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.35)" strokeWidth="2" />
+                  <path d="M27 21l16 11-16 11V21z" fill="white" />
+                </svg>
+              </div>
 
-            <div className="story-meta">
-              <div className="story-name">Ali</div>
-              <div className="story-role">6. Sınıf Öğrencisi</div>
+              <div className="story-meta">
+                <div className="story-name">{story.title}</div>
+                <div className="story-role">{story.role}</div>
+              </div>
             </div>
-          </div>
-        </a>
-
-        <a href="#" className="story-card">
-          <div className="story-badge">Gerçek Öğrenci Deneyimi</div>
-          <div className="story-media story-media-2">
-            <div className="story-overlay" />
-            <div className="story-play">
-              <svg viewBox="0 0 64 64" fill="none">
-                <circle cx="32" cy="32" r="30" fill="rgba(255,255,255,0.18)" />
-                <circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.35)" strokeWidth="2" />
-                <path d="M27 21l16 11-16 11V21z" fill="white" />
-              </svg>
-            </div>
-
-            <div className="story-meta">
-              <div className="story-name">Ece</div>
-              <div className="story-role">8. Sınıf Öğrencisi</div>
-            </div>
-          </div>
-        </a>
-
-        <a href="#" className="story-card">
-          <div className="story-badge">Gerçek Öğrenci Deneyimi</div>
-          <div className="story-media story-media-3">
-            <div className="story-overlay" />
-            <div className="story-play">
-              <svg viewBox="0 0 64 64" fill="none">
-                <circle cx="32" cy="32" r="30" fill="rgba(255,255,255,0.18)" />
-                <circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.35)" strokeWidth="2" />
-                <path d="M27 21l16 11-16 11V21z" fill="white" />
-              </svg>
-            </div>
-
-            <div className="story-meta">
-              <div className="story-name">Mert</div>
-              <div className="story-role">5. Sınıf Öğrencisi</div>
-            </div>
-          </div>
-        </a>
-
-        <a href="#" className="story-card">
-          <div className="story-badge story-badge-parent">Fixoku Velisi</div>
-          <div className="story-media story-media-4">
-            <div className="story-overlay" />
-            <div className="story-play">
-              <svg viewBox="0 0 64 64" fill="none">
-                <circle cx="32" cy="32" r="30" fill="rgba(255,255,255,0.18)" />
-                <circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.35)" strokeWidth="2" />
-                <path d="M27 21l16 11-16 11V21z" fill="white" />
-              </svg>
-            </div>
-
-            <div className="story-meta">
-              <div className="story-name">Ayşe Hanım</div>
-              <div className="story-role">Veli</div>
-            </div>
-          </div>
-        </a>
+          </button>
+        ))}
       </div>
+
+      <button type="button" className="story-slider-arrow story-slider-next" onClick={goStudentNext} aria-label="Sonraki öğrenci videosu">›</button>
+
 <div className="stories-footer">
   
   <div className="stories-footer-left">
@@ -1363,6 +1341,15 @@ function App() {
 </div>
     </div>
   </div>
+
+  {activeStudentVideo && (
+    <div className="trainer-video-modal" onClick={() => setActiveStudentVideo(null)}>
+      <div className="trainer-video-modal-inner" onClick={(e) => e.stopPropagation()}>
+        <button type="button" className="trainer-video-close" onClick={() => setActiveStudentVideo(null)} aria-label="Videoyu kapat">×</button>
+        <video src={activeStudentVideo.video} controls autoPlay playsInline className="trainer-video-player" />
+      </div>
+    </div>
+  )}
 </section>
 <section className="how-it-works-section">
   <div className="how-it-works-container">
