@@ -10237,262 +10237,298 @@ img {
 }
 
 /* =========================================================
-   99) SECTION RENK GECISLERI - SOFT FLOW FINAL
-   Sayfa bolumleri arasindaki sert gecisleri yumusatir.
-   Bu blok dosyanin en sonunda kalmalidir.
+   NETFLIX STYLE MOBILE VIDEO SLIDERS - FINAL OVERRIDE
+   Egitmen videolari + Gercek Ogrenci Deneyimi
 ========================================================= */
 
-:root {
-  --flow-dark: #140021;
-  --flow-dark-2: #220332;
-  --flow-purple: #5a137d;
-  --flow-purple-soft: #efe6f6;
-  --flow-lilac: #f6eff8;
-  --flow-peach: #fff0e6;
-  --flow-orange: #f37021;
-  --flow-orange-2: #ff8a00;
-  --flow-pink: #d94b8f;
-  --flow-blue: #827ee8;
+@media (max-width: 768px) {
+  /* Section padding daha kompakt */
+  .trainer-videos-section,
+  .stories-section {
+    overflow: hidden !important;
+  }
+
+  /* Panel kenar bosluklari */
+  .trainer-videos-panel,
+  .stories-panel {
+    width: calc(100% + 32px) !important;
+    margin-left: -16px !important;
+    margin-right: -16px !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    overflow: visible !important;
+  }
+
+  /* Netflix tarzı yatay kaydirma */
+  .trainer-videos-grid,
+  .stories-grid {
+    display: flex !important;
+    grid-template-columns: none !important;
+    gap: 14px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory !important;
+    scroll-behavior: smooth !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 4px 16px 18px !important;
+    margin-left: -16px !important;
+    margin-right: -16px !important;
+  }
+
+  /* Scrollbar gizle */
+  .trainer-videos-grid::-webkit-scrollbar,
+  .stories-grid::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .trainer-videos-grid,
+  .stories-grid {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+
+  /* Kartlar: ekranda 1 tam + sonraki karttan bir parca gorunsun */
+  .trainer-video-card,
+  .story-card {
+    flex: 0 0 76vw !important;
+    width: 76vw !important;
+    max-width: 320px !important;
+    min-width: 240px !important;
+    scroll-snap-align: start !important;
+    border-radius: 22px !important;
+    transform: none !important;
+  }
+
+  /* Kart yukseklikleri */
+  .trainer-video-media,
+  .story-media {
+    min-height: 390px !important;
+    height: 390px !important;
+    border-radius: 22px !important;
+    background-size: cover !important;
+    background-position: center !important;
+  }
+
+  /* Egitmen kartinda kalin cerceveyi mobile uygun azalt */
+  .trainer-video-media {
+    border-width: 8px !important;
+  }
+
+  /* Badge ve metinleri mobilde rahatlat */
+  .trainer-video-badge,
+  .story-badge {
+    font-size: 11px !important;
+    line-height: 1.15 !important;
+    min-height: 34px !important;
+    padding: 7px 10px !important;
+    border-radius: 999px !important;
+  }
+
+  .trainer-video-name,
+  .story-name {
+    font-size: 18px !important;
+  }
+
+  .trainer-video-role,
+  .story-role {
+    font-size: 13px !important;
+  }
+
+  /* Egitmen oklarini ustte kalsin */
+  .trainer-slider-arrow {
+    z-index: 20 !important;
+  }
+
+  /* Kaydirilabilir oldugunu hissettiren yandan fade */
+  .trainer-videos-panel::after,
+  .stories-panel::after {
+    content: "" !important;
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 58px !important;
+    pointer-events: none !important;
+    z-index: 8 !important;
+    background: linear-gradient(90deg, rgba(255,255,255,0), rgba(246,239,247,0.96)) !important;
+  }
 }
 
-.hero-slider {
-  margin-bottom: -1px;
-  isolation: isolate;
+@media (max-width: 480px) {
+  .trainer-video-card,
+  .story-card {
+    flex-basis: 78vw !important;
+    width: 78vw !important;
+    max-width: 300px !important;
+  }
+
+  .trainer-video-media,
+  .story-media {
+    min-height: 360px !important;
+    height: 360px !important;
+  }
 }
 
-.hero-slider::after {
-  content: "";
+/* =========================================================
+   FINAL VIDEO SLIDER UPDATE
+   - Story oranı 9:16
+   - Öğrenci deneyimi: eğitmen poster/video sistemi
+   - Mobil: Netflix tarzı kaydırma, oklar gizli
+   - Desktop: öğrenci bölümüne oklar eklendi
+========================================================= */
+
+.trainer-video-card,
+.story-card {
+  aspect-ratio: 9 / 16;
+}
+
+.trainer-video-media,
+.story-media {
+  aspect-ratio: 9 / 16 !important;
+  height: auto !important;
+  min-height: auto !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+}
+
+.story-card {
+  border: 0 !important;
+  background: transparent !important;
+  cursor: pointer !important;
+  text-align: inherit !important;
+  font: inherit !important;
+  width: 100%;
+}
+
+.stories-panel {
+  padding-left: 54px !important;
+  padding-right: 54px !important;
+  overflow: visible !important;
+}
+
+.stories-grid {
+  margin-bottom: 28px !important;
+}
+
+.story-slider-arrow {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 150px;
-  z-index: 5;
-  pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    rgba(20, 0, 33, 0) 0%,
-    rgba(56, 12, 76, 0.45) 52%,
-    #f2e4ef 100%
-  );
+  top: 50%;
+  z-index: 10;
+  width: 58px;
+  height: 58px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ef6418, #5a137d);
+  color: white;
+  font-size: 46px;
+  line-height: 1;
+  font-weight: 500;
+  box-shadow: 0 14px 24px rgba(0,0,0,.22);
+  transition: transform .25s ease, box-shadow .25s ease;
 }
 
-.why-fixoku-section,
-.free-tests-section,
-.trainer-videos-section,
-.how-it-works-section,
-.progress-model-section,
-.stories-section,
-.fixoku-experience-section,
-.benefits-faq-section,
-.site-footer {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
+.story-slider-arrow:hover {
+  transform: translateY(-50%) scale(1.08);
+  box-shadow: 0 18px 30px rgba(0,0,0,.28);
 }
 
-.why-fixoku-section > *,
-.free-tests-section > *,
-.trainer-videos-section > *,
-.how-it-works-section > *,
-.progress-model-section > *,
-.stories-section > *,
-.fixoku-experience-section > *,
-.benefits-faq-section > *,
-.site-footer > * {
-  position: relative;
-  z-index: 2;
-}
+.story-slider-prev { left: -28px; }
+.story-slider-next { right: -28px; }
 
-.why-fixoku-section::before,
-.free-tests-section::before,
-.trainer-videos-section::before,
-.how-it-works-section::before,
-.progress-model-section::before,
-.stories-section::before,
-.fixoku-experience-section::before,
-.benefits-faq-section::before,
-.site-footer::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: -1px;
-  height: 150px;
-  z-index: 1;
-  pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    var(--section-fade-from, rgba(255, 255, 255, 0.9)) 0%,
-    var(--section-fade-mid, rgba(255, 255, 255, 0.28)) 46%,
-    var(--section-fade-to, rgba(255, 255, 255, 0)) 100%
-  );
-}
+@media (max-width: 1200px) {
+  .trainer-video-card,
+  .story-card {
+    aspect-ratio: 9 / 16;
+  }
 
-.why-fixoku-section::after,
-.free-tests-section::after,
-.trainer-videos-section::after,
-.how-it-works-section::after,
-.progress-model-section::after,
-.stories-section::after,
-.fixoku-experience-section::after,
-.benefits-faq-section::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: -80px;
-  width: min(900px, 92vw);
-  height: 240px;
-  transform: translateX(-50%);
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0.5;
-  filter: blur(28px);
-  background: radial-gradient(
-    circle at 50% 50%,
-    var(--section-glow, rgba(255, 138, 0, 0.16)) 0%,
-    rgba(255, 255, 255, 0) 68%
-  );
-}
-
-.why-fixoku-section {
-  --section-fade-from: #f2e4ef;
-  --section-fade-mid: rgba(242, 228, 239, 0.55);
-  --section-fade-to: rgba(242, 228, 239, 0);
-  --section-glow: rgba(255, 138, 0, 0.12);
-  background:
-    radial-gradient(circle at 12% 8%, rgba(255, 218, 173, 0.45), transparent 26%),
-    radial-gradient(circle at 86% 10%, rgba(188, 155, 255, 0.34), transparent 24%),
-    linear-gradient(180deg, #f2e4ef 0%, #f7edf3 54%, #f8eef8 100%) !important;
-}
-
-.free-tests-section {
-  --section-fade-from: #f8eef8;
-  --section-fade-mid: rgba(248, 238, 248, 0.58);
-  --section-fade-to: rgba(248, 238, 248, 0);
-  --section-glow: rgba(124, 67, 255, 0.12);
-  background:
-    radial-gradient(circle at 16% 8%, rgba(255, 218, 173, 0.42), transparent 24%),
-    radial-gradient(circle at 86% 12%, rgba(211, 188, 255, 0.42), transparent 24%),
-    linear-gradient(180deg, #f8eef8 0%, #f5edf7 46%, #efe6f4 100%) !important;
-}
-
-.trainer-videos-section,
-.stories-section {
-  --section-fade-from: #efe6f4;
-  --section-fade-mid: rgba(239, 230, 244, 0.58);
-  --section-fade-to: rgba(239, 230, 244, 0);
-  --section-glow: rgba(243, 112, 33, 0.13);
-  background:
-    radial-gradient(circle at 16% 10%, rgba(236, 208, 244, 0.5), transparent 24%),
-    radial-gradient(circle at 88% 12%, rgba(255, 214, 214, 0.48), transparent 20%),
-    linear-gradient(180deg, #f1eaf5 0%, #f7edf3 50%, #efe8f2 100%) !important;
-}
-
-.how-it-works-section {
-  --section-fade-from: #efe8f2;
-  --section-fade-mid: rgba(239, 232, 242, 0.38);
-  --section-fade-to: rgba(239, 232, 242, 0);
-  --section-glow: rgba(255, 138, 0, 0.2);
-  background:
-    radial-gradient(circle at 18% 14%, rgba(255, 138, 0, 0.25), transparent 28%),
-    radial-gradient(circle at 82% 10%, rgba(124, 67, 255, 0.22), transparent 28%),
-    linear-gradient(180deg, #efe8f2 0%, #ef8a4f 38%, #ad33b0 100%) !important;
-}
-
-.progress-model-section {
-  --section-fade-from: #ad33b0;
-  --section-fade-mid: rgba(173, 51, 176, 0.36);
-  --section-fade-to: rgba(173, 51, 176, 0);
-  --section-glow: rgba(255, 255, 255, 0.18);
-  background:
-    radial-gradient(circle at 12% 8%, rgba(255, 255, 255, 0.18), transparent 24%),
-    radial-gradient(circle at 88% 18%, rgba(255, 138, 0, 0.2), transparent 24%),
-    linear-gradient(180deg, #ad33b0 0%, #d97462 52%, #f4e7ee 100%) !important;
-}
-
-.fixoku-experience-section {
-  --section-fade-from: #f4e7ee;
-  --section-fade-mid: rgba(244, 231, 238, 0.42);
-  --section-fade-to: rgba(244, 231, 238, 0);
-  --section-glow: rgba(124, 67, 255, 0.2);
-  background:
-    radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.18), transparent 25%),
-    radial-gradient(circle at 88% 14%, rgba(255, 138, 0, 0.14), transparent 22%),
-    linear-gradient(180deg, #f4e7ee 0%, #a795ee 42%, #756bd4 100%) !important;
-}
-
-.benefits-faq-section {
-  --section-fade-from: #756bd4;
-  --section-fade-mid: rgba(117, 107, 212, 0.38);
-  --section-fade-to: rgba(117, 107, 212, 0);
-  --section-glow: rgba(255, 138, 0, 0.14);
-  background:
-    radial-gradient(circle at 14% 10%, rgba(255, 255, 255, 0.42), transparent 24%),
-    radial-gradient(circle at 84% 14%, rgba(255, 214, 214, 0.36), transparent 22%),
-    linear-gradient(180deg, #756bd4 0%, #eee6f5 28%, #f8eef8 100%) !important;
-}
-
-.site-footer {
-  --section-fade-from: #f8eef8;
-  --section-fade-mid: rgba(248, 238, 248, 0.2);
-  --section-fade-to: rgba(248, 238, 248, 0);
-  background:
-    radial-gradient(circle at 18% 0%, rgba(243, 112, 33, 0.18), transparent 28%),
-    linear-gradient(180deg, #3a092d 0%, #210030 42%, #12001d 100%) !important;
-}
-
-/* Kartlarin arka plandan daha iyi ayrilmasi icin hafif cam etkisi */
-.why-fixoku-section [class*="card"],
-.free-tests-section [class*="card"],
-.trainer-videos-section [class*="card"],
-.how-it-works-section [class*="card"],
-.progress-model-section [class*="card"],
-.stories-section [class*="card"],
-.fixoku-experience-section [class*="card"],
-.benefits-faq-section [class*="card"] {
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-}
-
-/* Keskin section cizgilerini gizleyen ince premium ayirici */
-.why-fixoku-section,
-.free-tests-section,
-.trainer-videos-section,
-.how-it-works-section,
-.progress-model-section,
-.stories-section,
-.fixoku-experience-section,
-.benefits-faq-section {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+  .trainer-video-media,
+  .story-media {
+    aspect-ratio: 9 / 16 !important;
+    height: auto !important;
+    min-height: auto !important;
+  }
 }
 
 @media (max-width: 768px) {
-  .hero-slider::after,
-  .why-fixoku-section::before,
-  .free-tests-section::before,
-  .trainer-videos-section::before,
-  .how-it-works-section::before,
-  .progress-model-section::before,
-  .stories-section::before,
-  .fixoku-experience-section::before,
-  .benefits-faq-section::before,
-  .site-footer::before {
-    height: 105px;
+  .trainer-slider-arrow,
+  .story-slider-arrow {
+    display: none !important;
   }
 
-  .why-fixoku-section::after,
-  .free-tests-section::after,
-  .trainer-videos-section::after,
-  .how-it-works-section::after,
-  .progress-model-section::after,
-  .stories-section::after,
-  .fixoku-experience-section::after,
-  .benefits-faq-section::after {
-    height: 180px;
-    top: -60px;
-    opacity: 0.38;
+  .trainer-videos-panel,
+  .stories-panel {
+    padding-top: 18px !important;
+    padding-bottom: 22px !important;
+    overflow: visible !important;
+  }
+
+  .trainer-videos-grid,
+  .stories-grid {
+    display: flex !important;
+    grid-template-columns: none !important;
+    gap: 14px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory !important;
+    scroll-behavior: smooth !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 4px 16px 18px !important;
+    margin-left: -16px !important;
+    margin-right: -16px !important;
+  }
+
+  .trainer-video-card,
+  .story-card {
+    flex: 0 0 74vw !important;
+    width: 74vw !important;
+    max-width: 300px !important;
+    min-width: 230px !important;
+    aspect-ratio: 9 / 16 !important;
+    scroll-snap-align: start !important;
+    border-radius: 22px !important;
+  }
+
+  .trainer-video-media,
+  .story-media {
+    width: 100% !important;
+    aspect-ratio: 9 / 16 !important;
+    height: auto !important;
+    min-height: auto !important;
+    border-radius: 22px !important;
+  }
+
+  .trainer-video-badge,
+  .story-badge {
+    font-size: 11px !important;
+    line-height: 1.15 !important;
+    min-height: 34px !important;
+    padding: 7px 10px !important;
+    border-radius: 999px !important;
+  }
+
+  .trainer-video-play,
+  .story-play {
+    width: 78px !important;
+    height: 78px !important;
+  }
+
+  .trainer-video-name,
+  .story-name {
+    font-size: 18px !important;
+  }
+
+  .trainer-video-role,
+  .story-role {
+    font-size: 13px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .trainer-video-card,
+  .story-card {
+    flex-basis: 76vw !important;
+    width: 76vw !important;
+    max-width: 285px !important;
   }
 }
