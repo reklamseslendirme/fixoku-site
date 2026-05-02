@@ -59,7 +59,6 @@ const desktopMenuItems = [
       { label: "Okullar İçin", to: "/okullar-icin", icon: "school" },
       { label: "Eğitmen Ol", to: "/egitmen-ol", icon: "trainer" },
       { label: "Hakkımızda", to: "/hakkimizda", icon: "message" },
-      { label: "Yorumlar", to: "/yorumlar", icon: "message" },
       { label: "Sık Sorulan Sorular", to: "/sss", icon: "question" },
     ],
   },
