@@ -5,6 +5,7 @@ import AttentionFocusTest from "./AttentionFocusTest";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Iletisim from "./pages/iletisim";
+import Egitimler from "./pages/Egitimler";
 import PanelApp from "./panel/PanelApp";
 
 
@@ -704,6 +705,16 @@ function App() {
     },
   ];
 
+  if (location.pathname === "/egitimler") {
+    return (
+      <div className="page">
+        <Header />
+        <Egitimler />
+        <Footer />
+      </div>
+    );
+  }
+
   if (location.pathname.startsWith("/panel")) {
     return <PanelApp />;
   }
@@ -1345,27 +1356,37 @@ function App() {
       </div>
     </div>
 
-    <div className="free-tests-footer">
-      <div className="free-tests-badge" aria-hidden="true">
-        <svg viewBox="0 0 64 64" fill="none">
-          <circle cx="32" cy="32" r="28" fill="url(#coinGrad)" />
-          <path
-            d="M32 18l4.4 8.9 9.8 1.4-7.1 6.9 1.7 9.8L32 40.4l-8.8 4.6 1.7-9.8-7.1-6.9 9.8-1.4L32 18Z"
-            fill="#8f5a00"
-          />
-          <defs>
-            <linearGradient id="coinGrad" x1="10" y1="10" x2="54" y2="54">
-              <stop stopColor="#ffe37a" />
-              <stop offset="1" stopColor="#f4b000" />
-            </linearGradient>
-          </defs>
-        </svg>
+    <div className="trusted-users-box" aria-label="Fixoku kullanıcı güven göstergesi">
+      <div className="trusted-avatar-stack" aria-hidden="true">
+        {[
+          "/egitici1.jpeg",
+          "/egitici2.jpeg",
+          "/egitici3.jpeg",
+          "/egitici4.jpeg",
+          "/egitici1.jpeg",
+        ].map((avatar, index) => (
+          <span className={`trusted-avatar trusted-avatar-${index + 1}`} key={avatar + index}>
+            <img src={avatar} alt="" loading="lazy" />
+          </span>
+        ))}
       </div>
 
-      <p>
-        <strong>{testCounter.toLocaleString("tr-TR")}+</strong> öğrenci bu
-        testleri yaptı
-      </p>
+      <div className="trusted-users-content">
+        <div className="trusted-stars" aria-label="5 yıldız değerlendirme">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <svg key={index} viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 2.4l2.9 6 6.6.9-4.8 4.7 1.1 6.6L12 17.5l-5.8 3.1 1.1-6.6-4.8-4.7 6.6-.9L12 2.4Z" />
+            </svg>
+          ))}
+        </div>
+
+        <p className="trusted-users-text">
+          <strong className="trusted-counter-fixed">
+            {testCounter.toLocaleString("tr-TR")}+
+          </strong>
+          <span>FixOku Öğrencisi Bu testleri Çözdü</span>
+        </p>
+      </div>
     </div>
   </div>
 </section>

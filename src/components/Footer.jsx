@@ -1,3 +1,58 @@
+import { Link } from "react-router-dom";
+
+const footerColumns = [
+  {
+    title: "Eğitimler",
+    links: [
+      { label: "Hızlı Okuma Eğitimi", to: "/hizli-okuma" },
+      { label: "Dikkat ve Odaklanma", to: "/dikkat-odaklanma" },
+      { label: "LGS Hazırlık", to: "/ogrenci-programlari/lgs" },
+      { label: "YKS Hazırlık", to: "/ogrenci-programlari/yks" },
+      { label: "Paragraf Teknikleri", to: "/ogrenci-programlari/paragraf" },
+    ],
+  },
+  {
+    title: "Fixoku",
+    links: [
+      { label: "Neden Fixoku?", to: "/fixoku-sistemi/neden-fixoku" },
+      { label: "Eğitim Modeli", to: "/fixoku-sistemi/egitim-modeli" },
+      { label: "Fixoku Yazılımı", to: "/fixoku-sistemi/yazilim" },
+      { label: "Yapay Zeka", to: "/fixoku-sistemi/yapay-zeka" },
+      { label: "Analiz Sistemi", to: "/fixoku-sistemi/analiz" },
+    ],
+  },
+  {
+    title: "Kurumsal",
+    links: [
+      { label: "Okullar İçin", to: "/okullar-icin" },
+      { label: "Eğitmen Ol", to: "/egitmen-ol" },
+      { label: "Okul Başvuru Formu", to: "/okullar-icin/basvuru" },
+      { label: "Eğitmen Başvuru Formu", to: "/egitmen-ol/basvuru" },
+      { label: "Hakkımızda", to: "/hakkimizda" },
+      { label: "Yorumlar", to: "/yorumlar" },
+    ],
+  },
+  {
+    title: "Ücretsiz Testler",
+    links: [
+      { label: "Okuma Hızı Testi", to: "/okuma-hizi-testi" },
+      { label: "Okuma ve Anlama Testi", to: "/okuma-anlama-testi" },
+      { label: "Dikkat Testi", to: "/dikkat-testi" },
+      { label: "Odaklanma Testi", to: "/odaklanma-testi" },
+    ],
+  },
+  {
+    title: "Bilgi Merkezi",
+    links: [
+      { label: "Blog", to: "/blog" },
+      { label: "Hızlı Okuma Blog", to: "/blog/hizli-okuma" },
+      { label: "Dikkat ve Odaklanma Blog", to: "/blog/dikkat-odaklanma" },
+      { label: "Sık Sorulan Sorular", to: "/sss" },
+      { label: "İletişim", to: "/iletisim" },
+    ],
+  },
+];
+
 function Footer() {
   return (
     <footer className="site-footer">
@@ -12,7 +67,7 @@ function Footer() {
           </div>
 
           <div className="footer-cta-actions">
-            <a href="#" className="footer-cta-btn primary">
+            <Link to="/okuma-hizi-testi" className="footer-cta-btn primary">
               <span>Ücretsiz Seviye Tespiti Yap</span>
               <svg viewBox="0 0 24 24" fill="none">
                 <path
@@ -23,11 +78,11 @@ function Footer() {
                   strokeLinejoin="round"
                 />
               </svg>
-            </a>
+            </Link>
 
-            <a href="#" className="footer-cta-btn secondary">
+            <Link to="/iletisim" className="footer-cta-btn secondary">
               <span>Bizimle İletişime Geçin</span>
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -35,9 +90,9 @@ function Footer() {
       <div className="footer-main">
         <div className="footer-main-inner">
           <div className="footer-brand">
-            <a href="#" className="footer-logo" aria-label="Fixoku Ana Sayfa">
+            <Link to="/" className="footer-logo" aria-label="Fixoku Ana Sayfa">
               <img src="/logo-fixoku.png" alt="Fixoku Logo" />
-            </a>
+            </Link>
 
             <p className="footer-brand-text">
               Fixoku; kitap, yazılım ve uzman eğitmen desteğini bir araya getiren
@@ -81,39 +136,21 @@ function Footer() {
                   />
                 </svg>
               </a>
-
-              <a href="#" aria-label="TikTok" className="footer-social-link">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M14.7 3c.2 1.8 1.2 3.2 2.8 4 .8.4 1.6.6 2.5.6v2.8c-1.4 0-2.8-.4-4-.9V15a5.4 5.4 0 1 1-5.4-5.4c.4 0 .8 0 1.2.1v2.9a2.8 2.8 0 1 0 1.9 2.6V3h3Z"
-                    fill="currentColor"
-                  />
-                </svg>
-              </a>
             </div>
           </div>
 
-          <div className="footer-links-group">
-            <h3>Kurumsal</h3>
-            <ul>
-              <li><a href="#">Neden Fixoku</a></li>
-              <li><a href="#">Fixoku Metodu</a></li>
-              <li><a href="#">Fixoku Farkı</a></li>
-              <li><a href="#">Hakkımızda</a></li>
-              <li><a href="#">İletişim</a></li>
-            </ul>
-          </div>
-
-          <div className="footer-links-group">
-            <h3>Eğitimler</h3>
-            <ul>
-              <li><a href="#">Hızlı Okuma Eğitimi</a></li>
-              <li><a href="#">Dikkat Geliştirme</a></li>
-              <li><a href="#">Odaklanma Eğitimi</a></li>
-              <li><a href="#">Fixoku Yazılımı</a></li>
-              <li><a href="#">Eğitmen Başvurusu</a></li>
-            </ul>
-          </div>
+          {footerColumns.map((column) => (
+            <div className="footer-links-group" key={column.title}>
+              <h3>{column.title}</h3>
+              <ul>
+                {column.links.map((link) => (
+                  <li key={link.to}>
+                    <Link to={link.to}>{link.label}</Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
 
           <div className="footer-contact">
             <h3>İletişim</h3>
@@ -167,9 +204,9 @@ function Footer() {
           <p>© 2026 Fixoku. Tüm hakları saklıdır.</p>
 
           <div className="footer-bottom-links">
-            <a href="#">KVKK</a>
-            <a href="#">Gizlilik Politikası</a>
-            <a href="#">Çerez Politikası</a>
+            <Link to="/kvkk">KVKK</Link>
+            <Link to="/gizlilik-politikasi">Gizlilik Politikası</Link>
+            <Link to="/cerez-politikasi">Çerez Politikası</Link>
           </div>
         </div>
       </div>
