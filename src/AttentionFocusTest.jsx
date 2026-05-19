@@ -396,6 +396,13 @@ export default function AttentionFocusTest({ isOpen, onClose }) {
   const [memoryCorrect, setMemoryCorrect] = useState(0);
   const [memoryWrong, setMemoryWrong] = useState(0);
   const [memoryFeedback, setMemoryFeedback] = useState("");
+  const [attentionFormData, setAttentionFormData] = useState({
+    parentName: "",
+    phone: "",
+    studentClass: "",
+    city: "",
+  });
+  const [showAttentionPhoneNumber, setShowAttentionPhoneNumber] = useState(false);
 
   const focusSets = DIFFERENCE_SETS[levelKey || "ilkokul"] || DIFFERENCE_SETS.ilkokul;
   const currentFocusSet = focusSets[focusSetIndex] || focusSets[0];
@@ -457,6 +464,13 @@ export default function AttentionFocusTest({ isOpen, onClose }) {
     setMemoryCorrect(0);
     setMemoryWrong(0);
     setMemoryFeedback("");
+    setAttentionFormData({
+      parentName: "",
+      phone: "",
+      studentClass: "",
+      city: "",
+    });
+    setShowAttentionPhoneNumber(false);
   };
 
   const closeModal = () => {
@@ -905,6 +919,31 @@ export default function AttentionFocusTest({ isOpen, onClose }) {
     { key: "text", title: "Metin\nEgzersizi", icon: "text", percent: calculatePercent(textCorrect, textWrong) },
     { key: "memory", title: "Hafıza\nEgzersizi", icon: "memory", percent: calculatePercent(memoryCorrect, memoryWrong) },
   ];
+  const averageResultPercent = Math.round(
+    resultItems.reduce((total, item) => total + item.percent, 0) / resultItems.length
+  );
+  const resultNoteText = "Test sonucu öğrencinin dikkat ve bilişsel becerileri hakkında genel bir değerlendirme sunmaktadır. Sonucun doğru yorumlanması ve öğrencinin gelişim alanlarının belirlenmesi için uzman eğitmen görüşü önerilir.";
+  const attentionWhatsappMessage = `Merhaba FixOku, ben ${attentionFormData.parentName || "veli"}. ${
+    attentionFormData.city ? `Size ${attentionFormData.city} şehrinden yazıyorum.` : ""
+  } Çocuğum için yaptığımız dikkat testi sonucunu uzman eğitmenle değerlendirmek ve gelişim planı hakkında detaylı bilgi almak isterim.
+
+*Test Türü:* Ücretsiz Dikkat Testi
+*Seviye:* ${selectedLevel.label} - ${selectedLevel.difficulty}
+*Genel Sonuç Ortalaması:* %${averageResultPercent}
+
+*Egzersiz Sonuçları:*
+*Göz Egzersizi:* %${resultItems[0].percent}
+*Dikkat ve Odaklanma:* %${resultItems[1].percent}
+*Sayısal İşlem:* %${resultItems[2].percent}
+*Metin Egzersizi:* %${resultItems[3].percent}
+*Hafıza Egzersizi:* %${resultItems[4].percent}
+
+*Değerlendirme Notu:* ${resultNoteText}
+
+*Velinin Adı Soyadı:* ${attentionFormData.parentName || "-"}
+*Telefon:* ${attentionFormData.phone || "-"}
+*Öğrencinin Sınıfı:* ${attentionFormData.studentClass || "-"}
+*Bulunduğumuz Şehir:* ${attentionFormData.city || "-"}`;
 
   const handleCellClick = (cell) => {
     if (screen !== "game" || paused || phase !== "play" || timeLeft <= 0) return;
@@ -1532,21 +1571,53 @@ export default function AttentionFocusTest({ isOpen, onClose }) {
             </div>
 
             <p className="attention-result-note">
-              Test sonucu öğrencinin dikkat ve bilişsel becerileri hakkında genel bir değerlendirme sunmaktadır.
-              Sonucun doğru yorumlanması ve öğrencinin gelişim alanlarının belirlenmesi için uzman eğitmen görüşü önerilir.
+              {resultNoteText}
             </p>
 
             <div className="attention-result-cta">
               <h3>Sonucu uzman eğitmenle değerlendirin</h3>
               <div className="attention-result-form">
-                <input placeholder="Veli adı soyadı" />
-                <input placeholder="Telefon" />
-                <input placeholder="Öğrencinin sınıfı" />
-                <input placeholder="Şehir" />
+                <input
+                  placeholder="Veli adı soyadı"
+                  value={attentionFormData.parentName}
+                  onChange={(event) => setAttentionFormData({ ...attentionFormData, parentName: event.target.value })}
+                />
+                <input
+                  placeholder="Telefon"
+                  value={attentionFormData.phone}
+                  onChange={(event) => setAttentionFormData({ ...attentionFormData, phone: event.target.value })}
+                />
+                <input
+                  placeholder="Öğrencinin sınıfı"
+                  value={attentionFormData.studentClass}
+                  onChange={(event) => setAttentionFormData({ ...attentionFormData, studentClass: event.target.value })}
+                />
+                <input
+                  placeholder="Şehir"
+                  value={attentionFormData.city}
+                  onChange={(event) => setAttentionFormData({ ...attentionFormData, city: event.target.value })}
+                />
               </div>
               <div className="attention-result-actions">
-                <button type="button" className="attention-whatsapp-btn">WhatsApp ile Bilgi Al</button>
-                <button type="button" className="attention-call-btn">Telefonla Bilgi Al</button>
+                <a
+                  className="attention-whatsapp-btn"
+                  href={`https://wa.me/905334789253?text=${encodeURIComponent(attentionWhatsappMessage)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  WhatsApp ile Bilgi Al
+                </a>
+                {showAttentionPhoneNumber ? (
+                  <strong className="attention-phone-number">0 533 478 92 53</strong>
+                ) : (
+                  <button
+                    type="button"
+                    className="attention-call-btn"
+                    onClick={() => setShowAttentionPhoneNumber(true)}
+                  >
+                    Telefonla Bilgi Al
+                  </button>
+                )}
               </div>
             </div>
           </section>
@@ -1562,9 +1633,10 @@ const attentionStyles = `
   inset: 0;
   z-index: 9999;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 18px;
+  padding: clamp(8px, 2vh, 18px);
+  overflow-y: auto;
   background: rgba(20, 0, 33, 0.58);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -1572,11 +1644,14 @@ const attentionStyles = `
 }
 .attention-modal {
   width: min(980px, 100%);
-  min-height: min(720px, calc(100vh - 36px));
+  min-height: min(680px, calc(100dvh - 16px));
+  max-height: calc(100dvh - 16px);
   position: relative;
   padding: 22px 24px 26px;
   border-radius: 30px;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background:
     linear-gradient(135deg, rgba(236, 196, 255, 0.86), rgba(255, 207, 204, 0.94));
   box-shadow: 0 24px 70px rgba(41, 16, 54, 0.34);
@@ -2265,7 +2340,6 @@ const attentionStyles = `
 }
 
 .attention-result-panel p {
-  font-size: 22px;
   color: #46105f;
 }
 
@@ -2789,28 +2863,37 @@ const attentionStyles = `
 
 .attention-result-panel {
   width: min(940px, 100%);
-  padding: 34px 42px;
+  padding: 18px 30px 20px;
   text-align: center;
+}
+
+.attention-result-panel h2 {
+  margin: 4px 0 6px;
+  font-size: clamp(30px, 3.7vw, 38px);
+}
+
+.attention-result-panel .attention-badge {
+  margin-bottom: 8px;
 }
 
 .attention-result-rings {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 26px;
+  gap: 12px;
   align-items: start;
-  margin: 24px 0 28px;
+  margin: 10px 0 12px;
 }
 
 .attention-result-item {
   display: grid;
   justify-items: center;
-  gap: 16px;
+  gap: 7px;
   color: #46105f;
 }
 
 .attention-ring {
-  width: 122px;
-  height: 122px;
+  width: 84px;
+  height: 84px;
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -2820,21 +2903,21 @@ const attentionStyles = `
 }
 
 .attention-ring-inner {
-  width: 86px;
-  height: 86px;
+  width: 58px;
+  height: 58px;
   display: grid;
   place-items: center;
   border-radius: 50%;
   color: #777a80;
   background: #fff;
-  font-size: 28px;
+  font-size: 20px;
   font-weight: 950;
   box-shadow: 0 10px 18px rgba(0, 0, 0, 0.18);
 }
 
 .attention-result-icon {
-  width: 78px;
-  height: 78px;
+  width: 46px;
+  height: 46px;
   color: #ff6508;
 }
 
@@ -2845,7 +2928,7 @@ const attentionStyles = `
 
 .attention-result-item strong {
   display: block;
-  font-size: 24px;
+  font-size: 16px;
   line-height: 1.12;
   font-weight: 500;
 }
@@ -2856,37 +2939,37 @@ const attentionStyles = `
 
 .attention-result-note {
   max-width: 820px;
-  margin: 8px auto 28px;
+  margin: 4px auto 12px;
   color: #5a2471;
-  font-size: 22px;
+  font-size: 15.5px;
   line-height: 1.35;
 }
 
 .attention-result-cta {
-  max-width: 760px;
+  max-width: 560px;
   margin: 0 auto;
-  padding: 22px 20px 20px;
+  padding: 12px;
   border: 1px solid rgba(70, 16, 95, 0.1);
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.62);
 }
 
 .attention-result-cta h3 {
-  margin: 0 0 14px;
+  margin: 0 0 8px;
   color: #46105f;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 950;
 }
 
 .attention-result-form {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
 }
 
 .attention-result-form input {
   width: 100%;
-  min-height: 42px;
+  min-height: 34px;
   padding: 0 14px;
   border: 1px solid rgba(70, 16, 95, 0.12);
   border-radius: 14px;
@@ -2901,13 +2984,16 @@ const attentionStyles = `
   display: flex;
   justify-content: center;
   gap: 12px;
-  margin-top: 14px;
+  margin-top: 10px;
   flex-wrap: wrap;
 }
 
 .attention-whatsapp-btn,
 .attention-call-btn {
-  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
   padding: 0 18px;
   border: 0;
   border-radius: 999px;
@@ -2915,6 +3001,7 @@ const attentionStyles = `
   font-size: 15px;
   font-weight: 950;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .attention-whatsapp-btn {
@@ -2925,14 +3012,119 @@ const attentionStyles = `
   background: #ff6508;
 }
 
+.attention-phone-number {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  border-radius: 999px;
+  color: #46105f;
+  background: rgba(255, 255, 255, 0.88);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+
+@media (max-height: 820px) and (min-width: 821px) {
+  .attention-modal {
+    min-height: auto;
+    padding: 16px 20px 20px;
+  }
+
+  .attention-topline {
+    min-height: 36px;
+    margin-bottom: 8px;
+  }
+
+  .attention-panel,
+  .attention-game-panel {
+    min-height: auto;
+  }
+}
+
 
 @media (max-width: 820px) {
-  .attention-modal { padding: 16px; }
-  .attention-panel { width: 100%; padding: 22px 18px; }
-  .attention-title-block span { font-size: 34px; }
-  .attention-title-block h2, .attention-panel h2 { font-size: 34px; }
-  .attention-level-grid, .attention-exercise-grid { grid-template-columns: 1fr; }
-  .attention-exercise-card { min-height: 170px; }
+  .attention-modal-overlay { padding: 6px; }
+  .attention-modal {
+    min-height: calc(100dvh - 12px);
+    max-height: calc(100dvh - 12px);
+    padding: 12px;
+    border-radius: 22px;
+  }
+  .attention-modal::before {
+    inset: 54px 12px 12px;
+    border-radius: 20px;
+  }
+  .attention-topline {
+    min-height: 36px;
+    margin-bottom: 8px;
+  }
+  .attention-back {
+    min-height: 32px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
+  .attention-close {
+    top: 10px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    font-size: 28px;
+  }
+  .attention-step-dots {
+    gap: 5px;
+    padding-right: 44px;
+  }
+  .attention-step-dots span {
+    width: 16px;
+    height: 5px;
+  }
+  .attention-panel,
+  .attention-game-panel {
+    width: 100%;
+    min-height: auto;
+    padding: 18px 14px;
+    border-radius: 24px;
+  }
+  .attention-title-block { margin-bottom: 12px; }
+  .attention-title-block span { font-size: 28px; }
+  .attention-title-block h2, .attention-panel h2 { font-size: 30px; letter-spacing: 0; }
+  .attention-title-block p, .attention-muted { font-size: 16px; margin-bottom: 12px; }
+  .attention-intro-panel h3 { font-size: 22px; }
+  .attention-level-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin: 14px 0 16px;
+  }
+  .attention-level-card {
+    min-height: 104px;
+    display: grid;
+    grid-template-columns: 78px 1fr;
+    align-items: center;
+    padding: 10px 12px;
+    text-align: left;
+  }
+  .attention-level-art {
+    width: 70px;
+    height: 56px;
+    margin: 0;
+    grid-row: 1 / span 2;
+    transform: scale(0.78);
+    transform-origin: left center;
+  }
+  .attention-level-card strong,
+  .attention-level-card span { grid-column: 2; }
+  .attention-level-card strong { font-size: 22px; margin-top: 0; }
+  .attention-level-card span { font-size: 12px; line-height: 1.25; margin-top: 4px; }
+  .attention-exercise-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .attention-exercise-card { min-height: 126px; border-radius: 16px; }
+  .attention-exercise-card svg { width: 48px; height: 48px; margin: 22px auto 10px; }
+  .attention-exercise-card strong span { font-size: 16px; }
   .attention-detail-card { grid-template-columns: 1fr; text-align: center; }
   .attention-detail-icon { margin: 0 auto; }
   .attention-scorebar { flex-wrap: wrap; gap: 12px; padding: 12px; }
@@ -2944,8 +3136,104 @@ const attentionStyles = `
 
   .attention-result-show-btn { min-height: 64px; font-size: 27px; padding: 0 20px; }
   .attention-play-circle { width: 42px; height: 42px; font-size: 18px; }
-  .attention-result-rings { grid-template-columns: 1fr; }
+  .attention-result-panel {
+    padding: 18px 12px;
+  }
+  .attention-result-panel h2 { font-size: 30px; }
+  .attention-result-rings {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 10px;
+    margin: 14px 0;
+  }
+  .attention-ring { width: 76px; height: 76px; }
+  .attention-ring-inner { width: 54px; height: 54px; font-size: 18px; }
+  .attention-result-icon { width: 42px; height: 42px; }
+  .attention-result-item strong { font-size: 15px; }
+  .attention-result-note { font-size: 15px; margin-bottom: 14px; }
+  .attention-result-cta {
+    max-width: 100%;
+    padding: 14px 12px;
+    border-radius: 18px;
+  }
+  .attention-result-cta h3 { font-size: 18px; }
   .attention-result-form { grid-template-columns: 1fr; }
+  .attention-whatsapp-btn,
+  .attention-call-btn,
+  .attention-phone-number {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) and (max-height: 740px) {
+  .attention-modal {
+    padding: 8px;
+  }
+
+  .attention-topline {
+    min-height: 32px;
+    margin-bottom: 6px;
+  }
+
+  .attention-intro-panel {
+    padding: 12px 10px;
+  }
+
+  .attention-title-block {
+    margin-bottom: 8px;
+  }
+
+  .attention-title-block span {
+    font-size: 20px;
+  }
+
+  .attention-title-block h2,
+  .attention-panel h2 {
+    margin: 3px 0 5px;
+    font-size: 24px;
+  }
+
+  .attention-title-block p,
+  .attention-muted {
+    font-size: 13px;
+    line-height: 1.22;
+    margin-bottom: 8px;
+  }
+
+  .attention-intro-panel h3 {
+    margin: 2px 0 4px;
+    font-size: 18px;
+  }
+
+  .attention-level-grid {
+    gap: 8px;
+    margin: 10px 0 12px;
+  }
+
+  .attention-level-card {
+    min-height: 72px;
+    grid-template-columns: 54px 1fr;
+    padding: 8px 10px;
+  }
+
+  .attention-level-art {
+    width: 54px;
+    height: 44px;
+    transform: scale(0.58);
+  }
+
+  .attention-level-card strong {
+    font-size: 19px;
+  }
+
+  .attention-level-card span {
+    font-size: 11px;
+  }
+
+  .attention-primary-btn {
+    min-height: 46px;
+    padding: 0 24px;
+    font-size: 16px;
+  }
 }
 
 `;
