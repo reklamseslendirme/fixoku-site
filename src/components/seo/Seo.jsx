@@ -1,7 +1,11 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { buildSiteUrl, normalizeRoutePath } from "../../config/site.js";
-import { getPublicRoute } from "../../data/contentRoutes.js";
+import {
+  getPublicRoute,
+  notFoundSeo,
+  panelSeo,
+} from "../../data/contentRoutes.js";
 import { buildContentSchemas } from "../../utils/seoSchemas.js";
 
 function setMetaTag(attribute, value, content) {
@@ -58,14 +62,11 @@ function setSchemas(schemas) {
 export function Seo({ route, pageType }) {
   useEffect(() => {
     const isIndexable = Boolean(route);
-    const title = route?.title ?? (pageType === "panel" ? "Fixoku Panel" : "Sayfa Bulunamadı | Fixoku");
-    const description =
-      route?.description ??
-      (pageType === "panel"
-        ? "Fixoku kullanıcı paneli."
-        : "Aradığınız sayfa bulunamadı. Fixoku ana sayfasına veya Hızlı Okuma içerik merkezine dönebilirsiniz.");
+    const fallbackSeo = pageType === "panel" ? panelSeo : notFoundSeo;
+    const title = route?.title ?? fallbackSeo.title;
+    const description = route?.description ?? fallbackSeo.description;
     const canonical = isIndexable ? buildSiteUrl(route.path) : null;
-    const robots = isIndexable ? route.robots : "noindex, nofollow";
+    const robots = isIndexable ? route.robots : fallbackSeo.robots;
 
     document.documentElement.lang = "tr";
     document.title = title;

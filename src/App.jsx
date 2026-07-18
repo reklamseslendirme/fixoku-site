@@ -8,6 +8,10 @@ import Iletisim from "./pages/iletisim";
 import Egitimler from "./pages/Egitimler";
 import PanelApp from "./panel/PanelApp";
 
+function HeroSlideHeading({ active, className, children }) {
+  const HeadingTag = active ? "h1" : "div";
+  return <HeadingTag className={className}>{children}</HeadingTag>;
+}
 
 function App() {
   const location = useLocation();
@@ -746,7 +750,9 @@ function App() {
                     </div>
                   )}
 
-                  <h1 className="hero-slide-title">{slide.title}</h1>
+                  <HeroSlideHeading active={activeSlide === index} className="hero-slide-title">
+                    {slide.title}
+                  </HeroSlideHeading>
 
                   <div className="hero-slide-desc">{slide.desc}</div>
 
@@ -809,7 +815,9 @@ function App() {
 
               {slide.type === "trainer" && (
                 <>
-                  <h1 className="hero-slide-title">{slide.title}</h1>
+                  <HeroSlideHeading active={activeSlide === index} className="hero-slide-title">
+                    {slide.title}
+                  </HeroSlideHeading>
 
                   <div className="hero-slide-desc">{slide.desc}</div>
 
@@ -845,11 +853,11 @@ function App() {
     <div className="engine-left engine-left-compact">
       <div className="engine-kicker">Fixoku Canlı Sistem</div>
 
-      <h1 className="engine-title-main">
+      <HeroSlideHeading active={activeSlide === index} className="engine-title-main">
         Fixoku’da <span>Eğitim Süreci</span>
         <br />
         Canlı Çalışır
-      </h1>
+      </HeroSlideHeading>
 
       <p className="engine-desc-main">
         Öğrenci gelişimi, eğitmen ilerleyişi, meydan okumalar ve analizler tek

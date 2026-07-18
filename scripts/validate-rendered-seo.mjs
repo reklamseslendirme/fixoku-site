@@ -1,0 +1,315 @@
+import { createHash } from "node:crypto";
+import { readdir, readFile, stat } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { buildSiteUrl, SITE_ORIGIN } from "../src/config/site.js";
+import {
+  getPrerenderOutputPath,
+  indexableRoutePaths,
+  notFoundSeo,
+  panelSeo,
+  publicRouteRegistry,
+} from "../src/data/contentRoutes.js";
+import { buildContentSchemas } from "../src/utils/seoSchemas.js";
+import { startRenderedServer } from "./rendered-server.mjs";
+
+const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
+const projectRoot = path.resolve(scriptDirectory, "..");
+const distDirectory = path.join(projectRoot, "dist");
+const failures = [];
+const successes = [];
+const forbiddenOrigin = ["fixoku", "com", "com"].join(".");
+
+function check(condition, message) {
+  if (condition) successes.push(message);
+  else failures.push(message);
+}
+
+function decodeHtml(value = "") {
+  return value
+    .replaceAll("&quot;", '"')
+    .replaceAll("&#39;", "'")
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&amp;", "&");
+}
+
+function capture(html, pattern) {
+  const match = html.match(pattern);
+  return match ? decodeHtml(match[1].trim()) : null;
+}
+
+function getMeta(html, attribute, key) {
+  const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const keyPattern = new RegExp(`${attribute}\\s*=\\s*(["'])${escapedKey}\\1`, "i");
+
+  for (const tag of html.match(/<meta\b[^>]*>/gi) ?? []) {
+    if (!keyPattern.test(tag)) continue;
+    const contentMatch = tag.match(/content\s*=\s*(["'])([\s\S]*?)\1/i);
+    return contentMatch ? decodeHtml(contentMatch[2]) : null;
+  }
+
+  return null;
+}
+
+function countMeta(html, attribute, key) {
+  const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return (
+    html.match(new RegExp(`<meta[^>]*${attribute}=["']${escapedKey}["'][^>]*>`, "gi")) ?? []
+  ).length;
+}
+
+function getCanonical(html) {
+  return (
+    capture(
+      html,
+      /<link[^>]*rel=["']canonical["'][^>]*href=["']([^"']+)["'][^>]*>/i,
+    ) ??
+    capture(
+      html,
+      /<link[^>]*href=["']([^"']+)["'][^>]*rel=["']canonical["'][^>]*>/i,
+    )
+  );
+}
+
+function countCanonical(html) {
+  return (html.match(/<link[^>]*rel=["']canonical["'][^>]*>/gi) ?? []).length;
+}
+
+function getJsonLd(html) {
+  return [...html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)].map(
+    (match) => JSON.parse(match[1]),
+  );
+}
+
+function getH1Count(html) {
+  return (html.match(/<h1(?:\s|>)/gi) ?? []).length;
+}
+
+function getInternalAssetPaths(html) {
+  const paths = new Set();
+  const patterns = [
+    /<(?:script|img|source|video)[^>]*\ssrc=["'](\/[^"']+)["'][^>]*>/gi,
+    /<link[^>]*rel=["']stylesheet["'][^>]*href=["'](\/[^"']+)["'][^>]*>/gi,
+    /<link[^>]*href=["'](\/[^"']+)["'][^>]*rel=["']stylesheet["'][^>]*>/gi,
+  ];
+
+  for (const pattern of patterns) {
+    for (const match of html.matchAll(pattern)) paths.add(match[1].split(/[?#]/, 1)[0]);
+  }
+
+  return [...paths];
+}
+
+function getDistPath(relativePath) {
+  return path.join(distDirectory, ...relativePath.split("/"));
+}
+
+async function exists(filePath) {
+  return stat(filePath).then((value) => value.isFile()).catch(() => false);
+}
+
+const renderedRoutes = [];
+
+for (const route of publicRouteRegistry) {
+  const relativePath = getPrerenderOutputPath(route.path);
+  const filePath = getDistPath(relativePath);
+  const filePresent = await exists(filePath);
+  check(filePresent, `${route.path}: fiziksel HTML mevcut.`);
+  if (!filePresent) continue;
+
+  const html = await readFile(filePath, "utf8");
+  const canonical = buildSiteUrl(route.path);
+  const schemas = getJsonLd(html);
+  const expectedSchemaTypes = buildContentSchemas(route).map((schema) => schema["@type"]);
+  const schemaTypes = schemas.map((schema) => schema["@type"]);
+  const assetPaths = getInternalAssetPaths(html);
+  const assetChecks = await Promise.all(
+    assetPaths.map((assetPath) => exists(getDistPath(assetPath.replace(/^\/+/, "")))),
+  );
+
+  check(capture(html, /<title[^>]*>([\s\S]*?)<\/title>/i) === route.title, `${route.path}: title doğru.`);
+  check(getMeta(html, "name", "description") === route.description, `${route.path}: description doğru.`);
+  check(getCanonical(html) === canonical, `${route.path}: self-canonical doğru.`);
+  check(canonical.startsWith(SITE_ORIGIN), `${route.path}: canonical production origin kullanıyor.`);
+  check(
+    getMeta(html, "property", "og:title") === route.title &&
+      getMeta(html, "property", "og:description") === route.description &&
+      getMeta(html, "property", "og:url") === canonical &&
+      getMeta(html, "property", "og:type") === route.openGraphType &&
+      getMeta(html, "property", "og:locale") === "tr_TR",
+    `${route.path}: Open Graph alanları doğru.`,
+  );
+  check(
+    getMeta(html, "name", "twitter:card") === "summary" &&
+      getMeta(html, "name", "twitter:title") === route.title &&
+      getMeta(html, "name", "twitter:description") === route.description,
+    `${route.path}: Twitter metadata doğru.`,
+  );
+  check(
+    JSON.stringify(schemaTypes) === JSON.stringify(expectedSchemaTypes),
+    `${route.path}: beklenen JSON-LD türleri doğru.`,
+  );
+  check(getH1Count(html) === 1, `${route.path}: prerender HTML içinde tek H1 var.`);
+  check(html.includes(route.distinguishingText), `${route.path}: ayırt edici ana içerik mevcut.`);
+  check(
+    html.includes('<div id="root" data-render-mode="prerendered"><'),
+    `${route.path}: prerender root dolu ve işaretli.`,
+  );
+  check(assetPaths.length >= 2 && assetChecks.every(Boolean), `${route.path}: HTML asset yolları mevcut dosyalara gidiyor.`);
+  check(
+    (html.match(/<title(?:\s|>)/gi) ?? []).length === 1 &&
+      countMeta(html, "name", "description") === 1 &&
+      countCanonical(html) === 1,
+    `${route.path}: title, description ve canonical yinelenmiyor.`,
+  );
+
+  renderedRoutes.push({
+    route: route.path,
+    relativePath,
+    html,
+    hash: createHash("sha256").update(html).digest("hex"),
+    title: route.title,
+    canonical,
+    schemaTypes,
+  });
+}
+
+check(
+  renderedRoutes.length === publicRouteRegistry.length,
+  "Bütün indexlenebilir public route'lar prerender edildi.",
+);
+check(
+  new Set(renderedRoutes.map((route) => route.hash)).size === renderedRoutes.length,
+  "Public route HTML hash değerleri birbirinden farklı.",
+);
+
+const panelPath = getDistPath("panel.html");
+const panelPresent = await exists(panelPath);
+check(panelPresent, "Panel HTML kabuğu mevcut.");
+const panelHtml = panelPresent ? await readFile(panelPath, "utf8") : "";
+check(getMeta(panelHtml, "name", "robots") === panelSeo.robots, "Panel ilk HTML noindex, nofollow.");
+check(
+  countCanonical(panelHtml) === 0 && getJsonLd(panelHtml).length === 0,
+  "Panel HTML canonical ve JSON-LD içermiyor.",
+);
+check(
+  panelHtml.includes('<div id="root" data-render-mode="client"></div>'),
+  "Panel client mount kabuğu açık biçimde işaretli.",
+);
+
+const notFoundPath = getDistPath("404.html");
+const notFoundPresent = await exists(notFoundPath);
+check(notFoundPresent, "404.html mevcut.");
+const notFoundHtml = notFoundPresent ? await readFile(notFoundPath, "utf8") : "";
+check(getMeta(notFoundHtml, "name", "robots") === notFoundSeo.robots, "404 ilk HTML noindex, nofollow.");
+check(
+  countCanonical(notFoundHtml) === 0 &&
+    getJsonLd(notFoundHtml).length === 0 &&
+    countMeta(notFoundHtml, "property", "og:title") === 0,
+  "404 canonical, JSON-LD ve indexlenebilir OG iddiası içermiyor.",
+);
+check(
+  getH1Count(notFoundHtml) === 1 &&
+    notFoundHtml.includes('href="/"') &&
+    notFoundHtml.includes('href="/hizli-okuma"'),
+  "404 görünür H1 ve dönüş bağlantıları içeriyor.",
+);
+
+const vercelConfig = JSON.parse(await readFile(path.join(projectRoot, "vercel.json"), "utf8"));
+const rewrites = vercelConfig.rewrites ?? [];
+const hasGlobalCatchAll = rewrites.some(({ source }) =>
+  ["/(.*)", "/:path*", "/(.*)*"].includes(source),
+);
+check(!hasGlobalCatchAll, "Global SPA catch-all rewrite kaldırıldı.");
+check(
+  vercelConfig.cleanUrls === true &&
+    vercelConfig.trailingSlash === false &&
+    rewrites.length > 0 &&
+    rewrites.every(({ source }) => source === "/panel" || source.startsWith("/panel/")),
+  "Vercel clean URL ve yalnızca panel fallback yapılandırması doğru.",
+);
+
+const sitemap = await readFile(getDistPath("sitemap.xml"), "utf8");
+const sitemapPaths = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => new URL(match[1]).pathname);
+check(
+  sitemapPaths.length === indexableRoutePaths.length &&
+    indexableRoutePaths.every((routePath) => sitemapPaths.includes(routePath)),
+  "Sitemap ile prerender public route listesi uyumlu.",
+);
+
+const ignoredDirectories = new Set([".git", "node_modules"]);
+const wrongOriginFiles = [];
+
+async function scanWrongOrigin(directory) {
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    if (entry.isDirectory() && ignoredDirectories.has(entry.name)) continue;
+    const entryPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      await scanWrongOrigin(entryPath);
+    } else if ((await stat(entryPath)).size < 5_000_000) {
+      const content = await readFile(entryPath, "utf8").catch(() => "");
+      if (content.includes(forbiddenOrigin)) wrongOriginFiles.push(path.relative(projectRoot, entryPath));
+    }
+  }
+}
+
+await scanWrongOrigin(projectRoot);
+check(wrongOriginFiles.length === 0, "Repository ve build çıktısında hatalı production domain yok.");
+
+const renderedServer = await startRenderedServer();
+const httpRoutes = [
+  ...indexableRoutePaths,
+  "/panel",
+  "/panel/ornek-alt-route",
+  "/bilinmeyen-bir-route",
+];
+const httpResults = [];
+
+try {
+  for (const routePath of httpRoutes) {
+    const response = await fetch(`${renderedServer.origin}${routePath}`);
+    const html = await response.text();
+    httpResults.push({
+      route: routePath,
+      status: response.status,
+      title: capture(html, /<title[^>]*>([\s\S]*?)<\/title>/i),
+      canonical: getCanonical(html),
+      robots: getMeta(html, "name", "robots"),
+      h1: capture(html, /<h1[^>]*>([\s\S]*?)<\/h1>/i)?.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() ?? null,
+      hash: createHash("sha256").update(html).digest("hex"),
+    });
+  }
+} finally {
+  await renderedServer.close();
+}
+
+check(
+  httpResults
+    .filter((result) => indexableRoutePaths.includes(result.route))
+    .every((result) => result.status === 200),
+  "Bilinen public route'lar yerel statik sunucuda 200 dönüyor.",
+);
+check(
+  httpResults
+    .filter((result) => result.route === "/panel" || result.route.startsWith("/panel/"))
+    .every((result) => result.status === 200 && result.robots === panelSeo.robots),
+  "Panel ve panel alt route'ları 200 ve ilk HTML noindex dönüyor.",
+);
+const unknownResult = httpResults.find((result) => result.route === "/bilinmeyen-bir-route");
+check(
+  unknownResult?.status === 404 && unknownResult.robots === notFoundSeo.robots,
+  "Bilinmeyen route gerçek 404 ve noindex HTML dönüyor.",
+);
+
+for (const message of successes) console.log(`✓ ${message}`);
+
+console.log("\nRendered HTTP özeti:");
+console.log(JSON.stringify(httpResults, null, 2));
+
+if (failures.length) {
+  for (const message of failures) console.error(`✗ ${message}`);
+  process.exitCode = 1;
+} else {
+  console.log(`\nRendered SEO doğrulaması başarılı: ${successes.length} kontrol geçti.`);
+}

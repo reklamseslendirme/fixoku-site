@@ -7,10 +7,11 @@
     "dev": "vite",
     "generate:seo": "node scripts/generate-seo-files.mjs",
     "validate:seo": "node scripts/validate-seo.mjs",
-    "prebuild": "npm run generate:seo",
-    "build": "vite build",
+    "validate:rendered-seo": "node scripts/validate-rendered-seo.mjs",
+    "build": "node scripts/build.mjs",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "preview:rendered": "node scripts/rendered-server.mjs"
   },
   "dependencies": {
     "react": "^19.2.4",
