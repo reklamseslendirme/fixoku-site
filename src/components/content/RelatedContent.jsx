@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
-import { quickReadingContentByPath } from "../../data/quickReadingContent.js";
 
-export default function RelatedContent({ paths }) {
-  const relatedPages = paths.map((path) => quickReadingContentByPath[path]).filter(Boolean);
+export default function RelatedContent({ contentByPath, paths }) {
+  const relatedPages = paths.map((path) => contentByPath[path]).filter(Boolean);
 
   if (!relatedPages.length) {
     return null;

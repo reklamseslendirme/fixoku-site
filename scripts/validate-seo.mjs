@@ -3,6 +3,12 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { SITE_ORIGIN, buildSiteUrl } from "../src/config/site.js";
 import {
+  attentionFocusArticles,
+  attentionFocusHub,
+  attentionFocusPages,
+} from "../src/data/attentionFocusContent.js";
+import {
+  attentionFocusRoutePaths,
   indexableRoutePaths,
   publicRouteRegistry,
   quickReadingRoutePaths,
@@ -41,11 +47,26 @@ const requiredQuickReadingRoutes = [
   "/hizli-okuma/hizli-okursam-anlar-miyim",
 ];
 
+const requiredAttentionFocusRoutes = [
+  "/dikkat-ve-odaklanma",
+  "/dikkat-ve-odaklanma/egitimi-nedir",
+  "/dikkat-ve-odaklanma/ogrenmeye-etkisi",
+  "/dikkat-ve-odaklanma/ogrencilerde-dikkat-zayifligi",
+  "/dikkat-ve-odaklanma/hizli-okumanin-etkisi",
+  "/dikkat-ve-odaklanma/fixoku-nasil-destekler",
+];
+
 check(
   requiredQuickReadingRoutes.every((routePath) => quickReadingRoutePaths.includes(routePath)),
   "Altı Hızlı Okuma route'u merkezi registry içinde kayıtlı.",
 );
 check(quickReadingRoutePaths.length === 6, "Hızlı Okuma route sayısı tam olarak 6.");
+check(
+  requiredAttentionFocusRoutes.every((routePath) => attentionFocusRoutePaths.includes(routePath)),
+  "Altı Dikkat ve Odaklanma route'u merkezi registry içinde kayıtlı.",
+);
+check(attentionFocusRoutePaths.length === 6, "Dikkat ve Odaklanma route sayısı tam olarak 6.");
+check(indexableRoutePaths.length === 16, "Toplam indexlenebilir public route sayısı tam olarak 16.");
 check(
   isUnique(publicRouteRegistry.map((route) => route.title)),
   "Indexlenebilir route title değerleri benzersiz.",
@@ -83,11 +104,11 @@ const layoutSource = await readFile(
   "utf8",
 );
 const hubSource = await readFile(
-  path.join(projectRoot, "src", "pages", "content", "QuickReadingHub.jsx"),
+  path.join(projectRoot, "src", "pages", "content", "TopicHub.jsx"),
   "utf8",
 );
 const articleSource = await readFile(
-  path.join(projectRoot, "src", "pages", "content", "QuickReadingArticle.jsx"),
+  path.join(projectRoot, "src", "pages", "content", "TopicArticle.jsx"),
   "utf8",
 );
 check(
@@ -138,16 +159,62 @@ const contentLinks = [
   ]),
   quickReadingHub.cta.primary.to,
   quickReadingHub.cta.secondary?.to,
+  ...attentionFocusArticles.flatMap((article) => [
+    ...article.related,
+    article.cta.primary.to,
+    article.cta.secondary?.to,
+  ]),
+  attentionFocusHub.cta.primary.to,
+  attentionFocusHub.cta.secondary?.to,
 ].filter(Boolean);
 check(
   contentLinks.every((routePath) => knownRoutePaths.has(routePath)),
   "İlgili içerik ve CTA bağlantılarının tamamı gerçek route'lara gidiyor.",
 );
+const contentPages = [...quickReadingPages, ...attentionFocusPages];
 check(
-  quickReadingPages.every(
+  contentPages.every(
     (page) => page.sections.length > 0 && new Set(page.sections.map((section) => section.id)).size === page.sections.length,
   ),
   "Her içerik sayfasındaki bölüm ID değerleri dolu ve benzersiz.",
+);
+
+const attentionContent = JSON.stringify(attentionFocusPages).toLocaleLowerCase("tr-TR");
+const unsafeAttentionClaims = [
+  /(?:en az|ortalama) (?:2|iki) kat/,
+  /garanti (?:eder|sağlar|sunar)/,
+  /kesin (?:başarı sağlar|sonuç verir)/,
+  /(?:tanı koyar|tedavi eder)/,
+  /her öğrenci için aynı sonuç/,
+];
+check(
+  unsafeAttentionClaims.every((pattern) => !pattern.test(attentionContent)),
+  "Dikkat ve Odaklanma içeriklerinde garanti, kesin sonuç, tanı veya tedavi iddiası bulunmuyor.",
+);
+
+const attentionRiskPage = attentionFocusPages.find(
+  (page) => page.path === "/dikkat-ve-odaklanma/ogrencilerde-dikkat-zayifligi",
+);
+const attentionRiskContent = JSON.stringify(attentionRiskPage).toLocaleLowerCase("tr-TR");
+check(
+  attentionRiskContent.includes("tıbbi tanı") &&
+    attentionRiskContent.includes("sağlık uzman"),
+  "Dikkat güçlüğü içeriği tanı koymuyor ve gerektiğinde uzman değerlendirmesine yönlendiriyor.",
+);
+
+const headerSource = await readFile(
+  path.join(projectRoot, "src", "components", "Header.jsx"),
+  "utf8",
+);
+const footerSource = await readFile(
+  path.join(projectRoot, "src", "components", "Footer.jsx"),
+  "utf8",
+);
+check(
+  headerSource.includes("attentionFocusArticles") &&
+    headerSource.includes("ATTENTION_FOCUS_HUB_PATH") &&
+    footerSource.includes('/dikkat-ve-odaklanma'),
+  "Dikkat ve Odaklanma masaüstü, mobil ve footer navigasyonuna bağlı.",
 );
 
 const robotsSource = await readFile(path.join(projectRoot, "public", "robots.txt"), "utf8");

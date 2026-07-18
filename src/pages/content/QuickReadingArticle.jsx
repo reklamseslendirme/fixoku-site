@@ -1,28 +1,6 @@
-import ContentCta from "../../components/content/ContentCta.jsx";
-import ContentPageLayout from "../../components/content/ContentPageLayout.jsx";
-import RelatedContent from "../../components/content/RelatedContent.jsx";
+import { contentCatalogByPath } from "../../data/contentCatalog.js";
+import TopicArticle from "./TopicArticle.jsx";
 
 export default function QuickReadingArticle({ article }) {
-  return (
-    <ContentPageLayout page={article}>
-      {article.sections.map((section) => (
-        <section className="content-section" id={section.id} key={section.id}>
-          <h2>{section.title}</h2>
-          {section.paragraphs.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
-          {section.bullets && (
-            <ul>
-              {section.bullets.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          )}
-        </section>
-      ))}
-
-      <RelatedContent paths={article.related} />
-      <ContentCta cta={article.cta} />
-    </ContentPageLayout>
-  );
+  return <TopicArticle article={article} contentByPath={contentCatalogByPath} />;
 }

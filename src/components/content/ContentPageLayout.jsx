@@ -9,13 +9,16 @@ function getBreadcrumbs(page) {
   if (page.kind === "hub") {
     return [
       { label: "Ana Sayfa", path: "/" },
-      { label: "Hızlı Okuma", path: page.path },
+      { label: page.navLabel, path: page.path },
     ];
   }
 
   return [
     { label: "Ana Sayfa", path: "/" },
-    { label: "Hızlı Okuma", path: "/hizli-okuma" },
+    {
+      label: page.collectionLabel ?? "Hızlı Okuma",
+      path: page.collectionPath ?? "/hizli-okuma",
+    },
     { label: page.heading, path: page.path },
   ];
 }

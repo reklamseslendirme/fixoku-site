@@ -1,3 +1,4 @@
+import { attentionFocusPages } from "./attentionFocusContent.js";
 import { quickReadingPages } from "./quickReadingContent.js";
 
 const existingPublicRoutes = [
@@ -35,37 +36,52 @@ const existingPublicRoutes = [
   },
 ];
 
-const quickReadingRoutes = quickReadingPages.map((page) => ({
-  path: page.path,
-  title: page.seoTitle,
-  description: page.metaDescription,
-  heading: page.heading,
-  distinguishingText: page.heading,
-  contentKind: page.kind,
-  schemaType: page.kind === "hub" ? "CollectionPage" : "WebPage",
-  breadcrumbs:
-    page.kind === "hub"
-      ? [
-          { label: "Ana Sayfa", path: "/" },
-          { label: "Hızlı Okuma", path: page.path },
-        ]
-      : [
-          { label: "Ana Sayfa", path: "/" },
-          { label: "Hızlı Okuma", path: "/hizli-okuma" },
-          { label: page.heading, path: page.path },
-        ],
-}));
+function createContentRoutes(pages, { collectionLabel, collectionPath }) {
+  return pages.map((page) => ({
+    path: page.path,
+    title: page.seoTitle,
+    description: page.metaDescription,
+    heading: page.heading,
+    distinguishingText: page.heading,
+    contentKind: page.kind,
+    schemaType: page.kind === "hub" ? "CollectionPage" : "WebPage",
+    breadcrumbs:
+      page.kind === "hub"
+        ? [
+            { label: "Ana Sayfa", path: "/" },
+            { label: collectionLabel, path: page.path },
+          ]
+        : [
+            { label: "Ana Sayfa", path: "/" },
+            { label: collectionLabel, path: collectionPath },
+            { label: page.heading, path: page.path },
+          ],
+  }));
+}
 
-export const publicRouteRegistry = [...existingPublicRoutes, ...quickReadingRoutes].map(
-  (route) => ({
+const quickReadingRoutes = createContentRoutes(quickReadingPages, {
+  collectionLabel: "Hızlı Okuma",
+  collectionPath: "/hizli-okuma",
+});
+
+const attentionFocusRoutes = createContentRoutes(attentionFocusPages, {
+  collectionLabel: "Dikkat ve Odaklanma",
+  collectionPath: "/dikkat-ve-odaklanma",
+});
+
+export const publicRouteRegistry = [
+  ...existingPublicRoutes,
+  ...quickReadingRoutes,
+  ...attentionFocusRoutes,
+].map((route) => ({
     ...route,
     robots: "index, follow",
     openGraphType: "website",
-  }),
-);
+  }));
 
 export const indexableRoutePaths = publicRouteRegistry.map((route) => route.path);
 export const quickReadingRoutePaths = quickReadingRoutes.map((route) => route.path);
+export const attentionFocusRoutePaths = attentionFocusRoutes.map((route) => route.path);
 
 export const panelSeo = {
   title: "Fixoku Panel",

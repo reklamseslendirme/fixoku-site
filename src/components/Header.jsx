@@ -1,5 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
+import {
+  ATTENTION_FOCUS_HUB_PATH,
+  attentionFocusArticles,
+} from "../data/attentionFocusContent.js";
 import { quickReadingArticles } from "../data/quickReadingContent.js";
 
 const desktopIconPaths = {
@@ -22,6 +26,16 @@ const desktopMenuItems = [
     label: "HIZLI OKUMA",
     to: "/hizli-okuma",
     items: quickReadingArticles.map((article) => ({
+      label: article.navLabel,
+      to: article.path,
+      icon: article.icon,
+    })),
+  },
+  {
+    key: "dikkat-ve-odaklanma",
+    label: "DİKKAT VE ODAKLANMA",
+    to: ATTENTION_FOCUS_HUB_PATH,
+    items: attentionFocusArticles.map((article) => ({
       label: article.navLabel,
       to: article.path,
       icon: article.icon,
@@ -71,6 +85,16 @@ const mobileMenuItems = [
     icon: "book",
     to: "/hizli-okuma",
     items: quickReadingArticles.map((article) => ({
+      label: article.navLabel,
+      to: article.path,
+    })),
+  },
+  {
+    key: "dikkat-ve-odaklanma",
+    label: "Dikkat ve Odaklanma",
+    icon: "target",
+    to: ATTENTION_FOCUS_HUB_PATH,
+    items: attentionFocusArticles.map((article) => ({
       label: article.navLabel,
       to: article.path,
     })),
@@ -475,7 +499,7 @@ function Header() {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 6px;
+          gap: 3px;
           flex: 1;
           flex-wrap: wrap;
         }
@@ -486,12 +510,12 @@ function Header() {
         .glass-menu .nav-link {
           display: inline-flex;
           align-items: center;
-          gap: 6px;
+          gap: 4px;
           color: #42115f !important;
-          font-size: 13px;
+          font-size: 12.5px;
           font-weight: 900;
           letter-spacing: .12px;
-          padding: 10px 13px;
+          padding: 10px 8px;
           border-radius: 999px;
         }
 

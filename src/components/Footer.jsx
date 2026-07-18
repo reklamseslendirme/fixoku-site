@@ -5,7 +5,7 @@ const footerColumns = [
     title: "Eğitimler",
     links: [
       { label: "Hızlı Okuma Eğitimi", to: "/hizli-okuma" },
-      { label: "Dikkat ve Odaklanma", to: "/dikkat-odaklanma" },
+      { label: "Dikkat ve Odaklanma", to: "/dikkat-ve-odaklanma" },
       { label: "LGS Hazırlık", to: "/ogrenci-programlari/lgs" },
       { label: "YKS Hazırlık", to: "/ogrenci-programlari/yks" },
       { label: "Paragraf Teknikleri", to: "/ogrenci-programlari/paragraf" },
