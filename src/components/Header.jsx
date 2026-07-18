@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { quickReadingArticles } from "../data/quickReadingContent.js";
 
 const desktopIconPaths = {
   book: <><path d="M5 5.8C5 4.8 5.8 4 6.8 4H11c1.4 0 2.6.5 3.5 1.3A5.2 5.2 0 0 1 18 4h.7c1 0 1.8.8 1.8 1.8V19c0 .6-.4 1-1 1h-1.8c-1.2 0-2.3.4-3.2 1.1A5.5 5.5 0 0 0 11 20H6.8C5.8 20 5 19.2 5 18.2V5.8Z" /><path d="M14.5 5.3v15.6" /></>,
@@ -19,13 +20,12 @@ const desktopMenuItems = [
   {
     key: "hizli-okuma",
     label: "HIZLI OKUMA",
-    items: [
-      { label: "Hızlı Okuma Eğitimi", to: "/hizli-okuma", icon: "speed" },
-      { label: "Hızlı Okuma Nedir?", to: "/hizli-okuma/nedir", icon: "question" },
-      { label: "Kimler İçin?", to: "/hizli-okuma/kimler-icin", icon: "student" },
-      { label: "Eğitim Modeli", to: "/hizli-okuma/egitim-modeli", icon: "chart" },
-      { label: "Hızlı Okuma Kitabı", to: "/hizli-okuma/kitap", icon: "book" },
-    ],
+    to: "/hizli-okuma",
+    items: quickReadingArticles.map((article) => ({
+      label: article.navLabel,
+      to: article.path,
+      icon: article.icon,
+    })),
   },
   {
     key: "fixoku",
@@ -69,13 +69,11 @@ const mobileMenuItems = [
     key: "hizli-okuma",
     label: "Hızlı Okuma",
     icon: "book",
-    items: [
-      { label: "Hızlı Okuma Eğitimi", to: "/hizli-okuma" },
-      { label: "Hızlı Okuma Nedir?", to: "/hizli-okuma/nedir" },
-      { label: "Hızlı Okuma Kazanımları", to: "/hizli-okuma/kazanimlar" },
-      { label: "Eğitim Modeli", to: "/hizli-okuma/egitim-modeli" },
-      { label: "Hızlı Okuma Kitabı", to: "/hizli-okuma/kitap" },
-    ],
+    to: "/hizli-okuma",
+    items: quickReadingArticles.map((article) => ({
+      label: article.navLabel,
+      to: article.path,
+    })),
   },
   {
     key: "fixoku",
@@ -202,7 +200,9 @@ function Header() {
     setMobileActiveMenu((current) => (current === menuName ? "" : menuName));
   };
 
-  const isActiveMobileMenu = (menu) => menu.items.some((item) => location.pathname === item.to || location.pathname.startsWith(`${item.to}/`));
+  const isActiveMobileMenu = (menu) =>
+    location.pathname === menu.to ||
+    menu.items.some((item) => location.pathname === item.to || location.pathname.startsWith(`${item.to}/`));
 
   return (
     <>
@@ -242,13 +242,30 @@ function Header() {
               {desktopMenuItems.map((menu) => (
                 <div
                   key={menu.key}
-                  className="nav-item has-dropdown"
+                  className={`nav-item nav-item-${menu.key} has-dropdown`}
                   onMouseEnter={() => setDesktopActiveMenu(menu.key)}
                   onMouseLeave={() => setDesktopActiveMenu("")}
+                  onFocus={() => setDesktopActiveMenu(menu.key)}
+                  onBlur={(event) => {
+                    if (!event.currentTarget.contains(event.relatedTarget)) {
+                      setDesktopActiveMenu("");
+                    }
+                  }}
                 >
-                  <button type="button" className="nav-link" aria-expanded={desktopActiveMenu === menu.key}>
-                    {menu.label}<span className="nav-caret" aria-hidden="true">▾</span>
-                  </button>
+                  {menu.to ? (
+                    <Link
+                      to={menu.to}
+                      className="nav-link"
+                      aria-haspopup="menu"
+                      aria-expanded={desktopActiveMenu === menu.key}
+                    >
+                      {menu.label}<span className="nav-caret" aria-hidden="true">▾</span>
+                    </Link>
+                  ) : (
+                    <button type="button" className="nav-link" aria-expanded={desktopActiveMenu === menu.key}>
+                      {menu.label}<span className="nav-caret" aria-hidden="true">▾</span>
+                    </button>
+                  )}
 
                   {desktopActiveMenu === menu.key && (
                     <div className="dropdown icon-dropdown">
@@ -307,11 +324,29 @@ function Header() {
 
               {mobileMenuItems.map((menu) => (
                 <div key={menu.key} className={`mobile-nav-item ${isActiveMobileMenu(menu) ? "is-current" : ""}`}>
-                  <button type="button" className="mobile-nav-button" onClick={() => toggleMobileSubMenu(menu.key)} aria-expanded={mobileActiveMenu === menu.key}>
-                    <span className="mobile-nav-icon"><MobileIcon type={menu.icon} /></span>
-                    <span>{menu.label}</span>
-                    <span className={`nav-caret ${mobileActiveMenu === menu.key ? "is-open" : ""}`} aria-hidden="true">▾</span>
-                  </button>
+                  {menu.to ? (
+                    <div className={`mobile-nav-button mobile-nav-button-with-link ${mobileActiveMenu === menu.key ? "is-expanded" : ""}`}>
+                      <Link to={menu.to} className="mobile-nav-parent-link" onClick={closeMobileMenu}>
+                        <span className="mobile-nav-icon"><MobileIcon type={menu.icon} /></span>
+                        <span>{menu.label}</span>
+                      </Link>
+                      <button
+                        type="button"
+                        className="mobile-nav-toggle"
+                        onClick={() => toggleMobileSubMenu(menu.key)}
+                        aria-label={`${menu.label} alt menüsünü ${mobileActiveMenu === menu.key ? "kapat" : "aç"}`}
+                        aria-expanded={mobileActiveMenu === menu.key}
+                      >
+                        <span className={`nav-caret ${mobileActiveMenu === menu.key ? "is-open" : ""}`} aria-hidden="true">▾</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <button type="button" className="mobile-nav-button" onClick={() => toggleMobileSubMenu(menu.key)} aria-expanded={mobileActiveMenu === menu.key}>
+                      <span className="mobile-nav-icon"><MobileIcon type={menu.icon} /></span>
+                      <span>{menu.label}</span>
+                      <span className={`nav-caret ${mobileActiveMenu === menu.key ? "is-open" : ""}`} aria-hidden="true">▾</span>
+                    </button>
+                  )}
                   {mobileActiveMenu === menu.key && (
                     <div className="mobile-accordion-dropdown">
                       {menu.items.map((item) => <Link key={item.to} to={item.to} onClick={closeMobileMenu}>{item.label}</Link>)}
@@ -489,6 +524,10 @@ function Header() {
           -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
           z-index: 1000;
           animation: dropdownFade .2s ease;
+        }
+
+        .nav-item-hizli-okuma .icon-dropdown {
+          width: min(430px, calc(100vw - 36px));
         }
 
         @keyframes dropdownFade {
@@ -684,10 +723,34 @@ function Header() {
             letter-spacing: -0.2px;
           }
 
+          .mobile-nav-button-with-link { padding: 0; }
+
+          .mobile-nav-parent-link {
+            min-width: 0;
+            min-height: 42px;
+            padding: 0 0 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex: 1;
+          }
+
+          .mobile-nav-toggle {
+            width: 42px;
+            min-width: 42px;
+            height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            color: #f37021;
+          }
+
           .mobile-main-link.is-active,
           .mobile-main-link:hover,
           .mobile-nav-button:hover,
-          .mobile-nav-button[aria-expanded="true"] {
+          .mobile-nav-button[aria-expanded="true"],
+          .mobile-nav-button.is-expanded {
             color: #f37021 !important;
             background: rgba(255,255,255,0.72) !important;
             border-color: rgba(243,112,33,0.18) !important;
@@ -708,6 +771,7 @@ function Header() {
           .mobile-nav-icon svg,
           .mobile-main-icon svg { width: 23px; height: 23px; }
           .mobile-nav-button[aria-expanded="true"] .mobile-nav-icon,
+          .mobile-nav-button.is-expanded .mobile-nav-icon,
           .mobile-main-link.is-active .mobile-main-icon { color: #f37021; }
 
           .mobile-nav-button .nav-caret {
