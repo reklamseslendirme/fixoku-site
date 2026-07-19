@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import Header from "../Header.jsx";
 import Footer from "../Footer.jsx";
 import Breadcrumbs from "./Breadcrumbs.jsx";
+import ContentExplorer from "./ContentExplorer.jsx";
 import ContentTableOfContents from "./ContentTableOfContents.jsx";
 
 function getBreadcrumbs(page) {
@@ -48,7 +49,10 @@ export default function ContentPageLayout({ page, children }) {
         </header>
 
         <div className="content-shell content-layout">
-          <ContentTableOfContents sections={page.sections} />
+          <div className="content-sidebar">
+            <ContentTableOfContents sections={page.sections} />
+            <ContentExplorer key={location.pathname} />
+          </div>
           <article className="content-article">{children}</article>
         </div>
       </main>
