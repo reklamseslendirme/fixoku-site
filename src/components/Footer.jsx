@@ -46,9 +46,9 @@ const footerColumns = [
   {
     title: "Bilgi Merkezi",
     links: [
-      { label: "Blog", to: "/blog" },
-      { label: "Hızlı Okuma Blog", to: "/blog/hizli-okuma" },
-      { label: "Dikkat ve Odaklanma Blog", to: "/blog/dikkat-odaklanma" },
+      { label: "Bilgi Merkezi", to: "/blog" },
+      { label: "Hızlı Okuma Rehberi", to: "/hizli-okuma" },
+      { label: "Dikkat ve Odaklanma Rehberi", to: "/dikkat-ve-odaklanma" },
       { label: "Sık Sorulan Sorular", to: "/sss" },
       { label: "İletişim", to: "/iletisim" },
     ],

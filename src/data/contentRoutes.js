@@ -1,5 +1,6 @@
 import { attentionFocusPages } from "./attentionFocusContent.js";
 import { fixokuEducationPages } from "./fixokuEducationContent.js";
+import { knowledgeCenterPages } from "./knowledgeCenterContent.js";
 import { quickReadingPages } from "./quickReadingContent.js";
 
 const existingPublicRoutes = [
@@ -75,11 +76,17 @@ const fixokuEducationRoutes = createContentRoutes(fixokuEducationPages, {
   collectionPath: "/fixoku-egitimi",
 });
 
+const knowledgeCenterRoutes = createContentRoutes(knowledgeCenterPages, {
+  collectionLabel: "Bilgi Merkezi",
+  collectionPath: "/blog",
+});
+
 export const publicRouteRegistry = [
   ...existingPublicRoutes,
   ...quickReadingRoutes,
   ...attentionFocusRoutes,
   ...fixokuEducationRoutes,
+  ...knowledgeCenterRoutes,
 ].map((route) => ({
     ...route,
     robots: "index, follow",
@@ -90,6 +97,7 @@ export const indexableRoutePaths = publicRouteRegistry.map((route) => route.path
 export const quickReadingRoutePaths = quickReadingRoutes.map((route) => route.path);
 export const attentionFocusRoutePaths = attentionFocusRoutes.map((route) => route.path);
 export const fixokuEducationRoutePaths = fixokuEducationRoutes.map((route) => route.path);
+export const knowledgeCenterRoutePaths = knowledgeCenterRoutes.map((route) => route.path);
 
 export const panelSeo = {
   title: "Fixoku Panel",

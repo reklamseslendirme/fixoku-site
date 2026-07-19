@@ -302,6 +302,7 @@ function Header() {
                   )}
                 </div>
               ))}
+              <Link to="/blog" className="nav-link blog-nav-link">BLOG</Link>
               <Link to="/iletisim" className="nav-link contact-nav-link">İLETİŞİM</Link>
             </nav>
 

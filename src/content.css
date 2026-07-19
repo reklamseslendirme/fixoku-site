@@ -291,6 +291,16 @@
   box-shadow: 0 22px 48px rgba(52, 20, 72, 0.12);
 }
 
+.content-hub-card-static {
+  cursor: default;
+}
+
+.content-hub-card-static:hover {
+  transform: none;
+  border-color: var(--content-border);
+  box-shadow: 0 16px 38px rgba(52, 20, 72, 0.07);
+}
+
 .related-content {
   margin: 70px 0 54px;
   padding-top: 48px;

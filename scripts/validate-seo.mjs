@@ -13,9 +13,15 @@ import {
   fixokuEducationPages,
 } from "../src/data/fixokuEducationContent.js";
 import {
+  knowledgeCenterCategories,
+  knowledgeCenterHub,
+  knowledgeCenterPages,
+} from "../src/data/knowledgeCenterContent.js";
+import {
   attentionFocusRoutePaths,
   fixokuEducationRoutePaths,
   indexableRoutePaths,
+  knowledgeCenterRoutePaths,
   publicRouteRegistry,
   quickReadingRoutePaths,
 } from "../src/data/contentRoutes.js";
@@ -72,6 +78,17 @@ const requiredFixokuEducationRoutes = [
   "/fixoku-egitimi/paragraf-kitaplari",
 ];
 
+const requiredKnowledgeCenterCategories = [
+  "Hızlı Okuma",
+  "Dikkat",
+  "Odaklanma",
+  "Hafıza",
+  "Öğrenme Teknikleri",
+  "Sınav Hazırlığı",
+  "Kitap Okuma",
+  "Verimli Ders Çalışma",
+];
+
 check(
   requiredQuickReadingRoutes.every((routePath) => quickReadingRoutePaths.includes(routePath)),
   "Altı Hızlı Okuma route'u merkezi registry içinde kayıtlı.",
@@ -87,7 +104,20 @@ check(
   "Yedi Fixoku Eğitimi route'u merkezi registry içinde kayıtlı.",
 );
 check(fixokuEducationRoutePaths.length === 7, "Fixoku Eğitimi route sayısı tam olarak 7.");
-check(indexableRoutePaths.length === 23, "Toplam indexlenebilir public route sayısı tam olarak 23.");
+check(
+  knowledgeCenterRoutePaths.length === 1 && knowledgeCenterRoutePaths[0] === "/blog",
+  "Bilgi Merkezi yalnızca /blog hub route'u ile kayıtlı.",
+);
+check(
+  knowledgeCenterPages.length === 1 &&
+    knowledgeCenterCategories.length === 8 &&
+    requiredKnowledgeCenterCategories.every((heading) =>
+      knowledgeCenterCategories.some((category) => category.heading === heading),
+    ) &&
+    knowledgeCenterCategories.every((category) => !category.path),
+  "Bilgi Merkezi sekiz routesuz kategori kartıyla hub-only yapıda hazır.",
+);
+check(indexableRoutePaths.length === 24, "Toplam indexlenebilir public route sayısı tam olarak 24.");
 check(
   isUnique(publicRouteRegistry.map((route) => route.title)),
   "Indexlenebilir route title değerleri benzersiz.",
@@ -194,12 +224,19 @@ const contentLinks = [
   ]),
   fixokuEducationHub.cta.primary.to,
   fixokuEducationHub.cta.secondary?.to,
+  knowledgeCenterHub.cta.primary.to,
+  knowledgeCenterHub.cta.secondary?.to,
 ].filter(Boolean);
 check(
   contentLinks.every((routePath) => knownRoutePaths.has(routePath)),
   "İlgili içerik ve CTA bağlantılarının tamamı gerçek route'lara gidiyor.",
 );
-const contentPages = [...quickReadingPages, ...attentionFocusPages, ...fixokuEducationPages];
+const contentPages = [
+  ...quickReadingPages,
+  ...attentionFocusPages,
+  ...fixokuEducationPages,
+  ...knowledgeCenterPages,
+];
 check(
   contentPages.every(
     (page) => page.sections.length > 0 && new Set(page.sections.map((section) => section.id)).size === page.sections.length,
@@ -273,6 +310,12 @@ check(
     headerSource.includes("FIXOKU_EDUCATION_HUB_PATH") &&
     footerSource.includes('/fixoku-egitimi'),
   "Fixoku Eğitimi masaüstü, mobil ve footer navigasyonuna bağlı.",
+);
+check(
+  headerSource.includes('className="nav-link blog-nav-link"') &&
+    headerSource.includes('to="/blog"') &&
+    footerSource.includes('{ label: "Bilgi Merkezi", to: "/blog" }'),
+  "Bilgi Merkezi masaüstü, mobil ve footer navigasyonuna bağlı.",
 );
 
 const robotsSource = await readFile(path.join(projectRoot, "public", "robots.txt"), "utf8");
