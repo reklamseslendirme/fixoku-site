@@ -1,4 +1,5 @@
 import { attentionFocusPages } from "./attentionFocusContent.js";
+import { fixokuEducationPages } from "./fixokuEducationContent.js";
 import { quickReadingPages } from "./quickReadingContent.js";
 
 const existingPublicRoutes = [
@@ -69,10 +70,16 @@ const attentionFocusRoutes = createContentRoutes(attentionFocusPages, {
   collectionPath: "/dikkat-ve-odaklanma",
 });
 
+const fixokuEducationRoutes = createContentRoutes(fixokuEducationPages, {
+  collectionLabel: "Fixoku Eğitimi",
+  collectionPath: "/fixoku-egitimi",
+});
+
 export const publicRouteRegistry = [
   ...existingPublicRoutes,
   ...quickReadingRoutes,
   ...attentionFocusRoutes,
+  ...fixokuEducationRoutes,
 ].map((route) => ({
     ...route,
     robots: "index, follow",
@@ -82,6 +89,7 @@ export const publicRouteRegistry = [
 export const indexableRoutePaths = publicRouteRegistry.map((route) => route.path);
 export const quickReadingRoutePaths = quickReadingRoutes.map((route) => route.path);
 export const attentionFocusRoutePaths = attentionFocusRoutes.map((route) => route.path);
+export const fixokuEducationRoutePaths = fixokuEducationRoutes.map((route) => route.path);
 
 export const panelSeo = {
   title: "Fixoku Panel",

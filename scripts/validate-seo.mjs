@@ -8,7 +8,13 @@ import {
   attentionFocusPages,
 } from "../src/data/attentionFocusContent.js";
 import {
+  fixokuEducationArticles,
+  fixokuEducationHub,
+  fixokuEducationPages,
+} from "../src/data/fixokuEducationContent.js";
+import {
   attentionFocusRoutePaths,
+  fixokuEducationRoutePaths,
   indexableRoutePaths,
   publicRouteRegistry,
   quickReadingRoutePaths,
@@ -56,6 +62,16 @@ const requiredAttentionFocusRoutes = [
   "/dikkat-ve-odaklanma/fixoku-nasil-destekler",
 ];
 
+const requiredFixokuEducationRoutes = [
+  "/fixoku-egitimi",
+  "/fixoku-egitimi/neden-fixoku",
+  "/fixoku-egitimi/egitim-sureci",
+  "/fixoku-egitimi/yazilim",
+  "/fixoku-egitimi/hizli-okuma-kitabi",
+  "/fixoku-egitimi/egzersiz-kitaplari",
+  "/fixoku-egitimi/paragraf-kitaplari",
+];
+
 check(
   requiredQuickReadingRoutes.every((routePath) => quickReadingRoutePaths.includes(routePath)),
   "Altı Hızlı Okuma route'u merkezi registry içinde kayıtlı.",
@@ -66,7 +82,12 @@ check(
   "Altı Dikkat ve Odaklanma route'u merkezi registry içinde kayıtlı.",
 );
 check(attentionFocusRoutePaths.length === 6, "Dikkat ve Odaklanma route sayısı tam olarak 6.");
-check(indexableRoutePaths.length === 16, "Toplam indexlenebilir public route sayısı tam olarak 16.");
+check(
+  requiredFixokuEducationRoutes.every((routePath) => fixokuEducationRoutePaths.includes(routePath)),
+  "Yedi Fixoku Eğitimi route'u merkezi registry içinde kayıtlı.",
+);
+check(fixokuEducationRoutePaths.length === 7, "Fixoku Eğitimi route sayısı tam olarak 7.");
+check(indexableRoutePaths.length === 23, "Toplam indexlenebilir public route sayısı tam olarak 23.");
 check(
   isUnique(publicRouteRegistry.map((route) => route.title)),
   "Indexlenebilir route title değerleri benzersiz.",
@@ -166,12 +187,19 @@ const contentLinks = [
   ]),
   attentionFocusHub.cta.primary.to,
   attentionFocusHub.cta.secondary?.to,
+  ...fixokuEducationArticles.flatMap((article) => [
+    ...article.related,
+    article.cta.primary.to,
+    article.cta.secondary?.to,
+  ]),
+  fixokuEducationHub.cta.primary.to,
+  fixokuEducationHub.cta.secondary?.to,
 ].filter(Boolean);
 check(
   contentLinks.every((routePath) => knownRoutePaths.has(routePath)),
   "İlgili içerik ve CTA bağlantılarının tamamı gerçek route'lara gidiyor.",
 );
-const contentPages = [...quickReadingPages, ...attentionFocusPages];
+const contentPages = [...quickReadingPages, ...attentionFocusPages, ...fixokuEducationPages];
 check(
   contentPages.every(
     (page) => page.sections.length > 0 && new Set(page.sections.map((section) => section.id)).size === page.sections.length,
@@ -202,6 +230,30 @@ check(
   "Dikkat güçlüğü içeriği tanı koymuyor ve gerektiğinde uzman değerlendirmesine yönlendiriyor.",
 );
 
+const fixokuEducationContent = JSON.stringify(fixokuEducationPages).toLocaleLowerCase("tr-TR");
+const unsafeFixokuClaims = [
+  /(?:en iyi|ilk ve tek|en gelişmiş|en donanımlı)/,
+  /(?:en az|ortalama) (?:2|iki) kat/,
+  /garanti (?:eder|sağlar|sunar|verir)/,
+  /kesin (?:başarı sağlar|sonuç verir)/,
+  /21 günde kesin/,
+  /(?:sınırsız|kesintisiz) (?:bir|1) yıllık erişim/,
+];
+check(
+  unsafeFixokuClaims.every((pattern) => !pattern.test(fixokuEducationContent)),
+  "Fixoku Eğitimi içeriklerinde garanti, kesin sonuç veya doğrulanmamış karşılaştırmalı iddia bulunmuyor.",
+);
+check(
+  fixokuEducationContent.includes("eğitmenin yerini almaz") &&
+    fixokuEducationContent.includes("otomatik teşhis") &&
+    fixokuEducationContent.includes("başarı garantisi"),
+  "Yazılım ve ürün içerikleri yapay zekâ, ölçüm ve sonuç sınırlarını açıkça belirtiyor.",
+);
+check(
+  schemaRoutes.every((route) => !["Product", "Offer", "AggregateRating"].includes(route.schemaType)),
+  "Kitap sayfalarında uydurma Product, Offer veya AggregateRating şeması bulunmuyor.",
+);
+
 const headerSource = await readFile(
   path.join(projectRoot, "src", "components", "Header.jsx"),
   "utf8",
@@ -215,6 +267,12 @@ check(
     headerSource.includes("ATTENTION_FOCUS_HUB_PATH") &&
     footerSource.includes('/dikkat-ve-odaklanma'),
   "Dikkat ve Odaklanma masaüstü, mobil ve footer navigasyonuna bağlı.",
+);
+check(
+  headerSource.includes("fixokuEducationArticles") &&
+    headerSource.includes("FIXOKU_EDUCATION_HUB_PATH") &&
+    footerSource.includes('/fixoku-egitimi'),
+  "Fixoku Eğitimi masaüstü, mobil ve footer navigasyonuna bağlı.",
 );
 
 const robotsSource = await readFile(path.join(projectRoot, "public", "robots.txt"), "utf8");

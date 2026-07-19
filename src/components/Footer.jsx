@@ -12,13 +12,15 @@ const footerColumns = [
     ],
   },
   {
-    title: "Fixoku",
+    title: "Fixoku Eğitimi",
     links: [
-      { label: "Neden Fixoku?", to: "/fixoku-sistemi/neden-fixoku" },
-      { label: "Eğitim Modeli", to: "/fixoku-sistemi/egitim-modeli" },
-      { label: "Fixoku Yazılımı", to: "/fixoku-sistemi/yazilim" },
-      { label: "Yapay Zeka", to: "/fixoku-sistemi/yapay-zeka" },
-      { label: "Analiz Sistemi", to: "/fixoku-sistemi/analiz" },
+      { label: "Fixoku Eğitimi", to: "/fixoku-egitimi" },
+      { label: "Neden Fixoku?", to: "/fixoku-egitimi/neden-fixoku" },
+      { label: "Eğitim Nasıl Veriliyor", to: "/fixoku-egitimi/egitim-sureci" },
+      { label: "Yapay Zekâ Destekli Yazılım", to: "/fixoku-egitimi/yazilim" },
+      { label: "Hızlı Okuma Kitabı", to: "/fixoku-egitimi/hizli-okuma-kitabi" },
+      { label: "Egzersiz Kitapları", to: "/fixoku-egitimi/egzersiz-kitaplari" },
+      { label: "Paragraf Kitapları", to: "/fixoku-egitimi/paragraf-kitaplari" },
     ],
   },
   {

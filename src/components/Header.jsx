@@ -4,6 +4,10 @@ import {
   ATTENTION_FOCUS_HUB_PATH,
   attentionFocusArticles,
 } from "../data/attentionFocusContent.js";
+import {
+  FIXOKU_EDUCATION_HUB_PATH,
+  fixokuEducationArticles,
+} from "../data/fixokuEducationContent.js";
 import { quickReadingArticles } from "../data/quickReadingContent.js";
 
 const desktopIconPaths = {
@@ -43,15 +47,13 @@ const desktopMenuItems = [
   },
   {
     key: "fixoku",
-    label: "FİXOKU SİSTEMİ",
-    items: [
-      { label: "Neden Fixoku?", to: "/fixoku-sistemi/neden-fixoku", icon: "question" },
-      { label: "Eğitim Modeli", to: "/fixoku-sistemi/egitim-modeli", icon: "chart" },
-      { label: "Yapay Zeka Destekli Eğitim", to: "/fixoku-sistemi/yapay-zeka", icon: "ai" },
-      { label: "126 Egzersiz Sistemi", to: "/fixoku-sistemi/egzersizler", icon: "exercise" },
-      { label: "9 Kategoride Analiz", to: "/fixoku-sistemi/analiz", icon: "chart" },
-      { label: "Eğitim Süreci", to: "/fixoku-sistemi/egitim-sureci", icon: "target" },
-    ],
+    label: "FİXOKU EĞİTİMİ",
+    to: FIXOKU_EDUCATION_HUB_PATH,
+    items: fixokuEducationArticles.map((article) => ({
+      label: article.navLabel,
+      to: article.path,
+      icon: article.icon,
+    })),
   },
   {
     key: "programlar",
@@ -101,16 +103,13 @@ const mobileMenuItems = [
   },
   {
     key: "fixoku",
-    label: "Fixoku Sistemi",
+    label: "Fixoku Eğitimi",
     icon: "spark",
-    items: [
-      { label: "Neden Fixoku?", to: "/fixoku-sistemi/neden-fixoku" },
-      { label: "Eğitim Modeli", to: "/fixoku-sistemi/egitim-modeli" },
-      { label: "Yapay Zeka Destekli Eğitim", to: "/fixoku-sistemi/yapay-zeka" },
-      { label: "126 Egzersiz Sistemi", to: "/fixoku-sistemi/egzersizler" },
-      { label: "9 Kategoride Analiz", to: "/fixoku-sistemi/analiz" },
-      { label: "Eğitim Süreci", to: "/fixoku-sistemi/egitim-sureci" },
-    ],
+    to: FIXOKU_EDUCATION_HUB_PATH,
+    items: fixokuEducationArticles.map((article) => ({
+      label: article.navLabel,
+      to: article.path,
+    })),
   },
   {
     key: "programlar",

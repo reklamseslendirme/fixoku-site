@@ -6,6 +6,10 @@ import {
   attentionFocusHub,
 } from "./data/attentionFocusContent.js";
 import { contentCatalogByPath } from "./data/contentCatalog.js";
+import {
+  fixokuEducationArticles,
+  fixokuEducationHub,
+} from "./data/fixokuEducationContent.js";
 import { quickReadingArticles } from "./data/quickReadingContent.js";
 import Egitimler from "./pages/Egitimler.jsx";
 import Hakkimizda from "./pages/Hakkimizda.jsx";
@@ -39,6 +43,17 @@ export default function AppRoutes() {
           element={<TopicHub articles={attentionFocusArticles} hub={attentionFocusHub} />}
         />
         {attentionFocusArticles.map((article) => (
+          <Route
+            key={article.path}
+            path={article.path}
+            element={<TopicArticle article={article} contentByPath={contentCatalogByPath} />}
+          />
+        ))}
+        <Route
+          path={fixokuEducationHub.path}
+          element={<TopicHub articles={fixokuEducationArticles} hub={fixokuEducationHub} />}
+        />
+        {fixokuEducationArticles.map((article) => (
           <Route
             key={article.path}
             path={article.path}
