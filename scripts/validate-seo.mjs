@@ -7,6 +7,7 @@ import {
   attentionFocusHub,
   attentionFocusPages,
 } from "../src/data/attentionFocusContent.js";
+import { blogArticles, blogPages } from "../src/data/blogContent.js";
 import {
   fixokuEducationArticles,
   fixokuEducationHub,
@@ -19,6 +20,7 @@ import {
 } from "../src/data/knowledgeCenterContent.js";
 import {
   attentionFocusRoutePaths,
+  blogRoutePaths,
   fixokuEducationRoutePaths,
   indexableRoutePaths,
   knowledgeCenterRoutePaths,
@@ -89,6 +91,22 @@ const requiredKnowledgeCenterCategories = [
   "Verimli Ders Çalışma",
 ];
 
+const requiredBlogRoutes = [
+  "/blog/hizli-okumanin-sinav-basarisina-etkisi",
+  "/blog/kelime-dagarcigi-ve-kendini-ifade-etme",
+  "/blog/turkiyede-hizli-okumanin-onemi",
+  "/blog/dikkat-ve-odaklanmanin-egitime-etkisi",
+  "/blog/takistoskop-nedir",
+];
+
+const requiredBlogCategories = new Map([
+  ["/blog/hizli-okumanin-sinav-basarisina-etkisi", "Sınav Hazırlığı"],
+  ["/blog/kelime-dagarcigi-ve-kendini-ifade-etme", "Kitap Okuma"],
+  ["/blog/turkiyede-hizli-okumanin-onemi", "Hızlı Okuma"],
+  ["/blog/dikkat-ve-odaklanmanin-egitime-etkisi", "Dikkat"],
+  ["/blog/takistoskop-nedir", "Öğrenme Teknikleri"],
+]);
+
 check(
   requiredQuickReadingRoutes.every((routePath) => quickReadingRoutePaths.includes(routePath)),
   "Altı Hızlı Okuma route'u merkezi registry içinde kayıtlı.",
@@ -117,7 +135,21 @@ check(
     knowledgeCenterCategories.every((category) => !category.path),
   "Bilgi Merkezi sekiz routesuz kategori kartıyla hub-only yapıda hazır.",
 );
-check(indexableRoutePaths.length === 24, "Toplam indexlenebilir public route sayısı tam olarak 24.");
+check(
+  requiredBlogRoutes.every((routePath) => blogRoutePaths.includes(routePath)) && blogRoutePaths.length === 5,
+  "Beş Blog makalesi merkezi registry içinde kayıtlı.",
+);
+check(
+  blogArticles.length === 5 &&
+    blogArticles.every(
+      (article) =>
+        requiredBlogCategories.get(article.path) === article.category &&
+        article.collectionPath === "/blog" &&
+        article.schemaType === "Article",
+    ),
+  "Beş Blog makalesinin kategori, merkez ve schema eşleştirmeleri doğru.",
+);
+check(indexableRoutePaths.length === 29, "Toplam indexlenebilir public route sayısı tam olarak 29.");
 check(
   isUnique(publicRouteRegistry.map((route) => route.title)),
   "Indexlenebilir route title değerleri benzersiz.",
@@ -193,7 +225,28 @@ check(
       return true;
     }),
   ),
-  "WebPage/CollectionPage ve BreadcrumbList şemaları geçerli JSON üretiyor.",
+  "WebPage, CollectionPage, Article ve BreadcrumbList şemaları geçerli JSON üretiyor.",
+);
+
+const blogArticleRoutes = publicRouteRegistry.filter((route) => blogRoutePaths.includes(route.path));
+check(
+  blogArticleRoutes.every((route) => {
+    const articleSchema = buildContentSchemas(route)[0];
+    return (
+      articleSchema?.["@type"] === "Article" &&
+      articleSchema.headline === route.heading &&
+      articleSchema.description === route.description &&
+      articleSchema.url === buildSiteUrl(route.path) &&
+      articleSchema.mainEntityOfPage?.["@id"] === buildSiteUrl(route.path) &&
+      articleSchema.inLanguage === "tr-TR" &&
+      !articleSchema.author &&
+      !articleSchema.datePublished &&
+      !articleSchema.dateModified &&
+      !articleSchema.publisher &&
+      !articleSchema.image
+    );
+  }),
+  "Blog Article şemaları yalnızca doğrulanabilir alanları içeriyor.",
 );
 
 const knownRoutePaths = new Set(indexableRoutePaths);
@@ -226,6 +279,11 @@ const contentLinks = [
   fixokuEducationHub.cta.secondary?.to,
   knowledgeCenterHub.cta.primary.to,
   knowledgeCenterHub.cta.secondary?.to,
+  ...blogArticles.flatMap((article) => [
+    ...article.related,
+    article.cta.primary.to,
+    article.cta.secondary?.to,
+  ]),
 ].filter(Boolean);
 check(
   contentLinks.every((routePath) => knownRoutePaths.has(routePath)),
@@ -236,6 +294,7 @@ const contentPages = [
   ...attentionFocusPages,
   ...fixokuEducationPages,
   ...knowledgeCenterPages,
+  ...blogPages,
 ];
 check(
   contentPages.every(
@@ -291,6 +350,32 @@ check(
   "Kitap sayfalarında uydurma Product, Offer veya AggregateRating şeması bulunmuyor.",
 );
 
+const blogContent = JSON.stringify(blogPages).toLocaleLowerCase("tr-TR");
+const unsafeBlogClaims = [
+  /garanti (?:eder|sağlar|sunar|verir)/,
+  /kesin (?:başarı|sonuç|hız artışı)/,
+  /(?:2|iki) kat/,
+  /\b\d+(?:[.,]\d+)?\s*%/,
+  /(?:oecd|pisa)/,
+  /(?:beyni yeniden programlar|görme bozukluğunu tedavi eder)/,
+];
+check(
+  unsafeBlogClaims.every((pattern) => !pattern.test(blogContent)),
+  "Blog içeriklerinde garanti, kesin sonuç, uydurma istatistik veya tıbbi iddia bulunmuyor.",
+);
+check(
+  blogArticles.every(
+    (article) =>
+      !Object.hasOwn(article, "author") &&
+      !Object.hasOwn(article, "datePublished") &&
+      !Object.hasOwn(article, "dateModified") &&
+      article.sections.length >= 5 &&
+      article.related.length >= 1 &&
+      article.related.length <= 3,
+  ),
+  "Blog makalelerinde yazar veya tarih uydurulmamış; bölüm ve ilgili içerik yapısı geçerli.",
+);
+
 const headerSource = await readFile(
   path.join(projectRoot, "src", "components", "Header.jsx"),
   "utf8",
@@ -316,6 +401,14 @@ check(
     headerSource.includes('to="/blog"') &&
     footerSource.includes('{ label: "Bilgi Merkezi", to: "/blog" }'),
   "Bilgi Merkezi masaüstü, mobil ve footer navigasyonuna bağlı.",
+);
+const appRoutesSource = await readFile(path.join(projectRoot, "src", "AppRoutes.jsx"), "utf8");
+check(
+  appRoutesSource.includes("articles={blogArticles}") &&
+    appRoutesSource.includes("blogArticles.map") &&
+    hubSource.includes("articleCount") &&
+    knowledgeCenterCategories.every((category) => !category.path),
+  "/blog hub beş gerçek makaleyi gösteriyor ve routesuz kategori kartları kırık link üretmiyor.",
 );
 
 const robotsSource = await readFile(path.join(projectRoot, "public", "robots.txt"), "utf8");

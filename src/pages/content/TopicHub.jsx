@@ -8,7 +8,7 @@ function TopicCard({ card }) {
       <span>{card.eyebrow}</span>
       <strong>{card.heading}</strong>
       <p>{card.summary}</p>
-      <small>{card.statusLabel ?? "İçeriği incele →"}</small>
+      <small>{card.cardLabel ?? card.statusLabel ?? "İçeriği incele →"}</small>
     </>
   );
 
@@ -24,7 +24,15 @@ function TopicCard({ card }) {
 }
 
 export default function TopicHub({ articles = [], hub }) {
-  const cards = hub.cards ?? articles;
+  const hasSeparateArticleGrid = Boolean(hub.cards?.length && articles.length);
+  const primaryCards = hasSeparateArticleGrid ? articles : (hub.cards ?? articles);
+  const categoryCards = (hub.cards ?? []).map((card) => {
+    const articleCount = articles.filter((article) => article.category === card.heading).length;
+
+    return articleCount
+      ? { ...card, statusLabel: `${articleCount} makale yayında` }
+      : card;
+  });
 
   return (
     <ContentPageLayout page={hub}>
@@ -45,15 +53,33 @@ export default function TopicHub({ articles = [], hub }) {
       ))}
 
       <section className="content-section content-hub-links" aria-labelledby={`${hub.slug ?? "topic"}-cards-title`}>
-        <div className="content-section-kicker">Konu rehberi</div>
-        <h2 id={`${hub.slug ?? "topic"}-cards-title`}>{hub.cardsHeading}</h2>
-        <p>{hub.cardsIntro}</p>
+        <div className="content-section-kicker">{hasSeparateArticleGrid ? "Güncel makaleler" : "Konu rehberi"}</div>
+        <h2 id={`${hub.slug ?? "topic"}-cards-title`}>
+          {hasSeparateArticleGrid ? hub.articlesHeading : hub.cardsHeading}
+        </h2>
+        <p>{hasSeparateArticleGrid ? hub.articlesIntro : hub.cardsIntro}</p>
         <div className="content-hub-grid">
-          {cards.map((card) => (
+          {primaryCards.map((card) => (
             <TopicCard card={card} key={card.path ?? card.slug} />
           ))}
         </div>
       </section>
+
+      {hasSeparateArticleGrid && (
+        <section
+          className="content-section content-hub-links"
+          aria-labelledby={`${hub.slug ?? "topic"}-category-cards-title`}
+        >
+          <div className="content-section-kicker">Kategoriler</div>
+          <h2 id={`${hub.slug ?? "topic"}-category-cards-title`}>{hub.cardsHeading}</h2>
+          <p>{hub.cardsIntro}</p>
+          <div className="content-hub-grid">
+            {categoryCards.map((card) => (
+              <TopicCard card={card} key={card.slug} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <ContentCta cta={hub.cta} />
     </ContentPageLayout>

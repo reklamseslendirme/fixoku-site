@@ -75,7 +75,7 @@ export const knowledgeCenterHub = {
     "Fixoku Bilgi Merkezi'nde hızlı okuma, dikkat, odaklanma, hafıza, öğrenme teknikleri, sınav hazırlığı ve verimli ders çalışma konularını keşfedin.",
   readingTime: "4 dakika",
   summary:
-    "Fixoku Bilgi Merkezi; okuma, dikkat, odaklanma ve öğrenme becerileri hakkında güvenilir, anlaşılır ve konu bazlı rehberleri bir araya getirecek içerik merkezidir.",
+    "Fixoku Bilgi Merkezi; okuma, dikkat, odaklanma ve öğrenme becerileri hakkında güvenilir, anlaşılır ve konu bazlı rehberleri bir araya getiren içerik merkezidir.",
   sections: [
     {
       id: "bilgi-merkezi-nedir",
@@ -90,7 +90,7 @@ export const knowledgeCenterHub = {
       title: "İçerikler nasıl düzenlenecek?",
       paragraphs: [
         "Makaleler hızlı okuma, dikkat, odaklanma, hafıza, öğrenme teknikleri, sınav hazırlığı, kitap okuma ve verimli ders çalışma kategorileri altında yayımlanacaktır.",
-        "Bu ilk aşamada kategori yapısı ve içerik merkezi hazırlanmıştır. Makaleler sonraki fazlarda kendi arama amaçları, kaynakları ve SEO bilgileriyle ayrı ayrı eklenecektir.",
+        "Makaleler kendi arama amaçları, kaynakları ve SEO bilgileriyle ayrı sayfalarda yayımlanır. Yeni içerikler eklendikçe kategori yapısı genişletilmeden ilgili konu kümesine bağlanır.",
       ],
     },
     {
@@ -103,12 +103,15 @@ export const knowledgeCenterHub = {
     },
   ],
   cards: knowledgeCenterCategories,
+  articlesHeading: "Bilgi Merkezi'ndeki güncel makaleler",
+  articlesIntro:
+    "Hızlı okuma, kelime dağarcığı, dikkat ve görsel algı konularındaki ilk beş makaleyi doğrudan inceleyebilirsiniz.",
   cardsHeading: "Bilgi Merkezi kategorilerini keşfedin",
   cardsIntro:
-    "Sekiz ana kategori, ilerleyen fazlarda yayımlanacak makalelerin düzenli ve birbirinden ayrılmış konu kümelerini oluşturur.",
+    "Sekiz ana kategori, yayımlanan ve ilerleyen fazlarda eklenecek makalelerin düzenli ve birbirinden ayrılmış konu kümelerini oluşturur.",
   cta: {
     title: "Mevcut okuma ve dikkat rehberlerinden başlayın",
-    text: "Yeni makaleler hazırlanırken Hızlı Okuma ile Dikkat ve Odaklanma içerik merkezlerini inceleyebilirsiniz.",
+    text: "Bilgi Merkezi makalelerinin yanında Hızlı Okuma ile Dikkat ve Odaklanma içerik merkezlerini de inceleyebilirsiniz.",
     primary: { label: "Hızlı Okuma Rehberini İncele", to: "/hizli-okuma" },
     secondary: { label: "Dikkat ve Odaklanmayı İncele", to: "/dikkat-ve-odaklanma" },
   },

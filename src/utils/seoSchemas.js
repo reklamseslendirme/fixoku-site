@@ -5,14 +5,28 @@ export function buildContentSchemas(route) {
     return [];
   }
 
-  const pageSchema = {
-    "@context": "https://schema.org",
-    "@type": route.schemaType,
-    name: route.heading,
-    description: route.description,
-    url: buildSiteUrl(route.path),
-    inLanguage: "tr-TR",
-  };
+  const pageUrl = buildSiteUrl(route.path);
+  const pageSchema = route.schemaType === "Article"
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: route.heading,
+        description: route.description,
+        mainEntityOfPage: {
+          "@type": "WebPage",
+          "@id": pageUrl,
+        },
+        url: pageUrl,
+        inLanguage: "tr-TR",
+      }
+    : {
+        "@context": "https://schema.org",
+        "@type": route.schemaType,
+        name: route.heading,
+        description: route.description,
+        url: pageUrl,
+        inLanguage: "tr-TR",
+      };
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",

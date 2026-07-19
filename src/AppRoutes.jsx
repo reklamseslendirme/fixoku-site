@@ -10,10 +10,8 @@ import {
   fixokuEducationArticles,
   fixokuEducationHub,
 } from "./data/fixokuEducationContent.js";
-import {
-  knowledgeCenterCategories,
-  knowledgeCenterHub,
-} from "./data/knowledgeCenterContent.js";
+import { knowledgeCenterHub } from "./data/knowledgeCenterContent.js";
+import { blogArticles } from "./data/blogContent.js";
 import { quickReadingArticles } from "./data/quickReadingContent.js";
 import Egitimler from "./pages/Egitimler.jsx";
 import Hakkimizda from "./pages/Hakkimizda.jsx";
@@ -66,8 +64,15 @@ export default function AppRoutes() {
         ))}
         <Route
           path={knowledgeCenterHub.path}
-          element={<TopicHub articles={knowledgeCenterCategories} hub={knowledgeCenterHub} />}
+          element={<TopicHub articles={blogArticles} hub={knowledgeCenterHub} />}
         />
+        {blogArticles.map((article) => (
+          <Route
+            key={article.path}
+            path={article.path}
+            element={<TopicArticle article={article} contentByPath={contentCatalogByPath} />}
+          />
+        ))}
         <Route path="/panel/*" element={<PanelApp />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
