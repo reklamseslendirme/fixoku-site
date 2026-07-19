@@ -1,5 +1,11 @@
 import { Link } from "react-router-dom";
+import { corporateArticles, corporateHub } from "../data/corporateContent.js";
 import { trainingArticles, trainingHub } from "../data/trainingContent.js";
+
+const corporateFooterLinks = [
+  { label: corporateHub.heading, to: corporateHub.path },
+  ...corporateArticles.map((article) => ({ label: article.navLabel, to: article.path })),
+];
 
 const trainingFooterLinks = [
   { label: trainingHub.navLabel, to: trainingHub.path },
@@ -27,14 +33,7 @@ const footerColumns = [
   },
   {
     title: "Kurumsal",
-    links: [
-      { label: "Okullar İçin", to: "/okullar-icin" },
-      { label: "Eğitmen Ol", to: "/egitmen-ol" },
-      { label: "Okul Başvuru Formu", to: "/okullar-icin/basvuru" },
-      { label: "Eğitmen Başvuru Formu", to: "/egitmen-ol/basvuru" },
-      { label: "Hakkımızda", to: "/hakkimizda" },
-      { label: "Yorumlar", to: "/yorumlar" },
-    ],
+    links: corporateFooterLinks,
   },
   {
     title: "Ücretsiz Testler",

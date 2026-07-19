@@ -4,6 +4,7 @@ import {
   ATTENTION_FOCUS_HUB_PATH,
   attentionFocusArticles,
 } from "../data/attentionFocusContent.js";
+import { CORPORATE_HUB_PATH, corporateArticles } from "../data/corporateContent.js";
 import {
   FIXOKU_EDUCATION_HUB_PATH,
   fixokuEducationArticles,
@@ -69,12 +70,12 @@ const desktopMenuItems = [
   {
     key: "kurumsal",
     label: "KURUMSAL",
-    items: [
-      { label: "Okullar İçin", to: "/okullar-icin", icon: "school" },
-      { label: "Eğitmen Ol", to: "/egitmen-ol", icon: "trainer" },
-      { label: "Hakkımızda", to: "/hakkimizda", icon: "message" },
-      { label: "Sık Sorulan Sorular", to: "/sss", icon: "question" },
-    ],
+    to: CORPORATE_HUB_PATH,
+    items: corporateArticles.map((article) => ({
+      label: article.navLabel,
+      to: article.path,
+      icon: article.icon,
+    })),
   },
 ];
 
@@ -135,13 +136,11 @@ const mobileMenuItems = [
     key: "kurumsal",
     label: "Kurumsal",
     icon: "building",
-    items: [
-      { label: "Okullar İçin", to: "/okullar-icin" },
-      { label: "Eğitmen Ol", to: "/egitmen-ol" },
-      { label: "Hakkımızda", to: "/hakkimizda" },
-      { label: "Yorumlar", to: "/yorumlar" },
-      { label: "Sık Sorulan Sorular", to: "/sss" },
-    ],
+    to: CORPORATE_HUB_PATH,
+    items: corporateArticles.map((article) => ({
+      label: article.navLabel,
+      to: article.path,
+    })),
   },
 ];
 

@@ -10,6 +10,11 @@ import {
 import { blogArticles, blogPages } from "../src/data/blogContent.js";
 import { contentExplorerGroups } from "../src/data/contentExplorer.js";
 import {
+  corporateArticles,
+  corporateHub,
+  corporatePages,
+} from "../src/data/corporateContent.js";
+import {
   fixokuEducationArticles,
   fixokuEducationHub,
   fixokuEducationPages,
@@ -22,6 +27,7 @@ import {
 import {
   attentionFocusRoutePaths,
   blogRoutePaths,
+  corporateRoutePaths,
   fixokuEducationRoutePaths,
   indexableRoutePaths,
   knowledgeCenterRoutePaths,
@@ -125,6 +131,13 @@ const requiredTrainingRoutes = [
   "/egitimler/sinav-odakli-hizli-okuma",
 ];
 
+const requiredCorporateRoutes = [
+  "/hakkimizda",
+  "/okullar-icin",
+  "/egitmen-ol",
+  "/sss",
+];
+
 check(
   requiredQuickReadingRoutes.every((routePath) => quickReadingRoutePaths.includes(routePath)),
   "Altı Hızlı Okuma route'u merkezi registry içinde kayıtlı.",
@@ -186,7 +199,36 @@ check(
     !indexableRoutePaths.includes("/egitimlerimiz"),
   "Mevcut /egitimler hub'ı tek; yinelenen /egitimlerimiz route'u bulunmuyor.",
 );
-check(indexableRoutePaths.length === 36, "Toplam indexlenebilir public route sayısı tam olarak 36.");
+check(
+  requiredCorporateRoutes.every((routePath) => corporateRoutePaths.includes(routePath)) &&
+    corporateRoutePaths.length === 4,
+  "Kurumsal hub ve üç alt route merkezi registry içinde kayıtlı.",
+);
+check(
+  corporatePages.length === 4 &&
+    corporateArticles.length === 3 &&
+    corporateHub.path === "/hakkimizda" &&
+    corporateHub.schemaType === "AboutPage" &&
+    corporateArticles.every(
+      (article) => article.collectionPath === "/hakkimizda" && article.kind === "article",
+    ),
+  "Kurumsal merkezi veri kümesi bir hub ve üç gerçek alt içerik taşıyor.",
+);
+const forbiddenCorporateRoutes = [
+  "/kurumsal",
+  "/kurumsalimiz",
+  "/kurumsal-sayfalar",
+  "/misyon-vizyon",
+  "/yorumlar",
+  "/okullar-icin/basvuru",
+  "/egitmen-ol/basvuru",
+];
+check(
+  publicRouteRegistry.filter((route) => route.path === "/hakkimizda").length === 1 &&
+    forbiddenCorporateRoutes.every((routePath) => !indexableRoutePaths.includes(routePath)),
+  "Mevcut /hakkimizda hub'ı tek ve kaynaksız kurumsal route üretilmedi.",
+);
+check(indexableRoutePaths.length === 39, "Toplam indexlenebilir public route sayısı tam olarak 39.");
 check(
   isUnique(publicRouteRegistry.map((route) => route.title)),
   "Indexlenebilir route title değerleri benzersiz.",
@@ -262,7 +304,7 @@ check(
       return true;
     }),
   ),
-  "WebPage, CollectionPage, Article ve BreadcrumbList şemaları geçerli JSON üretiyor.",
+  "AboutPage, WebPage, CollectionPage, Article ve BreadcrumbList şemaları geçerli JSON üretiyor.",
 );
 
 const blogArticleRoutes = publicRouteRegistry.filter((route) => blogRoutePaths.includes(route.path));
@@ -328,6 +370,13 @@ const contentLinks = [
   ]),
   trainingHub.cta.primary.to,
   trainingHub.cta.secondary?.to,
+  ...corporateArticles.flatMap((article) => [
+    ...article.related,
+    article.cta.primary.to,
+    article.cta.secondary?.to,
+  ]),
+  corporateHub.cta.primary.to,
+  corporateHub.cta.secondary?.to,
 ].filter(Boolean);
 check(
   contentLinks.every((routePath) => knownRoutePaths.has(routePath)),
@@ -340,6 +389,7 @@ const contentPages = [
   ...knowledgeCenterPages,
   ...blogPages,
   ...trainingPages,
+  ...corporatePages,
 ];
 check(
   contentPages.every(
@@ -467,25 +517,83 @@ check(
   "Eğitim sayfalarında doğrulanamayan ticari, puan veya Course şeması bulunmuyor.",
 );
 
+const corporateContent = JSON.stringify(corporatePages).toLocaleLowerCase("tr-TR");
+const unsafeCorporateClaims = [
+  /(?:2|iki) kat/,
+  /garanti (?:eder|sağlar|sunar|verir)/,
+  /(?:ekonomik özgürlük|gelirlerini artır|kariyerini zirveye)/,
+  /(?:21 günlük|4 ile 6 hafta|40 saat|1 yıl açık)/,
+  /(?:%80|%30|%40)/,
+  /(?:126 egzersiz|9 analiz|4\+ gelişim)/,
+  /(?:en etkili|en az iki|başarıyı doğrudan)/,
+  /(?:hiperaktif bozukluğu|tanı koyar|tedavi eder)/,
+];
+check(
+  unsafeCorporateClaims.every((pattern) => !pattern.test(corporateContent)),
+  "Kurumsal içeriklerde garanti, iki kat, gelir, sabit süre, yüzde veya tıbbi iddia bulunmuyor.",
+);
+check(
+  corporateHub.sections.length >= 4 &&
+    corporateArticles.every(
+      (article) =>
+        article.audience &&
+        article.sections.length >= 5 &&
+        article.related.length >= 2 &&
+        article.related.length <= 3,
+    ),
+  "Kurumsal sayfalarda hedef kitle, bölüm ve ilgili içerik yapısı yeterli.",
+);
+const corporateSchemaRoutes = publicRouteRegistry.filter((route) =>
+  corporateRoutePaths.includes(route.path),
+);
+check(
+  corporateSchemaRoutes.every((route) =>
+    route.path === "/hakkimizda"
+      ? route.schemaType === "AboutPage"
+      : route.schemaType === "WebPage"),
+  "Kurumsal hub AboutPage, üç alt sayfa WebPage şeması kullanıyor.",
+);
+check(
+  corporateSchemaRoutes.every(
+    (route) =>
+      ![
+        "FAQPage",
+        "Course",
+        "Product",
+        "Offer",
+        "Review",
+        "AggregateRating",
+      ].includes(route.schemaType),
+  ),
+  "Kurumsal sayfalarda FAQPage veya doğrulanamayan ticari şema bulunmuyor.",
+);
+
 const expectedExplorerCounts = new Map([
   ["Hızlı Okuma", 6],
   ["Dikkat ve Odaklanma", 6],
   ["Fixoku Eğitimi", 7],
   ["Bilgi Merkezi", 6],
   ["Eğitimlerimiz", 8],
+  ["Kurumsal", 4],
 ]);
 check(
   contentExplorerGroups.length === expectedExplorerCounts.size &&
     contentExplorerGroups.every(
       (group) => expectedExplorerCounts.get(group.label) === group.items.length,
     ),
-  "Global Content Explorer beş merkezi grubu 6, 6, 7, 6 ve 8 içerikle üretiyor.",
+  "Global Content Explorer altı merkezi grubu 6, 6, 7, 6, 8 ve 4 içerikle üretiyor.",
 );
 check(
   contentExplorerGroups
     .find((group) => group.label === "Eğitimlerimiz")
     ?.items.every((item) => requiredTrainingRoutes.includes(item.path)),
   "Global Content Explorer Eğitimlerimiz grubunu sekiz gerçek route'tan otomatik oluşturuyor.",
+);
+check(
+  contentExplorerGroups
+    .find((group) => group.label === "Kurumsal")
+    ?.items.every((item) => requiredCorporateRoutes.includes(item.path)),
+  "Global Content Explorer Kurumsal grubunu dört gerçek route'tan otomatik oluşturuyor.",
 );
 
 const headerSource = await readFile(
@@ -517,6 +625,15 @@ check(
   "Eğitimlerimiz masaüstü, mobil ve footer navigasyonunda merkezi gerçek route'ları kullanıyor.",
 );
 check(
+  headerSource.includes("corporateArticles") &&
+    headerSource.includes("CORPORATE_HUB_PATH") &&
+    footerSource.includes("corporateFooterLinks") &&
+    forbiddenCorporateRoutes.every(
+      (routePath) => !headerSource.includes(routePath) && !footerSource.includes(routePath),
+    ),
+  "Kurumsal masaüstü, mobil ve footer navigasyonu merkezi gerçek route'ları kullanıyor.",
+);
+check(
   headerSource.includes('className="nav-link blog-nav-link"') &&
     headerSource.includes('to="/blog"') &&
     footerSource.includes('{ label: "Bilgi Merkezi", to: "/blog" }'),
@@ -526,6 +643,9 @@ const appRoutesSource = await readFile(path.join(projectRoot, "src", "AppRoutes.
 const appSource = await readFile(path.join(projectRoot, "src", "App.jsx"), "utf8");
 const legacyTrainingPageExists = await stat(
   path.join(projectRoot, "src", "pages", "Egitimler.jsx"),
+).then(() => true).catch(() => false);
+const legacyCorporatePageExists = await stat(
+  path.join(projectRoot, "src", "pages", "Hakkimizda.jsx"),
 ).then(() => true).catch(() => false);
 check(
   appRoutesSource.includes("articles={blogArticles}") &&
@@ -541,6 +661,13 @@ check(
     !appSource.includes("Egitimler") &&
     !legacyTrainingPageExists,
   "Eski hardcoded eğitim component'i kaldırıldı ve /egitimler ortak içerik mimarisine taşındı.",
+);
+check(
+  appRoutesSource.includes("articles={corporateArticles}") &&
+    appRoutesSource.includes("corporateArticles.map") &&
+    !appRoutesSource.includes("Hakkimizda") &&
+    !legacyCorporatePageExists,
+  "Eski hardcoded Hakkımızda component'i kaldırıldı ve /hakkimizda ortak içerik mimarisine taşındı.",
 );
 
 const robotsSource = await readFile(path.join(projectRoot, "public", "robots.txt"), "utf8");

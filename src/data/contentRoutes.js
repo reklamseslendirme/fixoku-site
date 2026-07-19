@@ -1,5 +1,6 @@
 import { attentionFocusPages } from "./attentionFocusContent.js";
 import { blogPages } from "./blogContent.js";
+import { corporatePages } from "./corporateContent.js";
 import { fixokuEducationPages } from "./fixokuEducationContent.js";
 import { knowledgeCenterPages } from "./knowledgeCenterContent.js";
 import { quickReadingPages } from "./quickReadingContent.js";
@@ -21,14 +22,6 @@ const existingPublicRoutes = [
       "Fixoku öğrenci eğitimleri, eğitmen başvuruları, yazılım kullanımı ve kurum iş birlikleri hakkında bilgi almak için iletişim kanallarımıza ulaşın.",
     heading: "Size en uygun Fixoku eğitim çözümünü birlikte planlayalım.",
     distinguishingText: "Size en uygun",
-  },
-  {
-    path: "/hakkimizda",
-    title: "Fixoku Hakkında | Okuma, Anlama ve Dikkat Sistemi",
-    description:
-      "Fixoku'nun hızlı okuma, anlama, dikkat ve odaklanma becerilerini birlikte ele alan eğitim yaklaşımı, misyonu ve çalışma alanları hakkında bilgi alın.",
-    heading: "Hızlı okuma, anlama ve dikkat gelişimini tek sistemde buluşturuyoruz.",
-    distinguishingText: "Hızlı okuma, anlama ve dikkat gelişimini",
   },
 ];
 
@@ -85,6 +78,11 @@ const trainingRoutes = createContentRoutes(trainingPages, {
   collectionPath: "/egitimler",
 });
 
+const corporateRoutes = createContentRoutes(corporatePages, {
+  collectionLabel: "Kurumsal",
+  collectionPath: "/hakkimizda",
+});
+
 export const publicRouteRegistry = [
   ...existingPublicRoutes,
   ...quickReadingRoutes,
@@ -93,6 +91,7 @@ export const publicRouteRegistry = [
   ...knowledgeCenterRoutes,
   ...blogRoutes,
   ...trainingRoutes,
+  ...corporateRoutes,
 ].map((route) => ({
     ...route,
     robots: "index, follow",
@@ -106,6 +105,7 @@ export const fixokuEducationRoutePaths = fixokuEducationRoutes.map((route) => ro
 export const knowledgeCenterRoutePaths = knowledgeCenterRoutes.map((route) => route.path);
 export const blogRoutePaths = blogRoutes.map((route) => route.path);
 export const trainingRoutePaths = trainingRoutes.map((route) => route.path);
+export const corporateRoutePaths = corporateRoutes.map((route) => route.path);
 
 export const panelSeo = {
   title: "Fixoku Panel",

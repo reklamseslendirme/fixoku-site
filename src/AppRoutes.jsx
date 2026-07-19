@@ -6,6 +6,7 @@ import {
   attentionFocusHub,
 } from "./data/attentionFocusContent.js";
 import { contentCatalogByPath } from "./data/contentCatalog.js";
+import { corporateArticles, corporateHub } from "./data/corporateContent.js";
 import {
   fixokuEducationArticles,
   fixokuEducationHub,
@@ -14,7 +15,6 @@ import { knowledgeCenterHub } from "./data/knowledgeCenterContent.js";
 import { blogArticles } from "./data/blogContent.js";
 import { quickReadingArticles } from "./data/quickReadingContent.js";
 import { trainingArticles, trainingHub } from "./data/trainingContent.js";
-import Hakkimizda from "./pages/Hakkimizda.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import QuickReadingArticle from "./pages/content/QuickReadingArticle.jsx";
 import QuickReadingHub from "./pages/content/QuickReadingHub.jsx";
@@ -30,7 +30,6 @@ export default function AppRoutes() {
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/iletisim" element={<Iletisim />} />
-        <Route path="/hakkimizda" element={<Hakkimizda />} />
         <Route path="/hizli-okuma" element={<QuickReadingHub />} />
         {quickReadingArticles.map((article) => (
           <Route
@@ -77,6 +76,17 @@ export default function AppRoutes() {
           element={<TopicHub articles={trainingArticles} hub={trainingHub} />}
         />
         {trainingArticles.map((article) => (
+          <Route
+            key={article.path}
+            path={article.path}
+            element={<TopicArticle article={article} contentByPath={contentCatalogByPath} />}
+          />
+        ))}
+        <Route
+          path={corporateHub.path}
+          element={<TopicHub articles={corporateArticles} hub={corporateHub} />}
+        />
+        {corporateArticles.map((article) => (
           <Route
             key={article.path}
             path={article.path}

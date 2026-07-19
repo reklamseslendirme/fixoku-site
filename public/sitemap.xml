@@ -7,9 +7,6 @@
     <loc>https://fixoku.com/iletisim</loc>
   </url>
   <url>
-    <loc>https://fixoku.com/hakkimizda</loc>
-  </url>
-  <url>
     <loc>https://fixoku.com/hizli-okuma</loc>
   </url>
   <url>
@@ -107,5 +104,17 @@
   </url>
   <url>
     <loc>https://fixoku.com/egitimler/sinav-odakli-hizli-okuma</loc>
+  </url>
+  <url>
+    <loc>https://fixoku.com/hakkimizda</loc>
+  </url>
+  <url>
+    <loc>https://fixoku.com/okullar-icin</loc>
+  </url>
+  <url>
+    <loc>https://fixoku.com/egitmen-ol</loc>
+  </url>
+  <url>
+    <loc>https://fixoku.com/sss</loc>
   </url>
 </urlset>
