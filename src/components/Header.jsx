@@ -9,6 +9,7 @@ import {
   fixokuEducationArticles,
 } from "../data/fixokuEducationContent.js";
 import { quickReadingArticles } from "../data/quickReadingContent.js";
+import { TRAINING_HUB_PATH, trainingArticles } from "../data/trainingContent.js";
 
 const desktopIconPaths = {
   book: <><path d="M5 5.8C5 4.8 5.8 4 6.8 4H11c1.4 0 2.6.5 3.5 1.3A5.2 5.2 0 0 1 18 4h.7c1 0 1.8.8 1.8 1.8V19c0 .6-.4 1-1 1h-1.8c-1.2 0-2.3.4-3.2 1.1A5.5 5.5 0 0 0 11 20H6.8C5.8 20 5 19.2 5 18.2V5.8Z" /><path d="M14.5 5.3v15.6" /></>,
@@ -56,17 +57,14 @@ const desktopMenuItems = [
     })),
   },
   {
-    key: "programlar",
-    label: "PROGRAMLAR",
-    items: [
-      { label: "Öğrenci Programları", to: "/ogrenci-programlari", icon: "student" },
-      { label: "İlkokul Hızlı Okuma", to: "/ogrenci-programlari/ilkokul", icon: "book" },
-      { label: "Ortaokul Hızlı Okuma", to: "/ogrenci-programlari/ortaokul", icon: "book" },
-      { label: "Lise Hızlı Okuma", to: "/ogrenci-programlari/lise", icon: "book" },
-      { label: "LGS Hazırlık", to: "/ogrenci-programlari/lgs", icon: "target" },
-      { label: "YKS Hazırlık", to: "/ogrenci-programlari/yks", icon: "target" },
-      { label: "Paragraf Çözme Teknikleri", to: "/ogrenci-programlari/paragraf", icon: "speed" },
-    ],
+    key: "egitimlerimiz",
+    label: "EĞİTİMLERİMİZ",
+    to: TRAINING_HUB_PATH,
+    items: trainingArticles.map((article) => ({
+      label: article.navLabel,
+      to: article.path,
+      icon: article.icon,
+    })),
   },
   {
     key: "kurumsal",
@@ -112,18 +110,14 @@ const mobileMenuItems = [
     })),
   },
   {
-    key: "programlar",
-    label: "Programlar",
+    key: "egitimlerimiz",
+    label: "Eğitimlerimiz",
     icon: "student",
-    items: [
-      { label: "Öğrenci Programları", to: "/ogrenci-programlari" },
-      { label: "İlkokul Hızlı Okuma", to: "/ogrenci-programlari/ilkokul" },
-      { label: "Ortaokul Hızlı Okuma", to: "/ogrenci-programlari/ortaokul" },
-      { label: "Lise Hızlı Okuma", to: "/ogrenci-programlari/lise" },
-      { label: "LGS Hazırlık", to: "/ogrenci-programlari/lgs" },
-      { label: "YKS Hazırlık", to: "/ogrenci-programlari/yks" },
-      { label: "Paragraf Teknikleri", to: "/ogrenci-programlari/paragraf" },
-    ],
+    to: TRAINING_HUB_PATH,
+    items: trainingArticles.map((article) => ({
+      label: article.navLabel,
+      to: article.path,
+    })),
   },
   {
     key: "testler",
@@ -308,7 +302,7 @@ function Header() {
 
             <div className="top-actions">
               <Link to="/panel" className="action-btn login-btn">Sisteme Giriş Yap</Link>
-              <Link to="/egitimler" className="action-btn store-btn">Mağazaya Git</Link>
+              <Link to={TRAINING_HUB_PATH} className="action-btn store-btn">Eğitimleri İncele</Link>
             </div>
           </div>
         </div>
@@ -389,7 +383,7 @@ function Header() {
 
             <div className="mobile-actions">
               <Link to="/panel" className="action-btn login-btn" onClick={closeMobileMenu}>Sisteme Giriş Yap</Link>
-              <Link to="/egitimler" className="action-btn store-btn" onClick={closeMobileMenu}>Mağazaya Git</Link>
+              <Link to={TRAINING_HUB_PATH} className="action-btn store-btn" onClick={closeMobileMenu}>Eğitimleri İncele</Link>
             </div>
 
             <div className="mobile-menu-contact">
@@ -404,7 +398,7 @@ function Header() {
       <nav className="mobile-bottom-nav" aria-label="Mobil hızlı menü">
         <Link to="/" className={location.pathname === "/" ? "is-active" : ""}><MobileIcon type="home" /><span>Ana Sayfa</span></Link>
         <Link to="/testler" className={location.pathname.startsWith("/test") || location.pathname.includes("testi") ? "is-active" : ""}><MobileIcon type="target" /><span>Testler</span></Link>
-        <Link to="/egitimler" className={location.pathname === "/egitimler" ? "is-active" : ""}><MobileIcon type="heart" /><span>Favoriler</span></Link>
+        <Link to={TRAINING_HUB_PATH} className={location.pathname.startsWith(TRAINING_HUB_PATH) ? "is-active" : ""}><MobileIcon type="book" /><span>Eğitimler</span></Link>
         <Link to="/panel" className={location.pathname.startsWith("/panel") ? "is-active" : ""}><MobileIcon type="user" /><span>Hesabım</span></Link>
       </nav>
 

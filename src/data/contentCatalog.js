@@ -3,6 +3,7 @@ import { blogContentByPath } from "./blogContent.js";
 import { fixokuEducationContentByPath } from "./fixokuEducationContent.js";
 import { knowledgeCenterContentByPath } from "./knowledgeCenterContent.js";
 import { quickReadingContentByPath } from "./quickReadingContent.js";
+import { trainingContentByPath } from "./trainingContent.js";
 
 export const contentCatalogByPath = {
   ...quickReadingContentByPath,
@@ -10,4 +11,5 @@ export const contentCatalogByPath = {
   ...fixokuEducationContentByPath,
   ...knowledgeCenterContentByPath,
   ...blogContentByPath,
+  ...trainingContentByPath,
 };

@@ -4,9 +4,6 @@
     <loc>https://fixoku.com</loc>
   </url>
   <url>
-    <loc>https://fixoku.com/egitimler</loc>
-  </url>
-  <url>
     <loc>https://fixoku.com/iletisim</loc>
   </url>
   <url>
@@ -86,5 +83,29 @@
   </url>
   <url>
     <loc>https://fixoku.com/blog/takistoskop-nedir</loc>
+  </url>
+  <url>
+    <loc>https://fixoku.com/egitimler</loc>
+  </url>
+  <url>
+    <loc>https://fixoku.com/egitimler/ilkokul-akici-okuma</loc>
+  </url>
+  <url>
+    <loc>https://fixoku.com/egitimler/ilkokul-hizli-okuma</loc>
+  </url>
+  <url>
+    <loc>https://fixoku.com/egitimler/ortaokul-hizli-okuma</loc>
+  </url>
+  <url>
+    <loc>https://fixoku.com/egitimler/lise-hizli-okuma</loc>
+  </url>
+  <url>
+    <loc>https://fixoku.com/egitimler/paragraf-teknikleri</loc>
+  </url>
+  <url>
+    <loc>https://fixoku.com/egitimler/yetiskin-hizli-okuma</loc>
+  </url>
+  <url>
+    <loc>https://fixoku.com/egitimler/sinav-odakli-hizli-okuma</loc>
   </url>
 </urlset>

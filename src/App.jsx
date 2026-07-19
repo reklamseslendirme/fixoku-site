@@ -5,7 +5,6 @@ import AttentionFocusTest from "./AttentionFocusTest";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Iletisim from "./pages/iletisim";
-import Egitimler from "./pages/Egitimler";
 import PanelApp from "./panel/PanelApp";
 
 function HeroSlideHeading({ active, className, children }) {
@@ -708,16 +707,6 @@ function App() {
       bg: "/2.webp",
     },
   ];
-
-  if (location.pathname === "/egitimler") {
-    return (
-      <div className="page">
-        <Header />
-        <Egitimler />
-        <Footer />
-      </div>
-    );
-  }
 
   if (location.pathname.startsWith("/panel")) {
     return <PanelApp />;

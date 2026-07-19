@@ -1,15 +1,17 @@
 import { Link } from "react-router-dom";
+import { trainingArticles, trainingHub } from "../data/trainingContent.js";
+
+const trainingFooterLinks = [
+  { label: trainingHub.navLabel, to: trainingHub.path },
+  ...trainingArticles
+    .filter((article) => article.footerFeatured)
+    .map((article) => ({ label: article.navLabel, to: article.path })),
+];
 
 const footerColumns = [
   {
-    title: "Eğitimler",
-    links: [
-      { label: "Hızlı Okuma Eğitimi", to: "/hizli-okuma" },
-      { label: "Dikkat ve Odaklanma", to: "/dikkat-ve-odaklanma" },
-      { label: "LGS Hazırlık", to: "/ogrenci-programlari/lgs" },
-      { label: "YKS Hazırlık", to: "/ogrenci-programlari/yks" },
-      { label: "Paragraf Teknikleri", to: "/ogrenci-programlari/paragraf" },
-    ],
+    title: "Eğitimlerimiz",
+    links: trainingFooterLinks,
   },
   {
     title: "Fixoku Eğitimi",

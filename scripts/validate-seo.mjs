@@ -8,6 +8,7 @@ import {
   attentionFocusPages,
 } from "../src/data/attentionFocusContent.js";
 import { blogArticles, blogPages } from "../src/data/blogContent.js";
+import { contentExplorerGroups } from "../src/data/contentExplorer.js";
 import {
   fixokuEducationArticles,
   fixokuEducationHub,
@@ -26,12 +27,18 @@ import {
   knowledgeCenterRoutePaths,
   publicRouteRegistry,
   quickReadingRoutePaths,
+  trainingRoutePaths,
 } from "../src/data/contentRoutes.js";
 import {
   quickReadingArticles,
   quickReadingHub,
   quickReadingPages,
 } from "../src/data/quickReadingContent.js";
+import {
+  trainingArticles,
+  trainingHub,
+  trainingPages,
+} from "../src/data/trainingContent.js";
 import { buildContentSchemas } from "../src/utils/seoSchemas.js";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -107,6 +114,17 @@ const requiredBlogCategories = new Map([
   ["/blog/takistoskop-nedir", "Öğrenme Teknikleri"],
 ]);
 
+const requiredTrainingRoutes = [
+  "/egitimler",
+  "/egitimler/ilkokul-akici-okuma",
+  "/egitimler/ilkokul-hizli-okuma",
+  "/egitimler/ortaokul-hizli-okuma",
+  "/egitimler/lise-hizli-okuma",
+  "/egitimler/paragraf-teknikleri",
+  "/egitimler/yetiskin-hizli-okuma",
+  "/egitimler/sinav-odakli-hizli-okuma",
+];
+
 check(
   requiredQuickReadingRoutes.every((routePath) => quickReadingRoutePaths.includes(routePath)),
   "Altı Hızlı Okuma route'u merkezi registry içinde kayıtlı.",
@@ -149,7 +167,26 @@ check(
     ),
   "Beş Blog makalesinin kategori, merkez ve schema eşleştirmeleri doğru.",
 );
-check(indexableRoutePaths.length === 29, "Toplam indexlenebilir public route sayısı tam olarak 29.");
+check(
+  requiredTrainingRoutes.every((routePath) => trainingRoutePaths.includes(routePath)) &&
+    trainingRoutePaths.length === 8,
+  "Eğitimlerimiz hub ve yedi alt route ile merkezi registry içinde kayıtlı.",
+);
+check(
+  trainingArticles.length === 7 &&
+    trainingPages.length === 8 &&
+    trainingHub.path === "/egitimler" &&
+    trainingArticles.every(
+      (article) => article.collectionPath === "/egitimler" && article.kind === "article",
+    ),
+  "Eğitimlerimiz merkezi veri kümesi bir hub ve yedi gerçek program içeriyor.",
+);
+check(
+  publicRouteRegistry.filter((route) => route.path === "/egitimler").length === 1 &&
+    !indexableRoutePaths.includes("/egitimlerimiz"),
+  "Mevcut /egitimler hub'ı tek; yinelenen /egitimlerimiz route'u bulunmuyor.",
+);
+check(indexableRoutePaths.length === 36, "Toplam indexlenebilir public route sayısı tam olarak 36.");
 check(
   isUnique(publicRouteRegistry.map((route) => route.title)),
   "Indexlenebilir route title değerleri benzersiz.",
@@ -284,6 +321,13 @@ const contentLinks = [
     article.cta.primary.to,
     article.cta.secondary?.to,
   ]),
+  ...trainingArticles.flatMap((article) => [
+    ...article.related,
+    article.cta.primary.to,
+    article.cta.secondary?.to,
+  ]),
+  trainingHub.cta.primary.to,
+  trainingHub.cta.secondary?.to,
 ].filter(Boolean);
 check(
   contentLinks.every((routePath) => knownRoutePaths.has(routePath)),
@@ -295,6 +339,7 @@ const contentPages = [
   ...fixokuEducationPages,
   ...knowledgeCenterPages,
   ...blogPages,
+  ...trainingPages,
 ];
 check(
   contentPages.every(
@@ -376,6 +421,73 @@ check(
   "Blog makalelerinde yazar veya tarih uydurulmamış; bölüm ve ilgili içerik yapısı geçerli.",
 );
 
+const trainingContent = JSON.stringify(trainingPages).toLocaleLowerCase("tr-TR");
+const unsafeTrainingClaims = [
+  /(?:2|iki) kat/,
+  /garanti (?:eder|sağlar|sunar|verir)/,
+  /kesin (?:başarı|sonuç|hız artışı|puan|net)/,
+  /(?:tanı koyar|tedavi eder|beyni yeniden programlar|fotoğrafik hafıza)/,
+  /(?:türkiye'nin en|en iyi|ilk ve tek)/,
+  /(?:4[.,]9|5[.,]0) (?:puan|yıldız)/,
+  /(?:21|30) (?:gün|hafta)/,
+  /3[.]000\+? öğrenci/,
+];
+check(
+  unsafeTrainingClaims.every((pattern) => !pattern.test(trainingContent)),
+  "Eğitimlerimiz içeriklerinde garanti, iki kat, tıbbi, puan, süre veya öğrenci sayısı iddiası bulunmuyor.",
+);
+check(
+  trainingHub.sections.length >= 4 &&
+    trainingArticles.every(
+      (article) =>
+        article.audience &&
+        article.sections.length >= 5 &&
+        article.related.length >= 2 &&
+        article.related.length <= 3,
+    ),
+  "Eğitimlerimiz sayfalarında hedef kitle, bölüm ve ilgili içerik yapısı yeterli.",
+);
+const trainingSchemaRoutes = publicRouteRegistry.filter((route) =>
+  trainingRoutePaths.includes(route.path),
+);
+check(
+  trainingSchemaRoutes.every((route) =>
+    route.path === "/egitimler"
+      ? route.schemaType === "CollectionPage"
+      : route.schemaType === "WebPage"),
+  "Eğitimlerimiz hub CollectionPage, alt sayfalar WebPage şeması kullanıyor.",
+);
+check(
+  trainingSchemaRoutes.every(
+    (route) =>
+      !["Course", "Product", "Offer", "Review", "AggregateRating", "FAQPage"].includes(
+        route.schemaType,
+      ),
+  ),
+  "Eğitim sayfalarında doğrulanamayan ticari, puan veya Course şeması bulunmuyor.",
+);
+
+const expectedExplorerCounts = new Map([
+  ["Hızlı Okuma", 6],
+  ["Dikkat ve Odaklanma", 6],
+  ["Fixoku Eğitimi", 7],
+  ["Bilgi Merkezi", 6],
+  ["Eğitimlerimiz", 8],
+]);
+check(
+  contentExplorerGroups.length === expectedExplorerCounts.size &&
+    contentExplorerGroups.every(
+      (group) => expectedExplorerCounts.get(group.label) === group.items.length,
+    ),
+  "Global Content Explorer beş merkezi grubu 6, 6, 7, 6 ve 8 içerikle üretiyor.",
+);
+check(
+  contentExplorerGroups
+    .find((group) => group.label === "Eğitimlerimiz")
+    ?.items.every((item) => requiredTrainingRoutes.includes(item.path)),
+  "Global Content Explorer Eğitimlerimiz grubunu sekiz gerçek route'tan otomatik oluşturuyor.",
+);
+
 const headerSource = await readFile(
   path.join(projectRoot, "src", "components", "Header.jsx"),
   "utf8",
@@ -397,18 +509,38 @@ check(
   "Fixoku Eğitimi masaüstü, mobil ve footer navigasyonuna bağlı.",
 );
 check(
+  headerSource.includes("trainingArticles") &&
+    headerSource.includes("TRAINING_HUB_PATH") &&
+    footerSource.includes("trainingFooterLinks") &&
+    !headerSource.includes("/ogrenci-programlari") &&
+    !footerSource.includes("/ogrenci-programlari"),
+  "Eğitimlerimiz masaüstü, mobil ve footer navigasyonunda merkezi gerçek route'ları kullanıyor.",
+);
+check(
   headerSource.includes('className="nav-link blog-nav-link"') &&
     headerSource.includes('to="/blog"') &&
     footerSource.includes('{ label: "Bilgi Merkezi", to: "/blog" }'),
   "Bilgi Merkezi masaüstü, mobil ve footer navigasyonuna bağlı.",
 );
 const appRoutesSource = await readFile(path.join(projectRoot, "src", "AppRoutes.jsx"), "utf8");
+const appSource = await readFile(path.join(projectRoot, "src", "App.jsx"), "utf8");
+const legacyTrainingPageExists = await stat(
+  path.join(projectRoot, "src", "pages", "Egitimler.jsx"),
+).then(() => true).catch(() => false);
 check(
   appRoutesSource.includes("articles={blogArticles}") &&
     appRoutesSource.includes("blogArticles.map") &&
     hubSource.includes("articleCount") &&
     knowledgeCenterCategories.every((category) => !category.path),
   "/blog hub beş gerçek makaleyi gösteriyor ve routesuz kategori kartları kırık link üretmiyor.",
+);
+check(
+  appRoutesSource.includes("articles={trainingArticles}") &&
+    appRoutesSource.includes("trainingArticles.map") &&
+    !appRoutesSource.includes("Egitimler") &&
+    !appSource.includes("Egitimler") &&
+    !legacyTrainingPageExists,
+  "Eski hardcoded eğitim component'i kaldırıldı ve /egitimler ortak içerik mimarisine taşındı.",
 );
 
 const robotsSource = await readFile(path.join(projectRoot, "public", "robots.txt"), "utf8");
