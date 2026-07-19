@@ -458,6 +458,15 @@
   max-width: 820px;
 }
 
+.legal-content-layout {
+  width: min(100% - 40px, 920px);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.legal-content-article {
+  max-width: none;
+}
+
 .content-section {
   scroll-margin-top: 28px;
   margin-bottom: 54px;

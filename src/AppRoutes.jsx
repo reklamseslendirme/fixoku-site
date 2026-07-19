@@ -12,6 +12,7 @@ import {
   fixokuEducationHub,
 } from "./data/fixokuEducationContent.js";
 import { knowledgeCenterHub } from "./data/knowledgeCenterContent.js";
+import { legalPages } from "./data/legalContent.js";
 import { blogArticles } from "./data/blogContent.js";
 import { quickReadingArticles } from "./data/quickReadingContent.js";
 import { trainingArticles, trainingHub } from "./data/trainingContent.js";
@@ -21,6 +22,7 @@ import QuickReadingHub from "./pages/content/QuickReadingHub.jsx";
 import TopicArticle from "./pages/content/TopicArticle.jsx";
 import TopicHub from "./pages/content/TopicHub.jsx";
 import Iletisim from "./pages/iletisim.jsx";
+import LegalPage from "./pages/LegalPage.jsx";
 import PanelApp from "./panel/PanelApp";
 
 export default function AppRoutes() {
@@ -92,6 +94,9 @@ export default function AppRoutes() {
             path={article.path}
             element={<TopicArticle article={article} contentByPath={contentCatalogByPath} />}
           />
+        ))}
+        {legalPages.map((page) => (
+          <Route key={page.path} path={page.path} element={<LegalPage page={page} />} />
         ))}
         <Route path="/panel/*" element={<PanelApp />} />
         <Route path="*" element={<NotFound />} />

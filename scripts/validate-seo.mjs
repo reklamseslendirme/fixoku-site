@@ -1,7 +1,7 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { SITE_ORIGIN, buildSiteUrl } from "../src/config/site.js";
+import { SITE_ORIGIN, buildSiteUrl, normalizeRoutePath } from "../src/config/site.js";
 import {
   attentionFocusArticles,
   attentionFocusHub,
@@ -24,6 +24,7 @@ import {
   knowledgeCenterHub,
   knowledgeCenterPages,
 } from "../src/data/knowledgeCenterContent.js";
+import { businessIdentity, legalPages } from "../src/data/legalContent.js";
 import {
   attentionFocusRoutePaths,
   blogRoutePaths,
@@ -31,6 +32,7 @@ import {
   fixokuEducationRoutePaths,
   indexableRoutePaths,
   knowledgeCenterRoutePaths,
+  legalRoutePaths,
   publicRouteRegistry,
   quickReadingRoutePaths,
   trainingRoutePaths,
@@ -138,6 +140,12 @@ const requiredCorporateRoutes = [
   "/sss",
 ];
 
+const requiredLegalRoutes = [
+  "/kvkk",
+  "/gizlilik-politikasi",
+  "/cerez-politikasi",
+];
+
 check(
   requiredQuickReadingRoutes.every((routePath) => quickReadingRoutePaths.includes(routePath)),
   "Altı Hızlı Okuma route'u merkezi registry içinde kayıtlı.",
@@ -228,7 +236,13 @@ check(
     forbiddenCorporateRoutes.every((routePath) => !indexableRoutePaths.includes(routePath)),
   "Mevcut /hakkimizda hub'ı tek ve kaynaksız kurumsal route üretilmedi.",
 );
-check(indexableRoutePaths.length === 39, "Toplam indexlenebilir public route sayısı tam olarak 39.");
+check(
+  requiredLegalRoutes.every((routePath) => legalRoutePaths.includes(routePath)) &&
+    legalRoutePaths.length === 3 &&
+    legalPages.length === 3,
+  "Üç hukuki route merkezi veri ve route registry içinde kayıtlı.",
+);
+check(indexableRoutePaths.length === 42, "Toplam indexlenebilir public route sayısı tam olarak 42.");
 check(
   isUnique(publicRouteRegistry.map((route) => route.title)),
   "Indexlenebilir route title değerleri benzersiz.",
@@ -298,13 +312,51 @@ check(
 
 const schemaRoutes = publicRouteRegistry.filter((route) => route.schemaType);
 check(
-  schemaRoutes.every((route) =>
-    buildContentSchemas(route).every((schema) => {
+  schemaRoutes.length === publicRouteRegistry.length &&
+    schemaRoutes.every((route) => {
+      const schemas = buildContentSchemas(route);
+      return schemas.length > 0 && schemas.every((schema) => {
       JSON.parse(JSON.stringify(schema));
       return true;
+      });
     }),
-  ),
-  "AboutPage, WebPage, CollectionPage, Article ve BreadcrumbList şemaları geçerli JSON üretiyor.",
+  "Her public route boş olmayan, geçerli bir JSON-LD şema dizisi üretiyor.",
+);
+
+const homeRoute = publicRouteRegistry.find((route) => route.path === "/");
+const homeSchemas = buildContentSchemas(homeRoute);
+const homeSchemaTypes = homeSchemas.map((schema) => schema["@type"]);
+const homeOrganization = homeSchemas.find((schema) => schema["@type"] === "Organization");
+check(
+  JSON.stringify(homeSchemaTypes) === JSON.stringify(["Organization", "WebSite", "WebPage"]) &&
+    homeOrganization?.name === businessIdentity.brandName &&
+    homeOrganization?.legalName === businessIdentity.legalName &&
+    homeOrganization?.url === SITE_ORIGIN &&
+    homeOrganization?.logo === buildSiteUrl("/logo-fixoku.png") &&
+    homeOrganization?.email === businessIdentity.email &&
+    homeOrganization?.telephone === "+905334789253" &&
+    JSON.stringify(homeOrganization?.sameAs) === JSON.stringify(businessIdentity.socialProfiles) &&
+    !JSON.stringify(homeSchemas).includes("SearchAction") &&
+    !JSON.stringify(homeSchemas).includes("AggregateRating"),
+  "Ana sayfa Organization, WebSite ve WebPage şemalarını yalnız doğrulanmış alanlarla üretiyor.",
+);
+
+const contactRoute = publicRouteRegistry.find((route) => route.path === "/iletisim");
+check(
+  JSON.stringify(buildContentSchemas(contactRoute).map((schema) => schema["@type"])) ===
+    JSON.stringify(["ContactPage", "BreadcrumbList"]) &&
+    contactRoute.breadcrumbs?.[0]?.path === "/" &&
+    contactRoute.breadcrumbs?.[1]?.path === "/iletisim",
+  "İletişim route'u ContactPage ve BreadcrumbList şemalarını doğru hiyerarşiyle üretiyor.",
+);
+
+check(
+  legalRoutePaths.every((routePath) => {
+    const route = publicRouteRegistry.find((item) => item.path === routePath);
+    return JSON.stringify(buildContentSchemas(route).map((schema) => schema["@type"])) ===
+      JSON.stringify(["WebPage", "BreadcrumbList"]);
+  }),
+  "Üç hukuki route WebPage ve BreadcrumbList şemalarını üretiyor.",
 );
 
 const blogArticleRoutes = publicRouteRegistry.filter((route) => blogRoutePaths.includes(route.path));
@@ -330,7 +382,11 @@ check(
 
 const knownRoutePaths = new Set(indexableRoutePaths);
 check(
-  schemaRoutes.every((route) => route.breadcrumbs.every((item) => knownRoutePaths.has(item.path))),
+  schemaRoutes.every(
+    (route) =>
+      route.path === "/" ||
+      route.breadcrumbs?.every((item) => knownRoutePaths.has(item.path)),
+  ),
   "Breadcrumb bağlantılarının tamamı gerçek route'lara gidiyor.",
 );
 
@@ -568,6 +624,35 @@ check(
   "Kurumsal sayfalarda FAQPage veya doğrulanamayan ticari şema bulunmuyor.",
 );
 
+const legalContent = JSON.stringify(legalPages).toLocaleLowerCase("tr-TR");
+const forbiddenLegalContent = [
+  "fixoku.com.tr",
+  "dersfix.com",
+  "tamamen güvende",
+  "kırılması mümkün olmayan",
+  "mail order",
+  "paytr",
+  "iyzico",
+  "iyzigo",
+];
+check(
+  legalPages.every(
+    (page) =>
+      page.sections.length >= 5 &&
+      page.updatedAt === "19 Temmuz 2026" &&
+      page.schemaType === "WebPage",
+  ) && forbiddenLegalContent.every((phrase) => !legalContent.includes(phrase)),
+  "Hukuki içerikler kapsamlı, güncel tarihli ve eski domain, kesin güvenlik veya doğrulanmamış ödeme ifadelerinden arınmış.",
+);
+check(
+  legalContent.includes("fixoku-reading-text-rotation-v1") &&
+    legalContent.includes("document.cookie") &&
+    legalContent.includes("google analytics") &&
+    legalContent.includes("meta pixel") &&
+    legalContent.includes("iletişim formu mevcut teknik yapıda veriyi bir sunucuya göndermemektedir"),
+  "Hukuki metinler gerçek storage ve iletişim formu envanterini açıkça yansıtıyor.",
+);
+
 const expectedExplorerCounts = new Map([
   ["Hızlı Okuma", 6],
   ["Dikkat ve Odaklanma", 6],
@@ -641,6 +726,9 @@ check(
 );
 const appRoutesSource = await readFile(path.join(projectRoot, "src", "AppRoutes.jsx"), "utf8");
 const appSource = await readFile(path.join(projectRoot, "src", "App.jsx"), "utf8");
+const contactSource = await readFile(path.join(projectRoot, "src", "pages", "iletisim.jsx"), "utf8");
+const readingTestSource = await readFile(path.join(projectRoot, "src", "ReadingSpeedTest.jsx"), "utf8");
+const attentionTestSource = await readFile(path.join(projectRoot, "src", "AttentionFocusTest.jsx"), "utf8");
 const legacyTrainingPageExists = await stat(
   path.join(projectRoot, "src", "pages", "Egitimler.jsx"),
 ).then(() => true).catch(() => false);
@@ -668,6 +756,124 @@ check(
     !appRoutesSource.includes("Hakkimizda") &&
     !legacyCorporatePageExists,
   "Eski hardcoded Hakkımızda component'i kaldırıldı ve /hakkimizda ortak içerik mimarisine taşındı.",
+);
+check(
+  appRoutesSource.includes("legalPages.map") &&
+    appRoutesSource.includes("<LegalPage") &&
+    requiredLegalRoutes.every((routePath) => indexableRoutePaths.includes(routePath)),
+  "Hukuki sayfalar ortak LegalPage component'i üzerinden route sistemine bağlı.",
+);
+
+const activeNavigationSources = [appSource, headerSource, footerSource, contactSource];
+const staticInternalTargets = [];
+for (const source of activeNavigationSources) {
+  for (const pattern of [
+    /\b(?:href|to)\s*=\s*["']([^"']+)["']/g,
+    /\bto\s*:\s*["']([^"']+)["']/g,
+  ]) {
+    for (const match of source.matchAll(pattern)) staticInternalTargets.push(match[1]);
+  }
+}
+
+function isValidInternalTarget(target) {
+  if (target.startsWith("#")) return target.length > 1;
+  if (!target.startsWith("/")) return true;
+
+  const url = new URL(target, SITE_ORIGIN);
+  const pathname = normalizeRoutePath(url.pathname);
+  const routeExists = knownRoutePaths.has(pathname) || pathname === "/panel";
+  if (!routeExists) return false;
+
+  if (url.search) {
+    const params = [...url.searchParams.entries()];
+    if (
+      pathname !== "/" ||
+      params.length !== 1 ||
+      params[0][0] !== "test" ||
+      !["reading", "attention"].includes(params[0][1])
+    ) return false;
+  }
+
+  if (url.hash && pathname === "/" && url.hash !== "#testler") return false;
+  return true;
+}
+
+const invalidInternalTargets = [...new Set(
+  staticInternalTargets.filter((target) => target.startsWith("/") || target.startsWith("#"))
+    .filter((target) => !isValidInternalTarget(target)),
+)];
+check(
+  invalidInternalTargets.length === 0,
+  invalidInternalTargets.length
+    ? `Karşılanmayan global internal hedefler: ${invalidInternalTargets.join(", ")}`
+    : "Global static internal href ve Link hedeflerinin tamamı gerçek route, hash veya izinli test query'sine gidiyor.",
+);
+check(
+  activeNavigationSources.every((source) => !/href\s*=\s*["']#["']/.test(source)),
+  "Aktif public kaynaklarda href=\"#\" bulunmuyor.",
+);
+check(
+  appSource.includes('id="testler"') &&
+    appSource.includes("useSyncExternalStore") &&
+    appSource.includes("getServerHydrationSnapshot") &&
+    appSource.includes("new URLSearchParams(location.search)") &&
+    appSource.includes('searchParams.delete("test")') &&
+    appSource.includes('hash: location.hash') &&
+    headerSource.includes('/?test=reading') &&
+    headerSource.includes('/?test=attention') &&
+    footerSource.includes('/?test=reading') &&
+    footerSource.includes('/?test=attention'),
+  "Test linkleri mevcut ana sayfa modallarını query ile açıyor ve kapamada yalnız test parametresini temizliyor.",
+);
+
+const phoneAndWhatsappSource = [
+  headerSource,
+  footerSource,
+  contactSource,
+  readingTestSource,
+  attentionTestSource,
+].join("\n");
+const whatsappNumbers = [...phoneAndWhatsappSource.matchAll(/wa\.me\/(\d+)/g)].map((match) => match[1]);
+const telephoneNumbers = [...phoneAndWhatsappSource.matchAll(/tel:\+(\d+)/g)].map((match) => match[1]);
+check(
+  whatsappNumbers.length >= 5 &&
+    whatsappNumbers.every((number) => number === "905334789253") &&
+    telephoneNumbers.length >= 3 &&
+    telephoneNumbers.every((number) => number === "905334789253") &&
+    !phoneAndWhatsappSource.includes("902324620743") &&
+    !phoneAndWhatsappSource.includes("+90 232 462 07 43"),
+  "Aktif telefon ve WhatsApp hedefleri yalnızca doğrulanmış +90 533 478 92 53 numarasını kullanıyor.",
+);
+check(
+  businessIdentity.socialProfiles.every(
+    (profile) =>
+      footerSource.includes(`href="${profile}"`) &&
+      footerSource.includes('target="_blank"') &&
+      footerSource.includes('rel="noopener noreferrer"'),
+  ),
+  "Footer'daki dört sosyal medya bağlantısı doğrulanmış URL, yeni sekme ve güvenli rel kullanıyor.",
+);
+
+const readingRotationSource = await readFile(
+  path.join(projectRoot, "src", "utils", "readingTextRotation.js"),
+  "utf8",
+);
+const runtimeInventorySource = [
+  appSource,
+  headerSource,
+  footerSource,
+  contactSource,
+  readingTestSource,
+  attentionTestSource,
+  readingRotationSource,
+].join("\n");
+check(
+  !runtimeInventorySource.includes("document.cookie") &&
+    !runtimeInventorySource.includes("sessionStorage") &&
+    !/(?:\bgtag\s*\(|googletagmanager|google-analytics|\bfbq\s*\(|meta.?pixel)/i.test(runtimeInventorySource) &&
+    readingRotationSource.includes('const STORAGE_KEY = "fixoku-reading-text-rotation-v1"') &&
+    readingRotationSource.includes("window.localStorage"),
+  "Runtime envanteri izleme çerezi içermiyor ve tek kalıcı storage anahtarı okuma metni rotasyonuna ait.",
 );
 
 const robotsSource = await readFile(path.join(projectRoot, "public", "robots.txt"), "utf8");

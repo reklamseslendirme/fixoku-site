@@ -3,6 +3,7 @@ import { blogPages } from "./blogContent.js";
 import { corporatePages } from "./corporateContent.js";
 import { fixokuEducationPages } from "./fixokuEducationContent.js";
 import { knowledgeCenterPages } from "./knowledgeCenterContent.js";
+import { legalPages } from "./legalContent.js";
 import { quickReadingPages } from "./quickReadingContent.js";
 import { trainingPages } from "./trainingContent.js";
 
@@ -14,6 +15,7 @@ const existingPublicRoutes = [
       "Fixoku ile hızlı okuma, okuduğunu anlama, dikkat ve odaklanma becerilerine yönelik eğitim programlarını ve ücretsiz ölçüm araçlarını keşfedin.",
     heading: "21 Günde Okuma, Anlama, Dikkat ve Odaklanma Gelişimi",
     distinguishingText: "21 Günde",
+    schemaType: "WebPage",
   },
   {
     path: "/iletisim",
@@ -22,6 +24,11 @@ const existingPublicRoutes = [
       "Fixoku öğrenci eğitimleri, eğitmen başvuruları, yazılım kullanımı ve kurum iş birlikleri hakkında bilgi almak için iletişim kanallarımıza ulaşın.",
     heading: "Size en uygun Fixoku eğitim çözümünü birlikte planlayalım.",
     distinguishingText: "Size en uygun",
+    schemaType: "ContactPage",
+    breadcrumbs: [
+      { label: "Ana Sayfa", path: "/" },
+      { label: "İletişim", path: "/iletisim" },
+    ],
   },
 ];
 
@@ -83,6 +90,20 @@ const corporateRoutes = createContentRoutes(corporatePages, {
   collectionPath: "/hakkimizda",
 });
 
+const legalRoutes = legalPages.map((page) => ({
+  path: page.path,
+  title: page.seoTitle,
+  description: page.metaDescription,
+  heading: page.heading,
+  distinguishingText: page.heading,
+  contentKind: page.kind,
+  schemaType: page.schemaType,
+  breadcrumbs: [
+    { label: "Ana Sayfa", path: "/" },
+    { label: page.heading, path: page.path },
+  ],
+}));
+
 export const publicRouteRegistry = [
   ...existingPublicRoutes,
   ...quickReadingRoutes,
@@ -92,6 +113,7 @@ export const publicRouteRegistry = [
   ...blogRoutes,
   ...trainingRoutes,
   ...corporateRoutes,
+  ...legalRoutes,
 ].map((route) => ({
     ...route,
     robots: "index, follow",
@@ -106,6 +128,7 @@ export const knowledgeCenterRoutePaths = knowledgeCenterRoutes.map((route) => ro
 export const blogRoutePaths = blogRoutes.map((route) => route.path);
 export const trainingRoutePaths = trainingRoutes.map((route) => route.path);
 export const corporateRoutePaths = corporateRoutes.map((route) => route.path);
+export const legalRoutePaths = legalRoutes.map((route) => route.path);
 
 export const panelSeo = {
   title: "Fixoku Panel",

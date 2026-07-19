@@ -125,11 +125,11 @@ const mobileMenuItems = [
     label: "Testler",
     icon: "target",
     items: [
-      { label: "Ücretsiz Testler", to: "/testler" },
-      { label: "Okuma Hızı Testi", to: "/okuma-hizi-testi" },
-      { label: "Okuma ve Anlama Testi", to: "/okuma-anlama-testi" },
-      { label: "Dikkat Testi", to: "/dikkat-testi" },
-      { label: "Odaklanma Testi", to: "/odaklanma-testi" },
+      { label: "Ücretsiz Testler", to: "/#testler" },
+      { label: "Okuma Hızı Testi", to: "/?test=reading" },
+      { label: "Okuma ve Anlama Testi", to: "/?test=reading" },
+      { label: "Dikkat Testi", to: "/?test=attention" },
+      { label: "Odaklanma Testi", to: "/?test=attention" },
     ],
   },
   {
@@ -216,9 +216,23 @@ function Header() {
     setMobileActiveMenu((current) => (current === menuName ? "" : menuName));
   };
 
-  const isActiveMobileMenu = (menu) =>
-    location.pathname === menu.to ||
-    menu.items.some((item) => location.pathname === item.to || location.pathname.startsWith(`${item.to}/`));
+  const isActiveMobileMenu = (menu) => {
+    if (menu.key === "testler") {
+      const activeTest = new URLSearchParams(location.search).get("test");
+      return (
+        location.pathname === "/" &&
+        (location.hash === "#testler" || activeTest === "reading" || activeTest === "attention")
+      );
+    }
+
+    return (
+      location.pathname === menu.to ||
+      menu.items.some((item) => {
+        const itemPath = item.to.split(/[?#]/, 1)[0];
+        return location.pathname === itemPath || location.pathname.startsWith(`${itemPath}/`);
+      })
+    );
+  };
 
   return (
     <>
@@ -234,11 +248,11 @@ function Header() {
         <div className="top-header-inner top-header-single top-header-with-contact">
           <div className="top-left top-header-desktop-contact">
             <a className="top-contact" href="mailto:info@fixoku.com"><MobileIcon type="mail" />info@fixoku.com</a>
-            <a className="top-contact" href="tel:+902324620743"><MobileIcon type="phone" />+90 232 462 07 43</a>
+            <a className="top-contact" href="tel:+905334789253"><MobileIcon type="phone" />+90 533 478 92 53</a>
           </div>
           <div className="top-center"><img src="/top-banner.svg" alt="Fixoku" className="top-banner-svg" /></div>
           <div className="top-right top-header-desktop-contact">
-            <a className="whatsapp top-whatsapp-clean" href="https://wa.me/902324620743" target="_blank" rel="noreferrer">
+            <a className="whatsapp top-whatsapp-clean" href="https://wa.me/905334789253" target="_blank" rel="noopener noreferrer">
               <span className="whatsapp-icon real-whatsapp-icon"><WhatsAppIcon /></span>WhatsApp Destek
             </a>
           </div>
@@ -387,8 +401,8 @@ function Header() {
 
             <div className="mobile-menu-contact">
               <a className="mobile-contact-link" href="mailto:info@fixoku.com"><MobileIcon type="mail" /> info@fixoku.com</a>
-              <a className="mobile-contact-link" href="tel:+902324620743"><MobileIcon type="phone" /> +90 232 462 07 43</a>
-              <a className="mobile-contact-link mobile-whatsapp-link" href="https://wa.me/905334789253?text=Merhaba%2C%20Fixoku%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum." target="_blank" rel="noreferrer"><WhatsAppIcon /> WhatsApp Destek</a>
+              <a className="mobile-contact-link" href="tel:+905334789253"><MobileIcon type="phone" /> +90 533 478 92 53</a>
+              <a className="mobile-contact-link mobile-whatsapp-link" href="https://wa.me/905334789253?text=Merhaba%2C%20Fixoku%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum." target="_blank" rel="noopener noreferrer"><WhatsAppIcon /> WhatsApp Destek</a>
             </div>
           </aside>
         </div>
@@ -396,7 +410,7 @@ function Header() {
 
       <nav className="mobile-bottom-nav" aria-label="Mobil hızlı menü">
         <Link to="/" className={location.pathname === "/" ? "is-active" : ""}><MobileIcon type="home" /><span>Ana Sayfa</span></Link>
-        <Link to="/testler" className={location.pathname.startsWith("/test") || location.pathname.includes("testi") ? "is-active" : ""}><MobileIcon type="target" /><span>Testler</span></Link>
+        <Link to="/#testler" className={location.pathname === "/" && (location.hash === "#testler" || ["reading", "attention"].includes(new URLSearchParams(location.search).get("test"))) ? "is-active" : ""}><MobileIcon type="target" /><span>Testler</span></Link>
         <Link to={TRAINING_HUB_PATH} className={location.pathname.startsWith(TRAINING_HUB_PATH) ? "is-active" : ""}><MobileIcon type="book" /><span>Eğitimler</span></Link>
         <Link to="/panel" className={location.pathname.startsWith("/panel") ? "is-active" : ""}><MobileIcon type="user" /><span>Hesabım</span></Link>
       </nav>

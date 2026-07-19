@@ -38,10 +38,10 @@ const footerColumns = [
   {
     title: "Ücretsiz Testler",
     links: [
-      { label: "Okuma Hızı Testi", to: "/okuma-hizi-testi" },
-      { label: "Okuma ve Anlama Testi", to: "/okuma-anlama-testi" },
-      { label: "Dikkat Testi", to: "/dikkat-testi" },
-      { label: "Odaklanma Testi", to: "/odaklanma-testi" },
+      { label: "Okuma Hızı Testi", to: "/?test=reading" },
+      { label: "Okuma ve Anlama Testi", to: "/?test=reading" },
+      { label: "Dikkat Testi", to: "/?test=attention" },
+      { label: "Odaklanma Testi", to: "/?test=attention" },
     ],
   },
   {
@@ -56,10 +56,10 @@ const footerColumns = [
   },
 ];
 
-function Footer() {
+function Footer({ showCta = true }) {
   return (
     <footer className="site-footer">
-      <div className="footer-cta-band">
+      {showCta && <div className="footer-cta-band">
         <div className="footer-cta-inner">
           <div className="footer-cta-text">
             <h2>Çocuğunuzun Gelişimini Bugün Başlatın</h2>
@@ -70,7 +70,7 @@ function Footer() {
           </div>
 
           <div className="footer-cta-actions">
-            <Link to="/okuma-hizi-testi" className="footer-cta-btn primary">
+            <Link to="/?test=reading" className="footer-cta-btn primary">
               <span>Ücretsiz Seviye Tespiti Yap</span>
               <svg viewBox="0 0 24 24" fill="none">
                 <path
@@ -88,7 +88,7 @@ function Footer() {
             </Link>
           </div>
         </div>
-      </div>
+      </div>}
 
       <div className="footer-main">
         <div className="footer-main-inner">
@@ -103,7 +103,7 @@ function Footer() {
             </p>
 
             <div className="footer-socials">
-              <a href="#" aria-label="Instagram" className="footer-social-link">
+              <a href="https://www.instagram.com/fixokuakademi" target="_blank" rel="noopener noreferrer" aria-label="Fixoku Instagram hesabını yeni sekmede aç" className="footer-social-link">
                 <svg viewBox="0 0 24 24" fill="none">
                   <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="1.8" />
                   <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.8" />
@@ -111,7 +111,7 @@ function Footer() {
                 </svg>
               </a>
 
-              <a href="#" aria-label="YouTube" className="footer-social-link">
+              <a href="https://www.youtube.com/@fixoku" target="_blank" rel="noopener noreferrer" aria-label="Fixoku YouTube kanalını yeni sekmede aç" className="footer-social-link">
                 <svg viewBox="0 0 24 24" fill="none">
                   <path
                     d="M21 12c0 2.7-.3 4.4-.6 5.3a2.8 2.8 0 0 1-2 2C17.4 20 15 20 12 20s-5.4 0-6.4-.7a2.8 2.8 0 0 1-2-2C3.3 16.4 3 14.7 3 12s.3-4.4.6-5.3a2.8 2.8 0 0 1 2-2C6.6 4 9 4 12 4s5.4 0 6.4.7a2.8 2.8 0 0 1 2 2c.3.9.6 2.6.6 5.3Z"
@@ -122,7 +122,7 @@ function Footer() {
                 </svg>
               </a>
 
-              <a href="#" aria-label="Facebook" className="footer-social-link">
+              <a href="https://www.facebook.com/fixoku" target="_blank" rel="noopener noreferrer" aria-label="Fixoku Facebook sayfasını yeni sekmede aç" className="footer-social-link">
                 <svg viewBox="0 0 24 24" fill="none">
                   <path
                     d="M13.2 21v-7h2.4l.4-2.8h-2.8V9.4c0-.8.2-1.4 1.4-1.4H16V5.4c-.2 0-.9-.1-1.8-.1-1.8 0-3.1 1.1-3.1 3.2v1.8H8.8V14H11v7h2.2Z"
@@ -131,7 +131,7 @@ function Footer() {
                 </svg>
               </a>
 
-              <a href="#" aria-label="LinkedIn" className="footer-social-link">
+              <a href="https://www.linkedin.com/company/fixoku" target="_blank" rel="noopener noreferrer" aria-label="Fixoku LinkedIn sayfasını yeni sekmede aç" className="footer-social-link">
                 <svg viewBox="0 0 24 24" fill="none">
                   <path
                     d="M6.2 8.8H3.4V20h2.8V8.8Zm.2-3.4A1.6 1.6 0 1 1 3.2 5.4a1.6 1.6 0 0 1 3.2 0ZM20.6 13.1c0-3.3-1.8-4.8-4.2-4.8-1.9 0-2.8 1.1-3.3 1.8v-1.5h-2.7V20h2.8v-5.6c0-1.5.3-2.9 2.1-2.9s1.8 1.7 1.8 3V20h2.8v-6.9Z"
@@ -178,7 +178,7 @@ function Footer() {
                   />
                 </svg>
               </span>
-              <a href="tel:+902324620743">+90 232 462 07 43</a>
+              <a href="tel:+905334789253">+90 533 478 92 53</a>
             </div>
 
             <div className="footer-contact-item">
@@ -192,7 +192,7 @@ function Footer() {
                   <circle cx="12" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.8" />
                 </svg>
               </span>
-              <span>İzmir, Türkiye</span>
+              <span>Yenişehir, Konak / İzmir</span>
             </div>
 
             <div className="footer-contact-note">

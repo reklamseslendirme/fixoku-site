@@ -1,5 +1,6 @@
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import Breadcrumbs from "../components/content/Breadcrumbs.jsx";
 
 function Iletisim() {
   return (
@@ -13,6 +14,12 @@ function Iletisim() {
 
           <div className="contact-container contact-hero-inner">
             <div className="contact-hero-copy">
+              <Breadcrumbs
+                items={[
+                  { label: "Ana Sayfa", path: "/" },
+                  { label: "İletişim", path: "/iletisim" },
+                ]}
+              />
               <span className="contact-eyebrow">Fixoku ile iletişime geçin</span>
               <h1>
                 Size en uygun <span>Fixoku</span> eğitim çözümünü birlikte planlayalım.
@@ -22,11 +29,11 @@ function Iletisim() {
               </p>
 
               <div className="contact-quick-actions">
-                <a href="tel:+902324620743" className="contact-action-card">
+                <a href="tel:+905334789253" className="contact-action-card">
                   <div className="contact-action-icon">☎</div>
                   <div>
                     <strong>Telefon</strong>
-                    <span>+90 232 462 07 43</span>
+                    <span>+90 533 478 92 53</span>
                   </div>
                 </a>
 
@@ -38,7 +45,7 @@ function Iletisim() {
                   </div>
                 </a>
 
-                <a href="https://wa.me/902324620743" target="_blank" rel="noreferrer" className="contact-action-card contact-whatsapp-card">
+                <a href="https://wa.me/905334789253" target="_blank" rel="noopener noreferrer" className="contact-action-card contact-whatsapp-card">
                   <div className="contact-action-icon">☘</div>
                   <div>
                     <strong>WhatsApp</strong>
@@ -101,7 +108,7 @@ function Iletisim() {
             <div className="contact-info-card">
               <div className="contact-info-icon">📍</div>
               <h3>Adres</h3>
-              <p>Fixoku Eğitim ve Yazılım Ofisi<br />İzmir / Türkiye</p>
+              <p>1202/2 Sok. No:80/L Temsil Plaza<br />Yenişehir, Konak / İzmir</p>
             </div>
 
             <div className="contact-info-card">

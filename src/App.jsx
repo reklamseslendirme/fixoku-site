@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import ReadingSpeedTest from "./ReadingSpeedTest";
 import AttentionFocusTest from "./AttentionFocusTest";
 import Header from "./components/Header";
@@ -12,12 +12,44 @@ function HeroSlideHeading({ active, className, children }) {
   return <HeadingTag className={className}>{children}</HeadingTag>;
 }
 
+const subscribeToHydration = () => () => {};
+const getClientHydrationSnapshot = () => true;
+const getServerHydrationSnapshot = () => false;
+
 function App() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const hasHydrated = useSyncExternalStore(
+    subscribeToHydration,
+    getClientHydrationSnapshot,
+    getServerHydrationSnapshot,
+  );
 
   const [activeSlide, setActiveSlide] = useState(0);
-  const [isReadingTestOpen, setIsReadingTestOpen] = useState(false);
-  const [isAttentionTestOpen, setIsAttentionTestOpen] = useState(false);
+  const [manualTest, setManualTest] = useState(null);
+  const queryTest = hasHydrated
+    ? new URLSearchParams(location.search).get("test")
+    : null;
+  const isReadingTestOpen = queryTest === "reading" || manualTest === "reading";
+  const isAttentionTestOpen = queryTest === "attention" || manualTest === "attention";
+
+  const closeTestModal = () => {
+    setManualTest(null);
+
+    const searchParams = new URLSearchParams(location.search);
+    if (!searchParams.has("test")) return;
+
+    searchParams.delete("test");
+    const nextSearch = searchParams.toString();
+    navigate(
+      {
+        pathname: location.pathname,
+        search: nextSearch ? `?${nextSearch}` : "",
+        hash: location.hash,
+      },
+      { replace: true },
+    );
+  };
 
   const [engineActiveModule, setEngineActiveModule] = useState(0);
   const [engineFeedStart, setEngineFeedStart] = useState(0);
@@ -715,8 +747,8 @@ function App() {
   return (
     <div className="page">
       
-      <ReadingSpeedTest isOpen={isReadingTestOpen} onClose={() => setIsReadingTestOpen(false)} />
-      <AttentionFocusTest isOpen={isAttentionTestOpen} onClose={() => setIsAttentionTestOpen(false)} />
+      <ReadingSpeedTest isOpen={isReadingTestOpen} onClose={closeTestModal} />
+      <AttentionFocusTest isOpen={isAttentionTestOpen} onClose={closeTestModal} />
       <Header />
       <section className="hero-slider">
         {sliderData.map((slide, index) => (
@@ -755,7 +787,7 @@ function App() {
                   </div>
 
                   <div className="slide-buttons slide-buttons-student">
-                    <button type="button" className="slide-btn slide-btn-orange" onClick={() => setIsReadingTestOpen(true)}>
+                    <button type="button" className="slide-btn slide-btn-orange" onClick={() => setManualTest("reading")}>
                       <span className="slide-btn-icon">
                         <svg viewBox="0 0 24 24" fill="none">
                           <path
@@ -1186,7 +1218,7 @@ function App() {
     </div>
   </div>
 </section>
-      <section className="free-tests-section">
+      <section className="free-tests-section" id="testler">
   <div className="free-tests-bg" />
 
   <div className="free-tests-container">
@@ -1263,7 +1295,7 @@ function App() {
             ve gelişim alanlarını öğrenin.
           </p>
 
-          <button type="button" className="free-test-btn free-test-btn-purple" onClick={() => setIsAttentionTestOpen(true)}>
+          <button type="button" className="free-test-btn free-test-btn-purple" onClick={() => setManualTest("attention")}>
             <span className="free-test-btn-check" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <path
@@ -1335,7 +1367,7 @@ function App() {
             seviyesini hemen ölçün.
           </p>
 
-          <button type="button" className="free-test-btn free-test-btn-orange" onClick={() => setIsReadingTestOpen(true)}>
+          <button type="button" className="free-test-btn free-test-btn-orange" onClick={() => setManualTest("reading")}>
             <span className="free-test-btn-check" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <path
@@ -1448,7 +1480,7 @@ function App() {
     </p>
   </div>
 
-  <a href="#" className="stories-cta">
+  <Link to="/iletisim" className="stories-cta">
     <span>Siz de Fixoku Eğitimi Hakkında Bilgi Alın</span>
 
     <svg viewBox="0 0 24 24" fill="none">
@@ -1460,7 +1492,7 @@ function App() {
         strokeLinejoin="round"
       />
     </svg>
-  </a>
+  </Link>
 
 </div>
     </div>
@@ -1916,7 +1948,7 @@ function App() {
     <div className="trainer-apply-panel">
       <h3>Siz de <span>Fixoku</span> Eğitmeni Olabilirsiniz</h3>
       <p>Fixoku eğitmeni olarak kendi eğitim programınızı başlatabilir ve öğrencilerinizin gelişimine katkı sağlayabilirsiniz.</p>
-      <a href="#" className="trainer-apply-btn"><span>Eğitmen Başvurusu Yap</span><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg></a>
+      <Link to="/egitmen-ol" className="trainer-apply-btn"><span>Eğitmen Başvurusu Yap</span><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg></Link>
     </div>
   </div>
   {activeTrainerVideo && (

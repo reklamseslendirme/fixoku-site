@@ -2,10 +2,13 @@ import { createHash } from "node:crypto";
 import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildSiteUrl, SITE_ORIGIN } from "../src/config/site.js";
+import { buildSiteUrl, normalizeRoutePath, SITE_ORIGIN } from "../src/config/site.js";
+import { contentExplorerGroups } from "../src/data/contentExplorer.js";
+import { businessIdentity } from "../src/data/legalContent.js";
 import {
   getPrerenderOutputPath,
   indexableRoutePaths,
+  legalRoutePaths,
   notFoundSeo,
   panelSeo,
   publicRouteRegistry,
@@ -86,6 +89,12 @@ function getH1Count(html) {
   return (html.match(/<h1(?:\s|>)/gi) ?? []).length;
 }
 
+function getHrefValues(html) {
+  return [...html.matchAll(/<a\b[^>]*\shref=["']([^"']*)["'][^>]*>/gi)].map(
+    (match) => decodeHtml(match[1]),
+  );
+}
+
 function getInternalAssetPaths(html) {
   const paths = new Set();
   const patterns = [
@@ -147,7 +156,8 @@ for (const route of publicRouteRegistry) {
     `${route.path}: Twitter metadata doğru.`,
   );
   check(
-    JSON.stringify(schemaTypes) === JSON.stringify(expectedSchemaTypes),
+    expectedSchemaTypes.length > 0 &&
+      JSON.stringify(schemaTypes) === JSON.stringify(expectedSchemaTypes),
     `${route.path}: beklenen JSON-LD türleri doğru.`,
   );
   check(getH1Count(html) === 1, `${route.path}: prerender HTML içinde tek H1 var.`);
@@ -180,8 +190,127 @@ check(
   "Bütün indexlenebilir public route'lar prerender edildi.",
 );
 check(
+  publicRouteRegistry.length === 42 && renderedRoutes.length === 42,
+  "Public route ve prerender HTML sayısı 42/42.",
+);
+check(
   new Set(renderedRoutes.map((route) => route.hash)).size === renderedRoutes.length,
   "Public route HTML hash değerleri birbirinden farklı.",
+);
+check(
+  contentExplorerGroups.length === 6 &&
+    contentExplorerGroups.reduce((total, group) => total + group.items.length, 0) === 37,
+  "Global Content Explorer altı grup ve 37 içerik öğesiyle değişmeden kaldı.",
+);
+
+const renderedByPath = new Map(renderedRoutes.map((item) => [item.route, item]));
+const homeRendered = renderedByPath.get("/");
+const contactRendered = renderedByPath.get("/iletisim");
+check(
+  JSON.stringify(homeRendered?.schemaTypes) ===
+    JSON.stringify(["Organization", "WebSite", "WebPage"]),
+  "Ana sayfa ilk HTML Organization, WebSite ve WebPage şemalarını içeriyor.",
+);
+check(
+  JSON.stringify(contactRendered?.schemaTypes) ===
+    JSON.stringify(["ContactPage", "BreadcrumbList"]) &&
+    contactRendered?.html.includes('aria-label="İçerik yolu"') &&
+    contactRendered?.html.includes('aria-current="page">İletişim'),
+  "İletişim ilk HTML ContactPage, BreadcrumbList ve görünür breadcrumb içeriyor.",
+);
+check(
+  legalRoutePaths.length === 3 &&
+    legalRoutePaths.every((routePath) => {
+      const rendered = renderedByPath.get(routePath);
+      return (
+        JSON.stringify(rendered?.schemaTypes) === JSON.stringify(["WebPage", "BreadcrumbList"]) &&
+        rendered?.html.includes('aria-label="İçerik yolu"') &&
+        rendered?.html.includes("Son güncelleme: 19 Temmuz 2026") &&
+        !rendered?.html.includes('class="footer-cta-band"')
+      );
+    }),
+  "Üç hukuki route ilk HTML'de metin, görünür breadcrumb, WebPage + BreadcrumbList içeriyor ve pazarlama CTA bandı göstermiyor.",
+);
+
+const combinedPublicHtml = renderedRoutes.map((item) => item.html).join("\n");
+const allRenderedHrefs = renderedRoutes.flatMap((item) =>
+  getHrefValues(item.html).map((href) => ({ route: item.route, href })),
+);
+const knownPublicPaths = new Set(indexableRoutePaths);
+
+function isValidRenderedInternalHref(href) {
+  if (href.startsWith("#")) return href.length > 1;
+  if (!href.startsWith("/")) return true;
+
+  const url = new URL(href, SITE_ORIGIN);
+  const pathname = normalizeRoutePath(url.pathname);
+  if (!knownPublicPaths.has(pathname) && pathname !== "/panel") return false;
+
+  if (url.search) {
+    const params = [...url.searchParams.entries()];
+    if (
+      pathname !== "/" ||
+      params.length !== 1 ||
+      params[0][0] !== "test" ||
+      !["reading", "attention"].includes(params[0][1])
+    ) return false;
+  }
+
+  if (url.hash && pathname === "/" && url.hash !== "#testler") return false;
+  return true;
+}
+
+const brokenRenderedLinks = allRenderedHrefs.filter(
+  ({ href }) =>
+    (href.startsWith("/") || href.startsWith("#")) &&
+    !isValidRenderedInternalHref(href),
+);
+check(
+  brokenRenderedLinks.length === 0,
+  brokenRenderedLinks.length
+    ? `Rendered karşılanmayan internal linkler: ${[
+        ...new Set(brokenRenderedLinks.map(({ route, href }) => `${route} -> ${href}`)),
+      ].join(", ")}`
+    : "Rendered global internal linklerin tamamı gerçek route, hash veya izinli test query'sine gidiyor.",
+);
+check(
+  allRenderedHrefs.every(({ href }) => href !== "#"),
+  "Rendered public HTML içinde href=\"#\" bulunmuyor.",
+);
+check(
+  combinedPublicHtml.includes('href="/#testler"') &&
+    combinedPublicHtml.includes('href="/?test=reading"') &&
+    combinedPublicHtml.includes('href="/?test=attention"'),
+  "Rendered navigasyon mevcut test bölümü ile iki modal query hedefini içeriyor.",
+);
+check(
+  !combinedPublicHtml.includes("902324620743") &&
+    !combinedPublicHtml.includes("+90 232 462 07 43") &&
+    combinedPublicHtml.includes("tel:+905334789253") &&
+    combinedPublicHtml.includes("https://wa.me/905334789253"),
+  "Rendered telefon ve WhatsApp hedefleri doğrulanmış numaraya geçirildi.",
+);
+check(
+  businessIdentity.socialProfiles.every(
+    (profile) => combinedPublicHtml.includes(`href="${profile}"`),
+  ) &&
+    combinedPublicHtml.includes('target="_blank"') &&
+    combinedPublicHtml.includes('rel="noopener noreferrer"'),
+  "Rendered footer dört doğrulanmış sosyal medya URL'sini güvenli dış bağlantı olarak içeriyor.",
+);
+const renderedLegalHtml = legalRoutePaths.map((routePath) => renderedByPath.get(routePath)?.html ?? "").join("\n").toLocaleLowerCase("tr-TR");
+check(
+  [
+    "fixoku.com.tr",
+    "dersfix.com",
+    "tamamen güvende",
+    "kırılması mümkün olmayan",
+    "mail order",
+    "paytr",
+    "iyzico",
+    "iyzigo",
+  ].every((phrase) => !renderedLegalHtml.includes(phrase)),
+  "Rendered hukuki içerikte eski domain, kesin güvenlik veya doğrulanmamış ödeme sağlayıcısı ifadesi yok.",
 );
 
 const panelPath = getDistPath("panel.html");
@@ -233,7 +362,8 @@ check(
 const sitemap = await readFile(getDistPath("sitemap.xml"), "utf8");
 const sitemapPaths = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => new URL(match[1]).pathname);
 check(
-  sitemapPaths.length === indexableRoutePaths.length &&
+  sitemapPaths.length === 42 &&
+    sitemapPaths.length === indexableRoutePaths.length &&
     indexableRoutePaths.every((routePath) => sitemapPaths.includes(routePath)),
   "Sitemap ile prerender public route listesi uyumlu.",
 );
