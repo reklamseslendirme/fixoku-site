@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import App from "./App.jsx";
 import SeoRouteManager from "./components/seo/Seo.jsx";
@@ -23,7 +24,8 @@ import TopicArticle from "./pages/content/TopicArticle.jsx";
 import TopicHub from "./pages/content/TopicHub.jsx";
 import Iletisim from "./pages/iletisim.jsx";
 import LegalPage from "./pages/LegalPage.jsx";
-import PanelApp from "./panel/PanelApp";
+
+const PanelApp = lazy(() => import("./panel/PanelApp.jsx"));
 
 export default function AppRoutes() {
   return (
@@ -98,7 +100,14 @@ export default function AppRoutes() {
         {legalPages.map((page) => (
           <Route key={page.path} path={page.path} element={<LegalPage page={page} />} />
         ))}
-        <Route path="/panel/*" element={<PanelApp />} />
+        <Route
+          path="/panel/*"
+          element={(
+            <Suspense fallback={<div className="route-loading-status" role="status" aria-live="polite">Panel yükleniyor…</div>}>
+              <PanelApp />
+            </Suspense>
+          )}
+        />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

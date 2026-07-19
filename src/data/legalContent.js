@@ -127,7 +127,7 @@ export const legalPages = [
         title: "Gerçekte kullanılan ve paylaşılabilen veri türleri",
         paragraphs: [
           "Kullanıcılar e-posta, telefon veya WhatsApp üzerinden iletişim kurarken ad-soyad, telefon, e-posta, şehir, öğrencinin sınıfı ve mesaj içeriği gibi bilgileri paylaşabilir. Test sonuçları, ancak kullanıcı bunları WhatsApp mesajına ekleyip göndermeyi seçerse iletişim verisine dönüşür.",
-          "Site içindeki iletişim formu mevcut durumda bir gönderim hedefine bağlı değildir. Forma yazılan bilgiler sayfa belleğinde kalır ve form gönderme düğmesi herhangi bir sunucuya veri iletmez.",
+          "Site içindeki iletişim formuna yazılan bilgiler yalnızca React bileşeninin geçici sayfa belleğinde tutulur ve herhangi bir sunucuya gönderilmez. Form, geçerli bilgilerden bir WhatsApp mesajı önizlemesi hazırlar; veriler ancak kullanıcı “WhatsApp’ta Devam Et” bağlantısını seçerse WhatsApp’ın mesaj hazırlama ekranına aktarılır.",
           "Okuma metni rotasyonu için \"fixoku-reading-text-rotation-v1\" adlı birinci taraf localStorage anahtarı kullanılır. Kayıt, sınıf havuzunda daha önce gösterilen metinleri yönetir; ad, telefon veya e-posta içermez.",
         ],
       },

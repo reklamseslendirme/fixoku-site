@@ -1,11 +1,21 @@
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import ReadingSpeedTest from "./ReadingSpeedTest";
-import AttentionFocusTest from "./AttentionFocusTest";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import Iletisim from "./pages/iletisim";
-import PanelApp from "./panel/PanelApp";
+
+const ReadingSpeedTest = lazy(() => import("./ReadingSpeedTest.jsx"));
+const AttentionFocusTest = lazy(() => import("./AttentionFocusTest.jsx"));
+
+function TestModalLoading({ label }) {
+  return (
+    <div className="reading-test-overlay test-modal-loading" role="status" aria-live="polite">
+      <div className="reading-test-modal test-modal-loading-card">
+        <span className="test-modal-loading-spinner" aria-hidden="true" />
+        <p>{label} yükleniyor…</p>
+      </div>
+    </div>
+  );
+}
 
 function HeroSlideHeading({ active, className, children }) {
   const HeadingTag = active ? "h1" : "div";
@@ -740,15 +750,18 @@ function App() {
     },
   ];
 
-  if (location.pathname.startsWith("/panel")) {
-    return <PanelApp />;
-  }
-
   return (
     <div className="page">
-      
-      <ReadingSpeedTest isOpen={isReadingTestOpen} onClose={closeTestModal} />
-      <AttentionFocusTest isOpen={isAttentionTestOpen} onClose={closeTestModal} />
+      {isReadingTestOpen && (
+        <Suspense fallback={<TestModalLoading label="Okuma testi" />}>
+          <ReadingSpeedTest isOpen={isReadingTestOpen} onClose={closeTestModal} />
+        </Suspense>
+      )}
+      {isAttentionTestOpen && (
+        <Suspense fallback={<TestModalLoading label="Dikkat testi" />}>
+          <AttentionFocusTest isOpen={isAttentionTestOpen} onClose={closeTestModal} />
+        </Suspense>
+      )}
       <Header />
       <section className="hero-slider">
         {sliderData.map((slide, index) => (
