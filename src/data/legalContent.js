@@ -1,11 +1,24 @@
+export const contactPhones = {
+  mobile: {
+    label: "Cep / WhatsApp",
+    display: "+90 533 478 92 53",
+    telUri: "tel:+905334789253",
+    whatsappUrl: "https://wa.me/905334789253",
+  },
+  office: {
+    label: "Ofis",
+    display: "+90 232 462 07 43",
+    telUri: "tel:+902324620743",
+  },
+};
+
 export const businessIdentity = {
   brandName: "Fixoku",
-  legalName: "ERSİN USTA MAVİ YEŞİL AJANS",
+  legalName: "Fixoku Yayınları — Mavi Yeşil Ajans",
   address: "1202/2 Sok. No:80/L Temsil Plaza, Yenişehir, Konak / İzmir",
   email: "info@fixoku.com",
-  phoneDisplay: "+90 533 478 92 53",
-  phoneUri: "tel:+905334789253",
-  whatsappUrl: "https://wa.me/905334789253",
+  mobilePhone: contactPhones.mobile,
+  officePhone: contactPhones.office,
   socialProfiles: [
     "https://www.instagram.com/fixokuakademi",
     "https://www.youtube.com/@fixoku",
@@ -36,7 +49,7 @@ export const legalPages = [
         id: "veri-sorumlusu",
         title: "Veri sorumlusu ve iletişim bilgileri",
         paragraphs: [
-          "6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında veri sorumlusu ERSİN USTA MAVİ YEŞİL AJANS'tır. Fixoku marka adıyla sunulan hizmetlere ilişkin başvurularınızı 1202/2 Sok. No:80/L Temsil Plaza, Yenişehir, Konak / İzmir adresine veya info@fixoku.com e-posta adresine iletebilirsiniz.",
+          "6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında veri sorumlusu Fixoku Yayınları — Mavi Yeşil Ajans’tır. Fixoku marka adıyla sunulan hizmetlere ilişkin başvurularınızı 1202/2 Sok. No:80/L Temsil Plaza, Yenişehir, Konak / İzmir adresine veya info@fixoku.com e-posta adresine iletebilirsiniz.",
           "Telefon ve WhatsApp iletişim numarası +90 533 478 92 53'tür. Bu metin açık rıza beyanı veya kullanıcı sözleşmesi değildir; veri işleme faaliyetleri hakkında bilgilendirme sağlar.",
         ],
       },

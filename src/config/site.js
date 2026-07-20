@@ -15,5 +15,5 @@ export function normalizeRoutePath(path = "/") {
 
 export function buildSiteUrl(path = "/") {
   const normalizedPath = normalizeRoutePath(path);
-  return normalizedPath === "/" ? SITE_ORIGIN : `${SITE_ORIGIN}${normalizedPath}`;
+  return normalizedPath === "/" ? `${SITE_ORIGIN}/` : `${SITE_ORIGIN}${normalizedPath}`;
 }

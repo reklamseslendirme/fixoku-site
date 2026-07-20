@@ -4,7 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildSiteUrl, normalizeRoutePath, SITE_ORIGIN } from "../src/config/site.js";
 import { contentExplorerGroups } from "../src/data/contentExplorer.js";
-import { businessIdentity } from "../src/data/legalContent.js";
+import { businessIdentity, contactPhones } from "../src/data/legalContent.js";
 import {
   getPrerenderOutputPath,
   indexableRoutePaths,
@@ -85,8 +85,29 @@ function getJsonLd(html) {
   );
 }
 
+function getSchemaNodes(schemas) {
+  return schemas.flatMap((schema) =>
+    Array.isArray(schema?.["@graph"]) ? schema["@graph"] : [schema],
+  );
+}
+
+function getSchemaTypes(schemas) {
+  return getSchemaNodes(schemas).map((schema) => schema?.["@type"]);
+}
+
 function getH1Count(html) {
   return (html.match(/<h1(?:\s|>)/gi) ?? []).length;
+}
+
+function getVisibleText(html = "") {
+  return decodeHtml(
+    html
+      .replace(/<script\b[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style\b[\s\S]*?<\/style>/gi, " ")
+      .replace(/<[^>]+>/g, " "),
+  )
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function getHrefValues(html) {
@@ -130,8 +151,8 @@ for (const route of publicRouteRegistry) {
   const html = await readFile(filePath, "utf8");
   const canonical = buildSiteUrl(route.path);
   const schemas = getJsonLd(html);
-  const expectedSchemaTypes = buildContentSchemas(route).map((schema) => schema["@type"]);
-  const schemaTypes = schemas.map((schema) => schema["@type"]);
+  const expectedSchemaTypes = getSchemaTypes(buildContentSchemas(route));
+  const schemaTypes = getSchemaTypes(schemas);
   const assetPaths = getInternalAssetPaths(html);
   const assetChecks = await Promise.all(
     assetPaths.map((assetPath) => exists(getDistPath(assetPath.replace(/^\/+/, "")))),
@@ -181,6 +202,7 @@ for (const route of publicRouteRegistry) {
     hash: createHash("sha256").update(html).digest("hex"),
     title: route.title,
     canonical,
+    schemas,
     schemaTypes,
   });
 }
@@ -206,10 +228,115 @@ check(
 const renderedByPath = new Map(renderedRoutes.map((item) => [item.route, item]));
 const homeRendered = renderedByPath.get("/");
 const contactRendered = renderedByPath.get("/iletisim");
+const homeCanonical = buildSiteUrl("/");
+const homeSchemaRoot = homeRendered?.schemas?.[0];
+const homeSchemaNodes = getSchemaNodes(homeRendered?.schemas ?? []);
+const homeOrganization = homeSchemaNodes.find((schema) => schema?.["@type"] === "Organization");
+const homeWebsite = homeSchemaNodes.find((schema) => schema?.["@type"] === "WebSite");
+const homeWebpage = homeSchemaNodes.find((schema) => schema?.["@type"] === "WebPage");
+const homeContactPoints = homeOrganization?.contactPoint ?? [];
+const homeIds = homeSchemaNodes.map((schema) => schema?.["@id"]).filter(Boolean);
+const homeVisibleText = getVisibleText(homeRendered?.html);
+const homeFooterHtml = homeRendered?.html.match(/<footer\b[\s\S]*?<\/footer>/i)?.[0] ?? "";
+const homeFooterText = getVisibleText(homeFooterHtml);
+const homeFooterHrefs = getHrefValues(homeFooterHtml);
+const contactMainHtml = contactRendered?.html.match(/<main\b[\s\S]*?<\/main>/i)?.[0] ?? "";
+const contactMainText = getVisibleText(contactMainHtml);
+const contactMainHrefs = getHrefValues(contactMainHtml);
 check(
   JSON.stringify(homeRendered?.schemaTypes) ===
     JSON.stringify(["Organization", "WebSite", "WebPage"]),
   "Ana sayfa ilk HTML Organization, WebSite ve WebPage şemalarını içeriyor.",
+);
+check(
+  homeRendered?.schemas?.length === 1 &&
+    homeSchemaRoot?.["@context"] === "https://schema.org" &&
+    homeSchemaRoot?.["@graph"]?.length === 3 &&
+    homeSchemaNodes.every((schema) => !schema?.["@context"]),
+  "Ana sayfa ilk HTML tek JSON-LD graph ve tek kök @context içeriyor.",
+);
+check(
+  homeRendered?.canonical === homeCanonical &&
+    homeOrganization?.["@id"] === `${homeCanonical}#organization` &&
+    homeWebsite?.["@id"] === `${homeCanonical}#website` &&
+    homeWebpage?.["@id"] === `${homeCanonical}#webpage` &&
+    homeOrganization?.legalName === "Fixoku Yayınları — Mavi Yeşil Ajans" &&
+    !Object.hasOwn(homeOrganization, "founder") &&
+    homeOrganization?.slogan === "Okuyan, Anlayan, Gelişen Nesiller" &&
+    homeOrganization?.logo === buildSiteUrl("/brand/fixoku-logo-schema-512.png") &&
+    homeWebsite?.url === homeRendered?.canonical &&
+    homeWebpage?.url === homeRendered?.canonical &&
+    homeContactPoints.length === 2 &&
+    new Set(homeContactPoints.map((point) => point.telephone)).size === 2 &&
+    JSON.stringify(homeContactPoints.map((point) => point.name)) ===
+      JSON.stringify([contactPhones.mobile.label, contactPhones.office.label]) &&
+    JSON.stringify(homeContactPoints.map((point) => point.telephone)) ===
+      JSON.stringify([contactPhones.mobile.display, contactPhones.office.display]) &&
+    homeContactPoints.every(
+      (point) =>
+        point.contactType === "customer service" &&
+        point.areaServed === "TR" &&
+        point.availableLanguage === "tr",
+    ) &&
+    new Set(homeIds).size === homeIds.length,
+  "Ana sayfa rendered graph kimlikleri, iki benzersiz ContactPoint, canonical, yasal ad, slogan ve logo URL'si doğru.",
+);
+check(
+  !homeRendered?.html.includes("localhost") &&
+    ![
+      "FAQPage",
+      "LocalBusiness",
+      "Product",
+      "Course",
+      "Review",
+      "AggregateRating",
+      "SearchAction",
+    ].some((type) => homeRendered?.html.includes(`\"@type\":\"${type}\"`)),
+  "Ana sayfa rendered graph localhost ve yasaklı schema türlerini içermiyor.",
+);
+check(
+  [
+    "Çocuğunuzun dikkat ve odaklanma seviyesini 2 dakikada ölçün, gelişim alanlarını uzman eğitmenimizle değerlendirin.",
+    "Çocuğunuzun okuma hızını ve anlama becerisini ölçün, sonuçları uzman eğitmenimizle değerlendirin.",
+    "Okuma Ölçümünü Başlat",
+    "Fixoku Eğitim Kitapları",
+    "21 Günlük Başarı Serüveni",
+    "126 Egzersiz İçeriği",
+    "9 Kategoride Ölçümleme ve Analiz",
+    "1 Yıl Aktif Serbest Çalışma Alanı",
+    "21 günlük eğitim sonunda öğrencilerin okuma hızında ve anlama becerilerinde belirgin gelişim elde edilmektedir.",
+    "Yapay zekâ destekli yazılımımız, öğrencilerin gelişimini anlık olarak takip ederek eğitim sonunda detaylı veriler sunar.",
+    "Uzman eğitmen eğitim vererek gelişimi takip eder.",
+    "Eğitim nasıl yapılmaktadır?",
+    "Eğitim online ya da yüz yüze olarak yapılabilir.",
+  ].every((phrase) => homeVisibleText.includes(phrase)) &&
+    ![
+      "12.000+",
+      "ortalama 2 kat",
+      "ortalama iki kat",
+      "2 kat okuma",
+      "Fixoku Eğitim Deneyimi",
+      "Eğitim online mı yapılmaktadır?",
+      "Okuma Testini Başlat",
+      "2 dakikalık test ile",
+    ].some((phrase) => homeVisibleText.includes(phrase)) &&
+    !/Fixoku Eğitim Kitabı(?!ları)/u.test(homeVisibleText),
+  "Ana sayfa rendered görünür içeriği güncel Word metin sözleşmesine uyuyor.",
+);
+check(
+  homeRendered?.html.includes('data-counter-target="3000"') &&
+    homeVisibleText.includes("2.000+ öğrenci eğitim aldı") &&
+    !homeVisibleText.includes("3.000+ öğrenci eğitim aldı"),
+  "Rendered ana sayfada test hedefi 3000 ve eğitim alan öğrenci istatistiği bağımsız 2.000+.",
+);
+check(
+  homeFooterText.includes("Çocuğunuzun Akademik Gelişimini Ertelemeyin") &&
+    homeFooterText.includes("Fixoku, Mavi Yeşil Ajans kuruluşudur.") &&
+    homeFooterText.includes("Fixoku Yayınları — Mavi Yeşil Ajans") &&
+    !homeRendered?.html.includes("Ersin Usta") &&
+    !homeFooterText.includes("Okuyan, Anlayan, Gelişen Nesiller") &&
+    homeOrganization?.slogan === "Okuyan, Anlayan, Gelişen Nesiller",
+  "Rendered footer kişi adını ve görünür sloganı kaldırırken Organization schema sloganını koruyor.",
 );
 check(
   JSON.stringify(contactRendered?.schemaTypes) ===
@@ -217,6 +344,27 @@ check(
     contactRendered?.html.includes('aria-label="İçerik yolu"') &&
     contactRendered?.html.includes('aria-current="page">İletişim'),
   "İletişim ilk HTML ContactPage, BreadcrumbList ve görünür breadcrumb içeriyor.",
+);
+check(
+  (contactMainText.match(new RegExp(contactPhones.mobile.display.replace(/\+/g, "\\+"), "g")) ?? [])
+    .length === 1 &&
+    (contactMainText.match(new RegExp(contactPhones.office.display.replace(/\+/g, "\\+"), "g")) ?? [])
+      .length === 1 &&
+    contactMainHrefs.filter((href) => href === contactPhones.mobile.telUri).length === 1 &&
+    contactMainHrefs.filter((href) => href === contactPhones.office.telUri).length === 1 &&
+    contactMainHrefs.filter((href) => href.startsWith(contactPhones.mobile.whatsappUrl)).length === 1 &&
+    !contactMainHrefs.some((href) => href.includes("wa.me/902324620743")),
+  "Rendered iletişim alanı cep/WhatsApp ve ofis telefonlarını tekil, ayrı ve doğru bağlantılarla gösteriyor.",
+);
+check(
+  homeFooterText.includes(contactPhones.mobile.label) &&
+    homeFooterText.includes(contactPhones.mobile.display) &&
+    homeFooterText.includes(contactPhones.office.label) &&
+    homeFooterText.includes(contactPhones.office.display) &&
+    homeFooterHrefs.filter((href) => href === contactPhones.mobile.telUri).length === 1 &&
+    homeFooterHrefs.filter((href) => href === contactPhones.office.telUri).length === 1 &&
+    !homeFooterHrefs.some((href) => href.includes("wa.me/902324620743")),
+  "Rendered footer cep/WhatsApp ve ofis telefonlarını doğru tel URI'leriyle ayırt ediyor.",
 );
 check(
   legalRoutePaths.length === 3 &&
@@ -236,6 +384,7 @@ const combinedPublicHtml = renderedRoutes.map((item) => item.html).join("\n");
 const allRenderedHrefs = renderedRoutes.flatMap((item) =>
   getHrefValues(item.html).map((href) => ({ route: item.route, href })),
 );
+const renderedHrefValues = allRenderedHrefs.map(({ href }) => href);
 const knownPublicPaths = new Set(indexableRoutePaths);
 
 function isValidRenderedInternalHref(href) {
@@ -284,11 +433,14 @@ check(
   "Rendered navigasyon mevcut test bölümü ile iki modal query hedefini içeriyor.",
 );
 check(
-  !combinedPublicHtml.includes("902324620743") &&
-    !combinedPublicHtml.includes("+90 232 462 07 43") &&
-    combinedPublicHtml.includes("tel:+905334789253") &&
-    combinedPublicHtml.includes("https://wa.me/905334789253"),
-  "Rendered telefon ve WhatsApp hedefleri doğrulanmış numaraya geçirildi.",
+  renderedHrefValues.includes(contactPhones.mobile.telUri) &&
+    renderedHrefValues.includes(contactPhones.office.telUri) &&
+    renderedHrefValues.some((href) => href.startsWith(contactPhones.mobile.whatsappUrl)) &&
+    renderedHrefValues
+      .filter((href) => href.startsWith("https://wa.me/"))
+      .every((href) => href.startsWith(contactPhones.mobile.whatsappUrl)) &&
+    !renderedHrefValues.some((href) => href.includes("wa.me/902324620743")),
+  "Rendered telefon hedefleri cep ve ofis hatlarını içeriyor; WhatsApp yalnız cep numarasını kullanıyor.",
 );
 check(
   businessIdentity.socialProfiles.every(

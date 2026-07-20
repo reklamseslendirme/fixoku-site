@@ -24,7 +24,7 @@ import {
   knowledgeCenterHub,
   knowledgeCenterPages,
 } from "../src/data/knowledgeCenterContent.js";
-import { businessIdentity, legalPages } from "../src/data/legalContent.js";
+import { businessIdentity, contactPhones, legalPages } from "../src/data/legalContent.js";
 import {
   attentionFocusRoutePaths,
   blogRoutePaths,
@@ -65,6 +65,16 @@ function check(condition, message) {
 
 function isUnique(values) {
   return new Set(values).size === values.length;
+}
+
+function getSchemaNodes(schemas) {
+  return schemas.flatMap((schema) =>
+    Array.isArray(schema?.["@graph"]) ? schema["@graph"] : [schema],
+  );
+}
+
+function getSchemaTypes(schemas) {
+  return getSchemaNodes(schemas).map((schema) => schema?.["@type"]);
 }
 
 const requiredQuickReadingRoutes = [
@@ -267,7 +277,7 @@ check(
   "Bütün canonical URL değerleri merkezi production origin ile başlıyor.",
 );
 check(
-  canonicals.every((canonical) => canonical === SITE_ORIGIN || !canonical.endsWith("/")),
+  canonicals.every((canonical) => canonical === buildSiteUrl("/") || !canonical.endsWith("/")),
   "Ana sayfa dışındaki canonical URL değerlerinde trailing slash yok.",
 );
 check(
@@ -325,20 +335,77 @@ check(
 
 const homeRoute = publicRouteRegistry.find((route) => route.path === "/");
 const homeSchemas = buildContentSchemas(homeRoute);
-const homeSchemaTypes = homeSchemas.map((schema) => schema["@type"]);
-const homeOrganization = homeSchemas.find((schema) => schema["@type"] === "Organization");
+const homeGraph = homeSchemas[0];
+const homeSchemaNodes = getSchemaNodes(homeSchemas);
+const homeSchemaTypes = getSchemaTypes(homeSchemas);
+const homeOrganization = homeSchemaNodes.find((schema) => schema["@type"] === "Organization");
+const homeWebsite = homeSchemaNodes.find((schema) => schema["@type"] === "WebSite");
+const homeWebpage = homeSchemaNodes.find((schema) => schema["@type"] === "WebPage");
+const homeContactPoints = homeOrganization?.contactPoint ?? [];
+const homeSchemaText = JSON.stringify(homeSchemas);
 check(
-  JSON.stringify(homeSchemaTypes) === JSON.stringify(["Organization", "WebSite", "WebPage"]) &&
-    homeOrganization?.name === businessIdentity.brandName &&
-    homeOrganization?.legalName === businessIdentity.legalName &&
-    homeOrganization?.url === SITE_ORIGIN &&
-    homeOrganization?.logo === buildSiteUrl("/logo-fixoku.png") &&
-    homeOrganization?.email === businessIdentity.email &&
-    homeOrganization?.telephone === "+905334789253" &&
+  homeSchemas.length === 1 &&
+    homeGraph?.["@context"] === "https://schema.org" &&
+    Array.isArray(homeGraph?.["@graph"]) &&
+    homeGraph["@graph"].length === 3 &&
+    homeSchemaNodes.every((schema) => !schema["@context"]) &&
+    JSON.stringify(homeSchemaTypes) === JSON.stringify(["Organization", "WebSite", "WebPage"]),
+  "Ana sayfa tek kök @context ve üç düğümlü JSON-LD graph üretiyor.",
+);
+check(
+    homeOrganization?.["@id"] === `${buildSiteUrl("/")}#organization` &&
+    homeOrganization?.name === "Fixoku" &&
+    homeOrganization?.legalName === "Fixoku Yayınları — Mavi Yeşil Ajans" &&
+    homeOrganization?.alternateName === "Fixoku Akademi" &&
+    homeOrganization?.url === buildSiteUrl("/") &&
+    homeOrganization?.logo === buildSiteUrl("/brand/fixoku-logo-schema-512.png") &&
+    homeOrganization?.slogan === "Okuyan, Anlayan, Gelişen Nesiller" &&
+    homeOrganization?.foundingDate === "2022-01" &&
+    !Object.hasOwn(homeOrganization, "founder") &&
+    homeOrganization?.email === "info@fixoku.com" &&
     JSON.stringify(homeOrganization?.sameAs) === JSON.stringify(businessIdentity.socialProfiles) &&
-    !JSON.stringify(homeSchemas).includes("SearchAction") &&
-    !JSON.stringify(homeSchemas).includes("AggregateRating"),
-  "Ana sayfa Organization, WebSite ve WebPage şemalarını yalnız doğrulanmış alanlarla üretiyor.",
+    homeContactPoints.length === 2 &&
+    new Set(homeContactPoints.map((point) => point.telephone)).size === 2 &&
+    JSON.stringify(homeContactPoints.map((point) => point.name)) ===
+      JSON.stringify([contactPhones.mobile.label, contactPhones.office.label]) &&
+    JSON.stringify(homeContactPoints.map((point) => point.telephone)) ===
+      JSON.stringify([contactPhones.mobile.display, contactPhones.office.display]) &&
+    homeContactPoints.every(
+      (point) =>
+        point.contactType === "customer service" &&
+        point.areaServed === "TR" &&
+        point.availableLanguage === "tr",
+    ) &&
+    homeOrganization?.identifier?.some(
+      (identifier) => identifier.propertyID === "MERSİS No" && identifier.value === "3437915176600013",
+    ) &&
+    homeOrganization?.identifier?.some(
+      (identifier) => identifier.propertyID === "Ticaret Sicil No" && identifier.value === "1 171925",
+    ),
+  "Ana sayfa Organization düğümü doğrulanmış kurumsal kimlik, iletişim ve logo verilerini içeriyor.",
+);
+check(
+  homeWebsite?.["@id"] === `${buildSiteUrl("/")}#website` &&
+    homeWebsite?.url === buildSiteUrl("/") &&
+    homeWebsite?.publisher?.["@id"] === homeOrganization?.["@id"] &&
+    homeWebpage?.["@id"] === `${buildSiteUrl("/")}#webpage` &&
+    homeWebpage?.url === buildSiteUrl("/") &&
+    homeWebpage?.isPartOf?.["@id"] === homeWebsite?.["@id"] &&
+    homeWebpage?.about?.["@id"] === homeOrganization?.["@id"] &&
+    homeWebpage?.publisher?.["@id"] === homeOrganization?.["@id"],
+  "Ana sayfa WebSite ve WebPage düğümleri canonical ve Organization kimliklerine bağlı.",
+);
+check(
+  ![
+    "FAQPage",
+    "LocalBusiness",
+    "Product",
+    "Course",
+    "Review",
+    "AggregateRating",
+    "SearchAction",
+  ].some((type) => homeSchemaText.includes(`\"@type\":\"${type}\"`)),
+  "Ana sayfa graph yasaklı veya doğrulanmamış schema türlerini içermiyor.",
 );
 
 const contactRoute = publicRouteRegistry.find((route) => route.path === "/iletisim");
@@ -719,16 +786,82 @@ check(
   "Kurumsal masaüstü, mobil ve footer navigasyonu merkezi gerçek route'ları kullanıyor.",
 );
 check(
-  headerSource.includes('className="nav-link blog-nav-link"') &&
-    headerSource.includes('to="/blog"') &&
+  headerSource.includes('const BLOG_PATH = "/blog";') &&
+    headerSource.includes('{ label: "Blog", to: BLOG_PATH, icon: "message" }') &&
+    (headerSource.match(/items: corporateMenuItems/g) ?? []).length === 2 &&
+    !headerSource.includes('className="nav-link blog-nav-link"') &&
+    !headerSource.includes('className={`mobile-main-link ${location.pathname.startsWith("/blog")') &&
     footerSource.includes('{ label: "Bilgi Merkezi", to: "/blog" }'),
-  "Bilgi Merkezi masaüstü, mobil ve footer navigasyonuna bağlı.",
+  "Blog masaüstü ve mobil Kurumsal alt menülerinin son öğesi; footer Bilgi Merkezi bağlantısı korunuyor.",
 );
 const appRoutesSource = await readFile(path.join(projectRoot, "src", "AppRoutes.jsx"), "utf8");
 const appSource = await readFile(path.join(projectRoot, "src", "App.jsx"), "utf8");
 const contactSource = await readFile(path.join(projectRoot, "src", "pages", "iletisim.jsx"), "utf8");
 const readingTestSource = await readFile(path.join(projectRoot, "src", "ReadingSpeedTest.jsx"), "utf8");
 const attentionTestSource = await readFile(path.join(projectRoot, "src", "AttentionFocusTest.jsx"), "utf8");
+const requiredHomepagePhrases = [
+  "Çocuğunuzun dikkat ve odaklanma seviyesini 2 dakikada ölçün",
+  "Okuma Ölçümünü Başlat",
+  "Fixoku Eğitim Kitapları",
+  "21 Günlük Başarı Serüveni",
+  "126 Egzersiz İçeriği",
+  "9 Kategoride Ölçümleme ve Analiz",
+  "1 Yıl Aktif Serbest Çalışma Alanı",
+  "21 günlük eğitim sonunda öğrencilerin okuma hızında ve anlama",
+  "Yapay zekâ destekli yazılımımız, öğrencilerin gelişimini anlık olarak takip",
+  "Fixoku Yazılımı",
+  "becerilerini geliştiren bütüncül eğitim sistemiyle öğrencilerin akademik",
+  "Uzman eğitmen eğitim vererek gelişimi takip eder.",
+  "Eğitim nasıl yapılmaktadır?",
+  "Eğitim online ya da yüz yüze olarak yapılabilir.",
+];
+const forbiddenHomepagePhrases = [
+  "12000",
+  "12.000+",
+  "ortalama 2 kat",
+  "ortalama iki kat",
+  "2 kat okuma",
+  "Fixoku Eğitim Deneyimi",
+  "Eğitim online mı yapılmaktadır?",
+  "Okuma Testini Başlat",
+  "2 dakikalık test ile",
+];
+check(
+  requiredHomepagePhrases.every((phrase) => appSource.includes(phrase)) &&
+    forbiddenHomepagePhrases.every((phrase) => !appSource.includes(phrase)) &&
+    !/Fixoku Eğitim Kitabı(?!ları)/u.test(appSource),
+  "Ana sayfa kaynak içeriği güncel Word sözleşmesindeki metinlerle eşleşiyor.",
+);
+check(
+  (appSource.match(/const target = 3000;/g) ?? []).length === 1 &&
+    appSource.includes('data-counter-target="3000"') &&
+    appSource.includes('<strong>2.000+</strong> öğrenci eğitim aldı') &&
+    !/<strong>3\.000\+<\/strong>\s*öğrenci eğitim aldı/iu.test(appSource),
+  "Test çözen öğrenci hedefi 3000; eğitim alan öğrenci istatistiği bağımsız olarak 2.000+.",
+);
+check(
+  footerSource.includes("Çocuğunuzun Akademik Gelişimini Ertelemeyin") &&
+    footerSource.includes("Fixoku, Mavi Yeşil Ajans kuruluşudur.") &&
+    footerSource.includes("Fixoku Yayınları — Mavi Yeşil Ajans") &&
+    !footerSource.includes("Ersin Usta") &&
+    !footerSource.includes("Okuyan, Anlayan, Gelişen Nesiller"),
+  "Footer güncel CTA ve üç kurumsal satırı gösteriyor; eski kişi adı ve görünür slogan kaldırıldı.",
+);
+check(
+  headerSource.includes(">Sisteme Giriş</Link>") &&
+    !headerSource.includes("Sisteme Giriş Yap") &&
+    !footerSource.includes("Ersin Usta") &&
+    !homeSchemaText.includes("Ersin Usta"),
+  "Header giriş etiketi güncel; Ersin Usta public kaynak ve schema çıktısından kaldırıldı.",
+);
+check(
+  headerSource.includes("flex-wrap: nowrap;") &&
+    headerSource.includes("white-space: nowrap;") &&
+    headerSource.includes("@media (max-width: 1100px)") &&
+    headerSource.includes("@media (max-width: 1100px) and (min-width: 769px)") &&
+    headerSource.includes("@media (max-width: 1399px) and (min-width: 1101px)"),
+  "Header masaüstünde tek satır kullanıyor ve 1024 genişlikte merkezi mobil navigasyona geçiyor.",
+);
 const legacyTrainingPageExists = await stat(
   path.join(projectRoot, "src", "pages", "Egitimler.jsx"),
 ).then(() => true).catch(() => false);
@@ -836,13 +969,25 @@ const phoneAndWhatsappSource = [
 const whatsappNumbers = [...phoneAndWhatsappSource.matchAll(/wa\.me\/(\d+)/g)].map((match) => match[1]);
 const telephoneNumbers = [...phoneAndWhatsappSource.matchAll(/tel:\+(\d+)/g)].map((match) => match[1]);
 check(
-  whatsappNumbers.length >= 5 &&
+  businessIdentity.mobilePhone === contactPhones.mobile &&
+    businessIdentity.officePhone === contactPhones.office &&
+    contactPhones.mobile.display === "+90 533 478 92 53" &&
+    contactPhones.mobile.telUri === "tel:+905334789253" &&
+    contactPhones.mobile.whatsappUrl === "https://wa.me/905334789253" &&
+    contactPhones.office.display === "+90 232 462 07 43" &&
+    contactPhones.office.telUri === "tel:+902324620743" &&
+    !Object.hasOwn(contactPhones.office, "whatsappUrl") &&
+  whatsappNumbers.length >= 1 &&
     whatsappNumbers.every((number) => number === "905334789253") &&
-    telephoneNumbers.length >= 3 &&
-    telephoneNumbers.every((number) => number === "905334789253") &&
-    !phoneAndWhatsappSource.includes("902324620743") &&
-    !phoneAndWhatsappSource.includes("+90 232 462 07 43"),
-  "Aktif telefon ve WhatsApp hedefleri yalnızca doğrulanmış +90 533 478 92 53 numarasını kullanıyor.",
+    telephoneNumbers.length >= 1 &&
+    telephoneNumbers.every((number) => ["905334789253", "902324620743"].includes(number)) &&
+    contactSource.includes("contactPhones.mobile.telUri") &&
+    contactSource.includes("contactPhones.office.telUri") &&
+    contactSource.includes("contactPhones.mobile.whatsappUrl") &&
+    footerSource.includes("contactPhones.mobile.telUri") &&
+    footerSource.includes("contactPhones.office.telUri") &&
+    !phoneAndWhatsappSource.includes("wa.me/902324620743"),
+  "Merkezi cep/WhatsApp ve ofis telefon verileri doğru URI'lerle iletişim sayfası, footer ve schema akışına bağlı.",
 );
 check(
   businessIdentity.socialProfiles.every(

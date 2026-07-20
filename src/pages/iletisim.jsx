@@ -4,8 +4,8 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Breadcrumbs from "../components/content/Breadcrumbs.jsx";
 import { buildSiteUrl } from "../config/site.js";
+import { contactPhones } from "../data/legalContent.js";
 
-const WHATSAPP_BASE_URL = "https://wa.me/905334789253";
 const CONTACT_SOURCE_URL = buildSiteUrl("/iletisim");
 const INITIAL_FORM_DATA = {
   fullName: "",
@@ -121,7 +121,7 @@ function Iletisim() {
     const message = buildWhatsappMessage(sanitized);
     setPreview({
       message,
-      whatsappUrl: `${WHATSAPP_BASE_URL}?text=${encodeURIComponent(message)}`,
+      whatsappUrl: `${contactPhones.mobile.whatsappUrl}?text=${encodeURIComponent(message)}`,
     });
     window.requestAnimationFrame(() => previewHeadingRef.current?.focus());
   };
@@ -157,11 +157,27 @@ function Iletisim() {
               </p>
 
               <div className="contact-quick-actions">
-                <a href="tel:+905334789253" className="contact-action-card">
+                <a
+                  href={contactPhones.mobile.telUri}
+                  className="contact-action-card"
+                  aria-label="Fixoku cep telefonunu ara"
+                >
                   <div className="contact-action-icon">☎</div>
                   <div>
-                    <strong>Telefon</strong>
-                    <span>+90 533 478 92 53</span>
+                    <strong>{contactPhones.mobile.label}</strong>
+                    <span>{contactPhones.mobile.display}</span>
+                  </div>
+                </a>
+
+                <a
+                  href={contactPhones.office.telUri}
+                  className="contact-action-card"
+                  aria-label="Fixoku ofis telefonunu ara"
+                >
+                  <div className="contact-action-icon">☎</div>
+                  <div>
+                    <strong>{contactPhones.office.label}</strong>
+                    <span>{contactPhones.office.display}</span>
                   </div>
                 </a>
 
@@ -173,7 +189,7 @@ function Iletisim() {
                   </div>
                 </a>
 
-                <a href={WHATSAPP_BASE_URL} target="_blank" rel="noopener noreferrer" className="contact-action-card contact-whatsapp-card">
+                <a href={contactPhones.mobile.whatsappUrl} target="_blank" rel="noopener noreferrer" className="contact-action-card contact-whatsapp-card">
                   <div className="contact-action-icon">☘</div>
                   <div>
                     <strong>WhatsApp</strong>

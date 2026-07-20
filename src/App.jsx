@@ -22,6 +22,78 @@ function HeroSlideHeading({ active, className, children }) {
   return <HeadingTag className={className}>{children}</HeadingTag>;
 }
 
+const helpAudienceCards = [
+  {
+    title: "Öğrenciyim",
+    description: "Eğitim almak istiyorum.",
+    to: "/iletisim",
+    icon: "student",
+  },
+  {
+    title: "Veliyim",
+    description: "Çocuğuma eğitim almak istiyorum.",
+    to: "/iletisim",
+    icon: "parent",
+  },
+  {
+    title: "Eğitmenim",
+    description: "Eğitmen olmak istiyorum.",
+    to: "/egitmen-ol",
+    icon: "trainer",
+  },
+  {
+    title: "Kurum Sahibiyim",
+    description: "Kurumumda eğitim vermek istiyorum.",
+    to: "/okullar-icin",
+    icon: "institution",
+  },
+];
+
+function HelpAudienceIcon({ type }) {
+  if (type === "parent") {
+    return (
+      <svg viewBox="0 0 64 64" fill="none">
+        <circle cx="24" cy="22" r="9" stroke="currentColor" strokeWidth="4" />
+        <circle cx="44" cy="26" r="7" stroke="currentColor" strokeWidth="4" />
+        <path d="M9 52c1-11 7-17 15-17s14 6 15 17" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+        <path d="M37 52c.7-8 4-13 9-13 4 0 7 3 9 8" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+        <path d="M44 11c3-4 10-2 10 4 0 6-10 11-10 11S34 21 34 15c0-6 7-8 10-4Z" fill="currentColor" opacity=".22" />
+      </svg>
+    );
+  }
+
+  if (type === "trainer") {
+    return (
+      <svg viewBox="0 0 64 64" fill="none">
+        <rect x="9" y="9" width="46" height="32" rx="5" stroke="currentColor" strokeWidth="4" />
+        <path d="M20 51h24M32 41v10M18 30l8-8 7 6 12-12" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="18" cy="30" r="3" fill="currentColor" />
+        <circle cx="45" cy="16" r="3" fill="currentColor" />
+      </svg>
+    );
+  }
+
+  if (type === "institution") {
+    return (
+      <svg viewBox="0 0 64 64" fill="none">
+        <path d="M8 24 32 9l24 15" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M13 27h38v25H13V27Z" stroke="currentColor" strokeWidth="4" />
+        <path d="M23 52V36h18v16M9 54h46" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+        <path d="M32 9v11" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 64 64" fill="none">
+      <path d="m8 22 24-12 24 12-24 12L8 22Z" stroke="currentColor" strokeWidth="4" strokeLinejoin="round" />
+      <path d="M18 29v12c0 6 6 11 14 11s14-5 14-11V29" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+      <path d="M55 24v16" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+      <circle cx="55" cy="44" r="3" fill="currentColor" />
+    </svg>
+  );
+}
+
 const subscribeToHydration = () => () => {};
 const getClientHydrationSnapshot = () => true;
 const getServerHydrationSnapshot = () => false;
@@ -185,46 +257,6 @@ function App() {
   }, [trainerStories.length]);
 
   useEffect(() => {
-  const target = 12000;
-  const duration = 3000;
-  const pauseBetweenLoops = 2000;
-  const steps = 120;
-  const stepTime = duration / steps;
-
-  let intervalId;
-  let restartTimeoutId;
-
-  const runCounter = () => {
-    let currentStep = 0;
-    setTestCounter(0);
-
-    intervalId = setInterval(() => {
-      currentStep += 1;
-      const progress = currentStep / steps;
-      const value = Math.floor(target * progress);
-
-      setTestCounter(value);
-
-      if (currentStep >= steps) {
-        clearInterval(intervalId);
-        setTestCounter(target);
-
-        restartTimeoutId = setTimeout(() => {
-          runCounter();
-        }, pauseBetweenLoops);
-      }
-    }, stepTime);
-  };
-
-  runCounter();
-
-  return () => {
-    clearInterval(intervalId);
-    clearTimeout(restartTimeoutId);
-  };
-}, []);
-
-  useEffect(() => {
     const interval = setInterval(() => {
       setActiveSlide((prev) => (prev + 1) % 3);
     }, 90000);
@@ -270,40 +302,34 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const target = 12000;
+    const target = 3000;
     const duration = 3000;
-    const pauseBetweenLoops = 2000;
-    const steps = 120;
-    const stepTime = duration / steps;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let animationFrameId;
 
-    let intervalId;
-    let restartTimeoutId;
+    if (prefersReducedMotion) {
+      animationFrameId = requestAnimationFrame(() => {
+        setTestCounter(target);
+      });
 
-    const runCounter = () => {
-      let currentStep = 0;
-      setTestCounter(0);
+      return () => cancelAnimationFrame(animationFrameId);
+    }
 
-      intervalId = setInterval(() => {
-        currentStep += 1;
-        const progress = currentStep / steps;
-        const value = Math.floor(target * progress);
+    const startedAt = performance.now();
 
-        setTestCounter(value);
+    const updateCounter = (timestamp) => {
+      const progress = Math.min((timestamp - startedAt) / duration, 1);
+      setTestCounter(Math.floor(target * progress));
 
-        if (currentStep >= steps) {
-          clearInterval(intervalId);
-          setTestCounter(target);
-          restartTimeoutId = setTimeout(runCounter, pauseBetweenLoops);
-        }
-      }, stepTime);
+      if (progress < 1) {
+        animationFrameId = requestAnimationFrame(updateCounter);
+      } else {
+        setTestCounter(target);
+      }
     };
 
-    runCounter();
-
-    return () => {
-      clearInterval(intervalId);
-      clearTimeout(restartTimeoutId);
-    };
+    animationFrameId = requestAnimationFrame(updateCounter);
+    return () => cancelAnimationFrame(animationFrameId);
   }, []);
 
   const engineModules = useMemo(
@@ -1137,110 +1163,92 @@ function App() {
         </div>
       </section>
       <section className="why-fixoku-section">
-  <div className="why-fixoku-container">
-    <div className="why-fixoku-header">
-      <div className="why-fixoku-eyebrow">
-        <span></span>
-        <p>Fixoku Eğitim Sistemi</p>
-        <span></span>
-      </div>
-
-      <h2>
-        Neden <strong>Fixoku?</strong>
-      </h2>
-    </div>
-
-    <div className="why-fixoku-content">
-      <p>
-        <strong>Fixoku;</strong> hızlı okuma, anlama, dikkat ve odaklanma
-        becerilerini geliştirmeye yönelik <b>kapsamlı bir eğitim sistemidir.</b>
-        Program, öğrencilerin okuma hızını artırmayı, metni daha doğru
-        anlamalarını sağlamayı ve <b>dikkat becerilerini</b> güçlendirmeyi hedefler.
-      </p>
-
-      <p>
-        Fixoku sistemi; <b>yapay zekâ destekli</b> yazılımı ve özel olarak
-        geliştirilmiş egzersizleri ile öğrencilerin gelişimini ölçebilen
-        yenilikçi bir eğitim modelidir. Sistem içerisindeki 126 farklı egzersiz,
-        öğrencilerin performansını analiz ederek gelişim sürecini takip eder.
-        Program sonunda öğrenciler <b>9 farklı beceri alanında</b> değerlendirilir.
-      </p>
-    </div>
-
-    <div className="why-fixoku-work">
-      <div className="why-video-box">
-        <svg viewBox="0 0 180 120" fill="none">
-          <rect x="34" y="28" width="112" height="64" rx="5" stroke="currentColor" strokeWidth="7" />
-          <path d="M78 45L110 60L78 75V45Z" stroke="currentColor" strokeWidth="7" strokeLinejoin="round" />
-          <path d="M34 42H49M131 42H146M34 60H49M131 60H146M34 78H49M131 78H146" stroke="currentColor" strokeWidth="6" />
-        </svg>
-      </div>
-
-      <div className="why-work-content">
-        <h3>
-          <strong>Fixoku</strong> Sistemi Nasıl Çalışır?
-        </h3>
-
-        <div className="why-feature-grid">
-          <div className="why-feature-card">
-            <div className="why-feature-svg">
-              <svg viewBox="0 0 48 48" fill="none">
-                <path d="M10 35V23M20 35V15M30 35V9M38 35V19" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
-                <path d="M8 38H40" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
-              </svg>
+        <div className="why-fixoku-container">
+          <div className="why-fixoku-header">
+            <div className="why-fixoku-eyebrow">
+              <span aria-hidden="true" />
+              <p>Fixoku Eğitim Sistemi</p>
+              <span aria-hidden="true" />
             </div>
-            <strong>Yapay Zekâ Destekli</strong>
-            <span>Ölçüm Sistemi</span>
+
+            <h2>
+              Neden <strong>Fixoku?</strong>
+            </h2>
           </div>
 
-          <div className="why-feature-card">
-            <div className="why-feature-svg">
-              <svg viewBox="0 0 48 48" fill="none">
-                <path d="M18 8C12 8 8 12 8 18c0 3 1 5 3 7-3 2-5 5-5 9 0 6 5 10 11 10h14c6 0 11-4 11-10 0-4-2-7-5-9 2-2 3-4 3-7 0-6-4-10-10-10-3 0-5 1-6 3-1-2-3-3-6-3Z" stroke="currentColor" strokeWidth="3.5" strokeLinejoin="round" />
-                <path d="M24 11V40M15 23c4-2 8-1 9 3M33 23c-4-2-8-1-9 3" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" />
-              </svg>
+          <div className="why-fixoku-overview">
+            <div className="why-fixoku-content">
+              <p>
+                Fixoku; akıcı okuma, hızlı okuma, anlama, dikkat, odaklanma ve
+                paragraf çözme becerilerini geliştirmeye yönelik{" "}
+                <strong>kapsamlı bir eğitim sistemidir.</strong> Program,
+                öğrencilerin okuma hızını artırmayı, metni daha doğru anlamalarını
+                ve <strong>dikkat becerilerini</strong> güçlendirerek sınavlarda
+                başarıya ulaşmalarını sağlar.
+              </p>
+
+              <p>
+                Fixoku sistemi; <strong>yapay zekâ destekli yazılım</strong>, akıcı
+                okuma, hızlı okuma, paragraf kitapları ve özel olarak hazırlanmış
+                egzersizler ile öğrencilerin gelişimini ölçebilen yenilikçi bir
+                eğitim modelidir. Yapay zekâ destekli yazılım içerisinde yer alan{" "}
+                <strong>126 farklı egzersiz</strong>,{" "}
+                <strong>21 günlük eğitim</strong> periyodu ile öğrencilerin
+                performansını analiz ederek gelişim sürecini takip eder. Program
+                sonunda öğrenciler <strong>9 farklı beceri</strong> alanında
+                değerlendirilir ve gelişim raporu oluşturulur.
+              </p>
             </div>
-            <strong>126</strong>
-            <span>Özel Gelişim Egzersizi</span>
+
+            <div
+              className="why-video-box"
+              role="img"
+              aria-label="Fixoku eğitim sistemi tanıtım sunumu için görsel alan"
+            >
+              <span className="why-video-glow" aria-hidden="true" />
+              <span className="why-video-mark" aria-hidden="true">
+                <svg viewBox="0 0 96 96" fill="none">
+                  <circle cx="48" cy="48" r="43" stroke="currentColor" strokeWidth="3" />
+                  <path d="M40 31 67 48 40 65V31Z" fill="currentColor" />
+                </svg>
+              </span>
+              <span className="why-video-caption">Fixoku Eğitim Sistemi</span>
+            </div>
           </div>
 
-          <div className="why-feature-card">
-            <div className="why-feature-svg">
-              <svg viewBox="0 0 48 48" fill="none">
-                <path d="M10 34L20 24L27 31L39 15" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M30 15H39V24" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-            <strong>9 Kategoride</strong>
-            <span>Gelişim Analizi</span>
-          </div>
+          <div className="help-audience-section">
+            <h3>
+              Size Nasıl <strong>Yardımcı Olabiliriz?</strong>
+            </h3>
 
-          <div className="why-feature-card">
-            <div className="why-feature-svg">
-              <svg viewBox="0 0 48 48" fill="none">
-                <path d="M10 12H22C25 12 27 14 27 17V38C27 35 25 33 22 33H10V12Z" stroke="currentColor" strokeWidth="3.5" strokeLinejoin="round" />
-                <path d="M38 12H32C29 12 27 14 27 17V38C27 35 29 33 32 33H38V12Z" stroke="currentColor" strokeWidth="3.5" strokeLinejoin="round" />
-                <path d="M14 19H21M14 25H21M32 19H35M32 25H35" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-              </svg>
+            <div className="help-audience-grid">
+              {helpAudienceCards.map((card) => (
+                <article className="help-audience-card" key={card.title}>
+                  <span className="help-audience-icon" aria-hidden="true">
+                    <HelpAudienceIcon type={card.icon} />
+                  </span>
+                  <h4>{card.title}</h4>
+                  <p>{card.description}</p>
+                  <Link to={card.to} className="help-audience-link">
+                    <span>Bilgi Al</span>
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </Link>
+                </article>
+              ))}
             </div>
-            <strong>Kitap + Yazılım</strong>
-            <span>Destekli Eğitim</span>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
+      </section>
       <section className="free-tests-section" id="testler">
   <div className="free-tests-bg" />
 
   <div className="free-tests-container">
     <h2 className="free-tests-title">
-      Çocuğunuzun Okuma Hızını ve
+      Okuma ve Dikkat Seviyesini
       <br />
-      Dikkat Seviyesini <span>2 Dakikada Ücretsiz</span>
-      <br />
-      Öğrenin
+      <span>Ücretsiz Testlerle</span> Ölçün
     </h2>
 
     <div className="free-tests-cards">
@@ -1254,58 +1262,18 @@ function App() {
 
           <div className="free-test-icon free-test-icon-purple" aria-hidden="true">
             <svg viewBox="0 0 128 128" fill="none">
-              <path
-                d="M49 22C38 22 29 30 29 41c0 5 2 10 5 13-6 2-10 8-10 15 0 10 8 18 18 18h5c3 10 11 16 21 16 12 0 21-9 22-21 8-1 14-8 14-17 0-8-5-14-12-17 1-2 2-5 2-8 0-10-8-18-18-18-4 0-7 1-10 3-4-2-10-3-15-3Z"
-                fill="#f4a9dc"
-                stroke="#5a1480"
-                strokeWidth="5"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M52 34c-7 3-12 9-12 17 0 6 3 11 7 15"
-                stroke="#5a1480"
-                strokeWidth="4"
-                strokeLinecap="round"
-              />
-              <path
-                d="M65 30c-4 3-7 8-7 13 0 5 2 9 5 12"
-                stroke="#5a1480"
-                strokeWidth="4"
-                strokeLinecap="round"
-              />
-              <path
-                d="M79 34c6 3 10 9 10 16 0 6-2 10-6 14"
-                stroke="#5a1480"
-                strokeWidth="4"
-                strokeLinecap="round"
-              />
-              <path
-                d="M46 61c6-1 12 1 16 5 4-4 10-6 16-5"
-                stroke="#5a1480"
-                strokeWidth="4"
-                strokeLinecap="round"
-              />
-              <path
-                d="M63 42v31"
-                stroke="#5a1480"
-                strokeWidth="4"
-                strokeLinecap="round"
-              />
-              <path
-                d="M64 103c-2-9-8-14-17-16"
-                stroke="#5a1480"
-                strokeWidth="5"
-                strokeLinecap="round"
-              />
-              <circle cx="98" cy="33" r="4" fill="#ff9a1f" />
-              <circle cx="103" cy="45" r="3" fill="#ff9a1f" />
-              <circle cx="92" cy="44" r="2.5" fill="#ff9a1f" />
+              <circle cx="64" cy="64" r="42" fill="#f4d8f2" stroke="#5a1480" strokeWidth="5" />
+              <circle cx="64" cy="64" r="26" fill="#ffffff" stroke="#8f55a8" strokeWidth="5" />
+              <circle cx="64" cy="64" r="10" fill="#ff9a1f" stroke="#5a1480" strokeWidth="4" />
+              <path d="M64 12v17M64 99v17M12 64h17M99 64h17" stroke="#5a1480" strokeWidth="6" strokeLinecap="round" />
+              <path d="m70 58 26-26" stroke="#ef6418" strokeWidth="7" strokeLinecap="round" />
+              <path d="m86 31 12-1-1 12" stroke="#ef6418" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
 
           <p className="free-test-desc">
-            Çocuğunuzun dikkat ve odaklanma seviyesini 2 dakikalık test ile ölçün
-            ve gelişim alanlarını öğrenin.
+            Çocuğunuzun dikkat ve odaklanma seviyesini 2 dakikada ölçün, gelişim
+            alanlarını uzman eğitmenimizle değerlendirin.
           </p>
 
           <button type="button" className="free-test-btn free-test-btn-purple" onClick={() => setManualTest("attention")}>
@@ -1320,7 +1288,7 @@ function App() {
                 />
               </svg>
             </span>
-            <span>Çocuğumun Dikkatini Ölç</span>
+            <span>Dikkat Testini Başlat</span>
           </button>
         </div>
       </div>
@@ -1335,49 +1303,18 @@ function App() {
 
           <div className="free-test-icon free-test-icon-orange" aria-hidden="true">
             <svg viewBox="0 0 128 128" fill="none">
-              <rect
-                x="34"
-                y="24"
-                width="42"
-                height="60"
-                rx="6"
-                fill="#ffffff"
-                stroke="#43115d"
-                strokeWidth="5"
-              />
-              <path
-                d="M44 40h22M44 49h22M44 58h18M44 67h20"
-                stroke="#8d73a2"
-                strokeWidth="4"
-                strokeLinecap="round"
-              />
-              <path
-                d="M83 35l12 12"
-                stroke="#43115d"
-                strokeWidth="6"
-                strokeLinecap="round"
-              />
-              <path
-                d="M66 64l23-23c4-4 11-4 15 0s4 11 0 15L81 79l-17 4 2-19Z"
-                fill="#ffb11a"
-                stroke="#ef6418"
-                strokeWidth="5"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M86 44l10 10"
-                stroke="#43115d"
-                strokeWidth="4"
-                strokeLinecap="round"
-              />
-              <circle cx="28" cy="92" r="8" fill="#ef6418" opacity="0.12" />
-              <circle cx="102" cy="91" r="6" fill="#ef6418" opacity="0.18" />
+              <path d="M20 34c15-6 29-5 44 4v58c-15-9-29-10-44-4V34Z" fill="#ffffff" stroke="#43115d" strokeWidth="5" strokeLinejoin="round" />
+              <path d="M108 34c-15-6-29-5-44 4v58c15-9 29-10 44-4V34Z" fill="#fff8ed" stroke="#43115d" strokeWidth="5" strokeLinejoin="round" />
+              <path d="M32 50h20M32 62h20M76 50h20M76 62h20" stroke="#8d73a2" strokeWidth="4" strokeLinecap="round" />
+              <path d="M78 86a28 28 0 1 0-28-28" stroke="#ef6418" strokeWidth="7" strokeLinecap="round" />
+              <path d="m78 86 16 9M78 86l5-17" stroke="#ef6418" strokeWidth="6" strokeLinecap="round" />
+              <circle cx="78" cy="86" r="5" fill="#ffb11a" stroke="#43115d" strokeWidth="3" />
             </svg>
           </div>
 
           <p className="free-test-desc">
-            Çocuğunuzun okuma hızını, anlama oranını ve paragraf anlama
-            seviyesini hemen ölçün.
+            Çocuğunuzun okuma hızını ve anlama becerisini ölçün, sonuçları uzman
+            eğitmenimizle değerlendirin.
           </p>
 
           <button type="button" className="free-test-btn free-test-btn-orange" onClick={() => setManualTest("reading")}>
@@ -1392,13 +1329,17 @@ function App() {
                 />
               </svg>
             </span>
-            <span>Çocuğumun Okuma Hızını Ölç</span>
+            <span>Okuma Ölçümünü Başlat</span>
           </button>
         </div>
       </div>
     </div>
 
-    <div className="trusted-users-box" aria-label="Fixoku kullanıcı güven göstergesi">
+    <div
+      className="trusted-users-box"
+      aria-label="3.000+ Fixoku öğrencisi bu testleri çözdü"
+      data-counter-target="3000"
+    >
       <div className="trusted-avatar-stack" aria-hidden="true">
         {[
           "/egitici1.jpeg",
@@ -1426,7 +1367,7 @@ function App() {
           <strong className="trusted-counter-fixed">
             {testCounter.toLocaleString("tr-TR")}+
           </strong>
-          <span>FixOku Öğrencisi Bu testleri Çözdü</span>
+          <span>Fixoku Öğrencisi Bu Testleri Çözdü</span>
         </p>
       </div>
     </div>
@@ -1489,7 +1430,7 @@ function App() {
     </div>
 
     <p>
-      <strong>3.000+</strong> öğrenci eğitim aldı
+      <strong>2.000+</strong> öğrenci eğitim aldı
     </p>
   </div>
 
@@ -1536,7 +1477,7 @@ function App() {
       <div className="how-it-works-grid">
         <article className="how-card">
           <div className="how-card-head how-card-head-orange">
-            Fixoku Eğitim Kitabı
+            Fixoku Eğitim Kitapları
           </div>
 
           <div className="how-card-visual how-card-visual-book">
@@ -1573,43 +1514,28 @@ function App() {
           </div>
 
           <div className="how-card-body">
-            <div className="how-feature">
-              <span className="how-feature-check" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.4" />
-                  <path
-                    d="M7 12.5l3.2 3.2L17.5 8.5"
-                    stroke="currentColor"
-                    strokeWidth="2.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-              <span>Hızlı Okuma Teknikleri</span>
-            </div>
-
-            <div className="how-feature">
-              <span className="how-feature-check" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.4" />
-                  <path
-                    d="M7 12.5l3.2 3.2L17.5 8.5"
-                    stroke="currentColor"
-                    strokeWidth="2.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-              <span>Dikkat Odaklanma Teknikleri</span>
-            </div>
+            {[
+              "Dikkat ve Odaklanma Teknikleri",
+              "Akıcı Okuma Teknikleri",
+              "Hızlı Okuma Teknikleri",
+              "Paragraf Teknikleri",
+            ].map((feature) => (
+              <div className="how-feature" key={feature}>
+                <span className="how-feature-check" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.4" />
+                    <path d="M7 12.5l3.2 3.2L17.5 8.5" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                <span>{feature}</span>
+              </div>
+            ))}
           </div>
         </article>
 
         <article className="how-card">
           <div className="how-card-head how-card-head-gradient">
-            Yapay Zeka Destekli Yazılım
+            Yapay Zekâ Destekli Yazılım
           </div>
 
           <div className="how-card-visual how-card-visual-software">
@@ -1640,37 +1566,22 @@ function App() {
           </div>
 
           <div className="how-card-body">
-            <div className="how-feature">
-              <span className="how-feature-check" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.4" />
-                  <path
-                    d="M7 12.5l3.2 3.2L17.5 8.5"
-                    stroke="currentColor"
-                    strokeWidth="2.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-              <span>9 Farklı Beceri Alanında</span>
-            </div>
-
-            <div className="how-feature">
-              <span className="how-feature-check" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.4" />
-                  <path
-                    d="M7 12.5l3.2 3.2L17.5 8.5"
-                    stroke="currentColor"
-                    strokeWidth="2.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-              <span>126 Egzersizi Analiz Eder</span>
-            </div>
+            {[
+              "21 Günlük Başarı Serüveni",
+              "126 Egzersiz İçeriği",
+              "9 Kategoride Ölçümleme ve Analiz",
+              "1 Yıl Aktif Serbest Çalışma Alanı",
+            ].map((feature) => (
+              <div className="how-feature" key={feature}>
+                <span className="how-feature-check" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.4" />
+                    <path d="M7 12.5l3.2 3.2L17.5 8.5" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                <span>{feature}</span>
+              </div>
+            ))}
           </div>
         </article>
 
@@ -1720,44 +1631,29 @@ function App() {
           </div>
 
           <div className="how-card-body">
-            <div className="how-feature">
-              <span className="how-feature-check" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.4" />
-                  <path
-                    d="M7 12.5l3.2 3.2L17.5 8.5"
-                    stroke="currentColor"
-                    strokeWidth="2.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-              <span>Uzman Eğitmenler Eşliğinde</span>
-            </div>
-
-            <div className="how-feature">
-              <span className="how-feature-check" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.4" />
-                  <path
-                    d="M7 12.5l3.2 3.2L17.5 8.5"
-                    stroke="currentColor"
-                    strokeWidth="2.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-              <span>Birebir Takip Edilir</span>
-            </div>
+            {[
+              "Müfredat Eşliğinde Eğitim",
+              "Kitap ve Yazılım Çözüm Desteği",
+              "Birebir Takip ve Değerlendirme",
+              "Sonuç Analizi ve Yönlendirme",
+            ].map((feature) => (
+              <div className="how-feature" key={feature}>
+                <span className="how-feature-check" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.4" />
+                    <path d="M7 12.5l3.2 3.2L17.5 8.5" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                <span>{feature}</span>
+              </div>
+            ))}
           </div>
         </article>
       </div>
 
       <div className="how-it-works-bottom-text">
-        21 gün sonunda öğrencilerde ortalama <strong>2 kat okuma hız artışı</strong>{" "}
-        görülmektedir.
+        21 günlük eğitim sonunda öğrencilerin okuma hızında ve anlama
+        becerilerinde belirgin gelişim elde edilmektedir.
       </div>
     </div>
   </div>
@@ -1766,6 +1662,11 @@ function App() {
   <div className="progress-model-container">
     <div className="progress-hero">
       <h2 className="progress-title">Gelişiminizi Anlık Takip Edin</h2>
+
+      <p className="progress-subtitle">
+        Yapay zekâ destekli yazılımımız, öğrencilerin gelişimini anlık olarak takip
+        ederek eğitim sonunda detaylı veriler sunar.
+      </p>
 
       <div className="progress-panel">
         <div className="progress-grid">
@@ -1977,11 +1878,13 @@ function App() {
   <div className="fixoku-experience-container">
     <div className="fixoku-experience-head">
       <h2>
-        <span>Fixoku</span> Eğitim Deneyimi
+        <span>Fixoku Yazılımı</span> Öğrenciyi Nasıl Destekler?
       </h2>
       <p>
-        Fixoku yazılımı, kitap çalışmaları ve uzman eğitmen desteği ile
-        öğrenciler için özel bir öğrenme deneyimi sunar.
+        Yapay zekâ destekli yazılım; öğrencinin gelişimini analiz ederek eğitim
+        sürecini kişiselleştirir, ilerlemeyi anlık olarak takip ederek gelişim
+        sürecini raporlar, eksik becerilerin geliştirilmesi için yönlendirmeler
+        sunar ve eğitim sonrasında 1 yıl boyunca gelişimin devamını destekler.
       </p>
     </div>
 
@@ -2000,7 +1903,7 @@ function App() {
     <div className="fixoku-experience-cards">
       <div className="fixoku-exp-card">
         <div className="exp-card-icon ai-icon">AI</div>
-        <h3>Yapay Zeka<br />Destekli Analiz</h3>
+        <h3>Yapay Zekâ<br />Destekli Analiz</h3>
         <p>Yazılım, öğrencinin performansını analiz ederek gelişimini raporlar.</p>
       </div>
 
@@ -2029,6 +1932,15 @@ function App() {
       </div>
     </div>
 
+    <div className="fixoku-experience-action">
+      <Link to="/fixoku-egitimi/yazilim">
+        <span>Yapay Zekâ Destekli Yazılımı İnceleyin</span>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </Link>
+    </div>
+
     <div className="fixoku-experience-bottom">
       <h2><span>Kimler Fixoku</span> Eğitiminden Faydalanabilir?</h2>
       <p>
@@ -2047,8 +1959,9 @@ function App() {
       </h2>
 
       <p className="benefits-subtitle">
-        Fixoku hızlı okuma, anlama, dikkat ve odaklanma eğitimi öğrencilerin
-        akademik başarısını artırmaya yardımcı olur.
+        Fixoku; akıcı okuma, hızlı okuma, anlama, dikkat, odaklanma ve paragraf
+        becerilerini geliştiren bütüncül eğitim sistemiyle öğrencilerin akademik
+        başarılarını destekler.
       </p>
 
       {/* 🔥 ESKİ WHEEL SİLİNDİ – SVG EKLENDİ */}
@@ -2078,7 +1991,7 @@ function App() {
         <div className="process-step">
           <div className="process-pill process-pill-orange">EĞİTİM PROGRAMI</div>
           <p className="process-desc">
-            Fixoku yazılımı öğrenci için özel bir eğitim programı oluşturur
+            Öğrencinin seviyesine uygun eğitim programı planlanır
           </p>
           <div className="process-pin process-pin-orange">
             <span>02</span>
@@ -2086,21 +1999,21 @@ function App() {
         </div>
 
         <div className="process-step">
-          <div className="process-pill process-pill-yellow">GÜNLÜK ÇALIŞMA</div>
+          <div className="process-pill process-pill-cyan">EĞİTMEN TAKİBİ</div>
           <p className="process-desc">
-            Öğrenci günlük ortalama 30 dakika egzersiz yapar
+            Uzman eğitmen eğitim vererek gelişimi takip eder.
           </p>
-          <div className="process-pin process-pin-yellow">
+          <div className="process-pin process-pin-cyan">
             <span>03</span>
           </div>
         </div>
 
         <div className="process-step">
-          <div className="process-pill process-pill-cyan">EĞİTMEN TAKİBİ</div>
+          <div className="process-pill process-pill-yellow">GÜNLÜK ÇALIŞMA</div>
           <p className="process-desc">
-            Uzman eğitmenler öğrencinin gelişimini takip eder
+            21 günlük eğitim periyodunda düzenli egzersizler uygulanır
           </p>
-          <div className="process-pin process-pin-cyan">
+          <div className="process-pin process-pin-yellow">
             <span>04</span>
           </div>
         </div>
@@ -2229,13 +2142,12 @@ function App() {
           <summary>
             <span className="faq-left">
               <span className="faq-arrow">➜</span>
-              <span>Eğitim online mi yapılmaktadır?</span>
+              <span>Eğitim nasıl yapılmaktadır?</span>
             </span>
             <span className="faq-toggle" />
           </summary>
           <div className="faq-answer">
-            Eğitim modeli kitap, yazılım ve uzman eğitmen desteğini bir arada
-            sunar. Süreç online ve takip edilebilir şekilde ilerler.
+            Eğitim online ya da yüz yüze olarak yapılabilir.
           </div>
         </details>
       </div>

@@ -26,6 +26,16 @@ const desktopIconPaths = {
   message: <><path d="M4 5h16v11H8l-4 4V5Z" /><path d="M8 9h8M8 12h5" /></>,
 };
 
+const BLOG_PATH = "/blog";
+const corporateMenuItems = [
+  ...corporateArticles.map((article) => ({
+    label: article.navLabel,
+    to: article.path,
+    icon: article.icon,
+  })),
+  { label: "Blog", to: BLOG_PATH, icon: "message" },
+];
+
 const desktopMenuItems = [
   {
     key: "hizli-okuma",
@@ -71,11 +81,7 @@ const desktopMenuItems = [
     key: "kurumsal",
     label: "KURUMSAL",
     to: CORPORATE_HUB_PATH,
-    items: corporateArticles.map((article) => ({
-      label: article.navLabel,
-      to: article.path,
-      icon: article.icon,
-    })),
+    items: corporateMenuItems,
   },
 ];
 
@@ -137,10 +143,7 @@ const mobileMenuItems = [
     label: "Kurumsal",
     icon: "building",
     to: CORPORATE_HUB_PATH,
-    items: corporateArticles.map((article) => ({
-      label: article.navLabel,
-      to: article.path,
-    })),
+    items: corporateMenuItems.map(({ label, to }) => ({ label, to })),
   },
 ];
 
@@ -309,12 +312,11 @@ function Header() {
                   )}
                 </div>
               ))}
-              <Link to="/blog" className="nav-link blog-nav-link">BLOG</Link>
               <Link to="/iletisim" className="nav-link contact-nav-link">İLETİŞİM</Link>
             </nav>
 
             <div className="top-actions">
-              <Link to="/panel" className="action-btn login-btn">Sisteme Giriş Yap</Link>
+              <Link to="/panel" className="action-btn login-btn">Sisteme Giriş</Link>
               <Link to={TRAINING_HUB_PATH} className="action-btn store-btn">Eğitimleri İncele</Link>
             </div>
           </div>
@@ -386,16 +388,13 @@ function Header() {
                 </div>
               ))}
 
-              <Link to="/blog" className={`mobile-main-link ${location.pathname.startsWith("/blog") ? "is-active" : ""}`} onClick={closeMobileMenu}>
-                <span className="mobile-main-icon"><MobileIcon type="blog" /></span><span>Blog</span>
-              </Link>
               <Link to="/iletisim" className={`mobile-main-link ${location.pathname === "/iletisim" ? "is-active" : ""}`} onClick={closeMobileMenu}>
                 <span className="mobile-main-icon"><MobileIcon type="phone" /></span><span>İletişim</span>
               </Link>
             </nav>
 
             <div className="mobile-actions">
-              <Link to="/panel" className="action-btn login-btn" onClick={closeMobileMenu}>Sisteme Giriş Yap</Link>
+              <Link to="/panel" className="action-btn login-btn" onClick={closeMobileMenu}>Sisteme Giriş</Link>
               <Link to={TRAINING_HUB_PATH} className="action-btn store-btn" onClick={closeMobileMenu}>Eğitimleri İncele</Link>
             </div>
 
@@ -508,7 +507,8 @@ function Header() {
           justify-content: center;
           gap: 3px;
           flex: 1;
-          flex-wrap: wrap;
+          min-width: 0;
+          flex-wrap: nowrap;
         }
 
         .glass-menu .nav-item { position: relative; }
@@ -524,6 +524,7 @@ function Header() {
           letter-spacing: .12px;
           padding: 10px 8px;
           border-radius: 999px;
+          white-space: nowrap;
         }
 
         .glass-menu .nav-link:hover,
@@ -601,10 +602,48 @@ function Header() {
         .dropdown-icon svg * { stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
 
         .glass-menu .top-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        .glass-menu .top-actions .action-btn { white-space: nowrap; }
         .glass-menu .top-actions .login-btn { background: linear-gradient(135deg, #ff8a00, #f37021) !important; color: #fff !important; }
         .glass-menu .top-actions .store-btn { background: rgba(66, 17, 95, .08) !important; color: #42115f !important; border: 1px solid rgba(66, 17, 95, .08) !important; }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1399px) and (min-width: 1101px) {
+          .glass-topbar { padding: 0 12px !important; }
+          .glass-topbar .topbar-wrap { gap: 12px; }
+          .glass-topbar .logo-area { min-width: 128px; }
+          .glass-topbar .site-logo { width: 126px; }
+          .glass-topbar.is-after-hero .site-logo { width: 126px; }
+          .glass-menu { padding: 8px 10px !important; gap: 8px; }
+          .glass-menu .nav { gap: 0; }
+          .glass-menu .nav-link { font-size: 11.5px; padding: 9px 6px; }
+          .glass-menu .top-actions { gap: 6px; }
+          .glass-menu .top-actions .action-btn { padding: 10px 11px; font-size: 12.5px; }
+        }
+
+        @media (max-width: 1100px) and (min-width: 769px) {
+          .mobile-topbar .topbar-wrap {
+            position: relative;
+            min-height: 72px;
+            justify-content: center;
+          }
+
+          .mobile-topbar .logo-floating {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .mobile-topbar .hamburger-btn {
+            position: absolute;
+            left: 4px;
+            top: 50%;
+            width: 48px;
+            height: 48px;
+            transform: translateY(-50%);
+          }
+        }
+
+        @media (max-width: 1100px) {
           body.fixoku-menu-open { overflow: hidden; }
           .desktop-top-header,
           .desktop-topbar { display: none !important; }

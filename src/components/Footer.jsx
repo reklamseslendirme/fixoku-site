@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { corporateArticles, corporateHub } from "../data/corporateContent.js";
+import { contactPhones } from "../data/legalContent.js";
 import { trainingArticles, trainingHub } from "../data/trainingContent.js";
 
 const corporateFooterLinks = [
@@ -62,10 +63,10 @@ function Footer({ showCta = true }) {
       {showCta && <div className="footer-cta-band">
         <div className="footer-cta-inner">
           <div className="footer-cta-text">
-            <h2>Çocuğunuzun Gelişimini Bugün Başlatın</h2>
+            <h2>Çocuğunuzun Akademik Gelişimini Ertelemeyin</h2>
             <p>
-              Fixoku ile hızlı okuma, dikkat, anlama ve odaklanma gelişimini
-              profesyonel sistem desteğiyle hemen başlatın.
+              Okuma, anlama, dikkat ve odaklanma becerilerini geliştirmek için
+              ücretsiz seviye tespiti yapın ve uzman eğitmenlerimizden destek alın.
             </p>
           </div>
 
@@ -84,7 +85,7 @@ function Footer({ showCta = true }) {
             </Link>
 
             <Link to="/iletisim" className="footer-cta-btn secondary">
-              <span>Bizimle İletişime Geçin</span>
+              <span>Eğitim Hakkında Bilgi Al</span>
             </Link>
           </div>
         </div>
@@ -96,6 +97,8 @@ function Footer({ showCta = true }) {
             <Link to="/" className="footer-logo" aria-label="Fixoku Ana Sayfa">
               <img src="/logo-fixoku.png" alt="Fixoku Logo" />
             </Link>
+
+            <p className="footer-brand-subtitle">Yeni Nesil Akademik Gelişim Merkezi</p>
 
             <p className="footer-brand-text">
               Fixoku; kitap, yazılım ve uzman eğitmen desteğini bir araya getiren
@@ -178,7 +181,30 @@ function Footer({ showCta = true }) {
                   />
                 </svg>
               </span>
-              <a href="tel:+905334789253">+90 533 478 92 53</a>
+              <div className="footer-contact-details">
+                <span className="footer-contact-label">{contactPhones.mobile.label}</span>
+                <a href={contactPhones.mobile.telUri} aria-label="Fixoku cep telefonunu ara">
+                  {contactPhones.mobile.display}
+                </a>
+              </div>
+            </div>
+
+            <div className="footer-contact-item">
+              <span className="footer-contact-icon">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M6 2h4l2 5-2 2a14 14 0 006 6l2-2 5 2v4c0 1-1 2-2 2C10 21 3 14 3 6c0-1 1-2 2-2Z"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                  />
+                </svg>
+              </span>
+              <div className="footer-contact-details">
+                <span className="footer-contact-label">{contactPhones.office.label}</span>
+                <a href={contactPhones.office.telUri} aria-label="Fixoku ofis telefonunu ara">
+                  {contactPhones.office.display}
+                </a>
+              </div>
             </div>
 
             <div className="footer-contact-item">
@@ -196,7 +222,8 @@ function Footer({ showCta = true }) {
             </div>
 
             <div className="footer-contact-note">
-              Hafta içi 09:00 - 18:00 saatleri arasında destek alabilirsiniz.
+              Pazartesi–Cuma 08:30–19:00, Cumartesi 08:30–13:00 saatleri arasında
+              destek alabilirsiniz.
             </div>
           </div>
         </div>
@@ -204,7 +231,13 @@ function Footer({ showCta = true }) {
 
       <div className="footer-bottom">
         <div className="footer-bottom-inner">
-          <p>© 2026 Fixoku. Tüm hakları saklıdır.</p>
+          <div className="footer-legal-copy">
+            <p>© 2026 Fixoku. Tüm hakları saklıdır.</p>
+            <p className="footer-agency-text">Fixoku, Mavi Yeşil Ajans kuruluşudur.</p>
+            <p className="footer-legal-name">
+              Fixoku Yayınları — Mavi Yeşil Ajans
+            </p>
+          </div>
 
           <div className="footer-bottom-links">
             <Link to="/kvkk">KVKK</Link>
