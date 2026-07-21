@@ -1,21 +1,12 @@
-import { lazy, Suspense, useEffect, useMemo, useState, useSyncExternalStore } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-
-const ReadingSpeedTest = lazy(() => import("./ReadingSpeedTest.jsx"));
-const AttentionFocusTest = lazy(() => import("./AttentionFocusTest.jsx"));
-
-function TestModalLoading({ label }) {
-  return (
-    <div className="reading-test-overlay test-modal-loading" role="status" aria-live="polite">
-      <div className="reading-test-modal test-modal-loading-card">
-        <span className="test-modal-loading-spinner" aria-hidden="true" />
-        <p>{label} yükleniyor…</p>
-      </div>
-    </div>
-  );
-}
+import StudentStoriesSection from "./components/StudentStoriesSection.jsx";
+import {
+  AssessmentTestCards,
+  AssessmentTestExperience,
+} from "./components/assessment/AssessmentTests.jsx";
 
 function HeroSlideHeading({ active, className, children }) {
   const HeadingTag = active ? "h1" : "div";
@@ -32,7 +23,7 @@ const helpAudienceCards = [
   {
     title: "Veliyim",
     description: "Çocuğuma eğitim almak istiyorum.",
-    to: "/iletisim",
+    to: "/ogrenciler-icin-hizli-okuma-egitimi",
     icon: "parent",
   },
   {
@@ -94,45 +85,8 @@ function HelpAudienceIcon({ type }) {
   );
 }
 
-const subscribeToHydration = () => () => {};
-const getClientHydrationSnapshot = () => true;
-const getServerHydrationSnapshot = () => false;
-
 function App() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const hasHydrated = useSyncExternalStore(
-    subscribeToHydration,
-    getClientHydrationSnapshot,
-    getServerHydrationSnapshot,
-  );
-
   const [activeSlide, setActiveSlide] = useState(0);
-  const [manualTest, setManualTest] = useState(null);
-  const queryTest = hasHydrated
-    ? new URLSearchParams(location.search).get("test")
-    : null;
-  const isReadingTestOpen = queryTest === "reading" || manualTest === "reading";
-  const isAttentionTestOpen = queryTest === "attention" || manualTest === "attention";
-
-  const closeTestModal = () => {
-    setManualTest(null);
-
-    const searchParams = new URLSearchParams(location.search);
-    if (!searchParams.has("test")) return;
-
-    searchParams.delete("test");
-    const nextSearch = searchParams.toString();
-    navigate(
-      {
-        pathname: location.pathname,
-        search: nextSearch ? `?${nextSearch}` : "",
-        hash: location.hash,
-      },
-      { replace: true },
-    );
-  };
-
   const [engineActiveModule, setEngineActiveModule] = useState(0);
   const [engineFeedStart, setEngineFeedStart] = useState(0);
   const [liveNumbers, setLiveNumbers] = useState({
@@ -142,12 +96,8 @@ function App() {
     challenges: 41,
   });
 
-  const [testCounter, setTestCounter] = useState(0);
-
   const [trainerStoryIndex, setTrainerStoryIndex] = useState(0);
   const [activeTrainerVideo, setActiveTrainerVideo] = useState(null);
-  const [studentStoryIndex, setStudentStoryIndex] = useState(0);
-  const [activeStudentVideo, setActiveStudentVideo] = useState(null);
 
   const trainerStories = useMemo(
   () => [
@@ -215,38 +165,12 @@ function App() {
     return Array.from({ length: 4 }, (_, i) => trainerStories[(trainerStoryIndex + i) % trainerStories.length]);
   }, [trainerStories, trainerStoryIndex]);
 
-  const studentStories = useMemo(
-    () => [
-      { title: "Ali", role: "6. Sınıf Öğrencisi", badge: "Gerçek Öğrenci Deneyimi", video: trainerStories[0].video, poster: trainerStories[0].poster },
-      { title: "Ece", role: "8. Sınıf Öğrencisi", badge: "Gerçek Öğrenci Deneyimi", video: trainerStories[1].video, poster: trainerStories[1].poster },
-      { title: "Mert", role: "5. Sınıf Öğrencisi", badge: "Gerçek Öğrenci Deneyimi", video: trainerStories[2].video, poster: trainerStories[2].poster },
-      { title: "Ayşe Hanım", role: "Veli", badge: "Fixoku Velisi", video: trainerStories[3].video, poster: trainerStories[3].poster },
-      { title: "Zeynep", role: "7. Sınıf Öğrencisi", badge: "Gerçek Öğrenci Deneyimi", video: trainerStories[4].video, poster: trainerStories[4].poster },
-      { title: "Can", role: "4. Sınıf Öğrencisi", badge: "Gerçek Öğrenci Deneyimi", video: trainerStories[5].video, poster: trainerStories[5].poster },
-      { title: "Merve Hanım", role: "Veli", badge: "Fixoku Velisi", video: trainerStories[6].video, poster: trainerStories[6].poster },
-      { title: "Kemal", role: "8. Sınıf Öğrencisi", badge: "Gerçek Öğrenci Deneyimi", video: trainerStories[7].video, poster: trainerStories[7].poster },
-    ],
-    [trainerStories]
-  );
-
-  const studentVisibleStories = useMemo(() => {
-    return Array.from({ length: 4 }, (_, i) => studentStories[(studentStoryIndex + i) % studentStories.length]);
-  }, [studentStories, studentStoryIndex]);
-
   const goTrainerPrev = () => {
     setTrainerStoryIndex((prev) => prev === 0 ? trainerStories.length - 1 : prev - 1);
   };
 
   const goTrainerNext = () => {
     setTrainerStoryIndex((prev) => (prev + 1) % trainerStories.length);
-  };
-
-  const goStudentPrev = () => {
-    setStudentStoryIndex((prev) => prev === 0 ? studentStories.length - 1 : prev - 1);
-  };
-
-  const goStudentNext = () => {
-    setStudentStoryIndex((prev) => (prev + 1) % studentStories.length);
   };
 
   useEffect(() => {
@@ -299,37 +223,6 @@ function App() {
       clearInterval(feedInterval);
       clearInterval(numberInterval);
     };
-  }, []);
-
-  useEffect(() => {
-    const target = 3000;
-    const duration = 3000;
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let animationFrameId;
-
-    if (prefersReducedMotion) {
-      animationFrameId = requestAnimationFrame(() => {
-        setTestCounter(target);
-      });
-
-      return () => cancelAnimationFrame(animationFrameId);
-    }
-
-    const startedAt = performance.now();
-
-    const updateCounter = (timestamp) => {
-      const progress = Math.min((timestamp - startedAt) / duration, 1);
-      setTestCounter(Math.floor(target * progress));
-
-      if (progress < 1) {
-        animationFrameId = requestAnimationFrame(updateCounter);
-      } else {
-        setTestCounter(target);
-      }
-    };
-
-    animationFrameId = requestAnimationFrame(updateCounter);
-    return () => cancelAnimationFrame(animationFrameId);
   }, []);
 
   const engineModules = useMemo(
@@ -777,18 +670,10 @@ function App() {
   ];
 
   return (
-    <div className="page">
-      {isReadingTestOpen && (
-        <Suspense fallback={<TestModalLoading label="Okuma testi" />}>
-          <ReadingSpeedTest isOpen={isReadingTestOpen} onClose={closeTestModal} />
-        </Suspense>
-      )}
-      {isAttentionTestOpen && (
-        <Suspense fallback={<TestModalLoading label="Dikkat testi" />}>
-          <AttentionFocusTest isOpen={isAttentionTestOpen} onClose={closeTestModal} />
-        </Suspense>
-      )}
-      <Header />
+    <AssessmentTestExperience>
+      {({ openTest }) => (
+        <div className="page">
+          <Header />
       <section className="hero-slider">
         {sliderData.map((slide, index) => (
           <div
@@ -826,7 +711,7 @@ function App() {
                   </div>
 
                   <div className="slide-buttons slide-buttons-student">
-                    <button type="button" className="slide-btn slide-btn-orange" onClick={() => setManualTest("reading")}>
+                    <button type="button" className="slide-btn slide-btn-orange" onClick={() => openTest("reading")}>
                       <span className="slide-btn-icon">
                         <svg viewBox="0 0 24 24" fill="none">
                           <path
@@ -1241,226 +1126,8 @@ function App() {
           </div>
         </div>
       </section>
-      <section className="free-tests-section" id="testler">
-  <div className="free-tests-bg" />
-
-  <div className="free-tests-container">
-    <h2 className="free-tests-title">
-      Okuma ve Dikkat Seviyesini
-      <br />
-      <span>Ücretsiz Testlerle</span> Ölçün
-    </h2>
-
-    <div className="free-tests-cards">
-      <div className="free-test-card free-test-card-purple">
-        <div className="free-test-card-head">
-          Ücretsiz Dikkat Testi
-        </div>
-
-        <div className="free-test-card-body">
-          <div className="free-test-pattern free-test-pattern-focus" />
-
-          <div className="free-test-icon free-test-icon-purple" aria-hidden="true">
-            <svg viewBox="0 0 128 128" fill="none">
-              <circle cx="64" cy="64" r="42" fill="#f4d8f2" stroke="#5a1480" strokeWidth="5" />
-              <circle cx="64" cy="64" r="26" fill="#ffffff" stroke="#8f55a8" strokeWidth="5" />
-              <circle cx="64" cy="64" r="10" fill="#ff9a1f" stroke="#5a1480" strokeWidth="4" />
-              <path d="M64 12v17M64 99v17M12 64h17M99 64h17" stroke="#5a1480" strokeWidth="6" strokeLinecap="round" />
-              <path d="m70 58 26-26" stroke="#ef6418" strokeWidth="7" strokeLinecap="round" />
-              <path d="m86 31 12-1-1 12" stroke="#ef6418" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-
-          <p className="free-test-desc">
-            Çocuğunuzun dikkat ve odaklanma seviyesini 2 dakikada ölçün, gelişim
-            alanlarını uzman eğitmenimizle değerlendirin.
-          </p>
-
-          <button type="button" className="free-test-btn free-test-btn-purple" onClick={() => setManualTest("attention")}>
-            <span className="free-test-btn-check" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M20 7L10 17l-5-5"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </span>
-            <span>Dikkat Testini Başlat</span>
-          </button>
-        </div>
-      </div>
-
-      <div className="free-test-card free-test-card-orange">
-        <div className="free-test-card-head">
-          Ücretsiz Okuma ve Anlama Testi
-        </div>
-
-        <div className="free-test-card-body">
-          <div className="free-test-pattern free-test-pattern-reading" />
-
-          <div className="free-test-icon free-test-icon-orange" aria-hidden="true">
-            <svg viewBox="0 0 128 128" fill="none">
-              <path d="M20 34c15-6 29-5 44 4v58c-15-9-29-10-44-4V34Z" fill="#ffffff" stroke="#43115d" strokeWidth="5" strokeLinejoin="round" />
-              <path d="M108 34c-15-6-29-5-44 4v58c15-9 29-10 44-4V34Z" fill="#fff8ed" stroke="#43115d" strokeWidth="5" strokeLinejoin="round" />
-              <path d="M32 50h20M32 62h20M76 50h20M76 62h20" stroke="#8d73a2" strokeWidth="4" strokeLinecap="round" />
-              <path d="M78 86a28 28 0 1 0-28-28" stroke="#ef6418" strokeWidth="7" strokeLinecap="round" />
-              <path d="m78 86 16 9M78 86l5-17" stroke="#ef6418" strokeWidth="6" strokeLinecap="round" />
-              <circle cx="78" cy="86" r="5" fill="#ffb11a" stroke="#43115d" strokeWidth="3" />
-            </svg>
-          </div>
-
-          <p className="free-test-desc">
-            Çocuğunuzun okuma hızını ve anlama becerisini ölçün, sonuçları uzman
-            eğitmenimizle değerlendirin.
-          </p>
-
-          <button type="button" className="free-test-btn free-test-btn-orange" onClick={() => setManualTest("reading")}>
-            <span className="free-test-btn-check" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M20 7L10 17l-5-5"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </span>
-            <span>Okuma Ölçümünü Başlat</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div
-      className="trusted-users-box"
-      aria-label="3.000+ Fixoku öğrencisi bu testleri çözdü"
-      data-counter-target="3000"
-    >
-      <div className="trusted-avatar-stack" aria-hidden="true">
-        {[
-          "/egitici1.jpeg",
-          "/egitici2.jpeg",
-          "/egitici3.jpeg",
-          "/egitici4.jpeg",
-          "/egitici1.jpeg",
-        ].map((avatar, index) => (
-          <span className={`trusted-avatar trusted-avatar-${index + 1}`} key={avatar + index}>
-            <img src={avatar} alt="" loading="lazy" />
-          </span>
-        ))}
-      </div>
-
-      <div className="trusted-users-content">
-        <div className="trusted-stars" aria-label="5 yıldız değerlendirme">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <svg key={index} viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 2.4l2.9 6 6.6.9-4.8 4.7 1.1 6.6L12 17.5l-5.8 3.1 1.1-6.6-4.8-4.7 6.6-.9L12 2.4Z" />
-            </svg>
-          ))}
-        </div>
-
-        <p className="trusted-users-text">
-          <strong className="trusted-counter-fixed">
-            {testCounter.toLocaleString("tr-TR")}+
-          </strong>
-          <span>Fixoku Öğrencisi Bu Testleri Çözdü</span>
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
-<section className="stories-section">
-  <div className="stories-container">
-    <div className="stories-heading">
-      <h2 className="stories-title">
-        <span>Fixoku</span> Eğitimi Alan Öğrenciler ve Veliler
-        <br />
-        Ne Söylüyor?
-      </h2>
-
-      <p className="stories-subtitle">
-        Fixoku hızlı okuma ve dikkat geliştirme eğitimi alan öğrenciler ve veliler,
-        eğitim sürecindeki deneyimlerini paylaşıyor.
-      </p>
-    </div>
-
-    <div className="stories-panel">
-      <button type="button" className="story-slider-arrow story-slider-prev" onClick={goStudentPrev} aria-label="Önceki öğrenci videosu">‹</button>
-
-      <div className="stories-grid">
-        {studentVisibleStories.map((story, index) => (
-          <button type="button" className="story-card" key={story.title + "-" + index} onClick={() => setActiveStudentVideo(story)}>
-            <div className={`story-badge ${story.role === "Veli" ? "story-badge-parent" : ""}`}>{story.badge}</div>
-            <div className="story-media" style={{ backgroundImage: "url(" + story.poster + ")" }}>
-              <div className="story-overlay" />
-              <div className="story-play">
-                <svg viewBox="0 0 64 64" fill="none">
-                  <circle cx="32" cy="32" r="30" fill="rgba(255,255,255,0.18)" />
-                  <circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.35)" strokeWidth="2" />
-                  <path d="M27 21l16 11-16 11V21z" fill="white" />
-                </svg>
-              </div>
-
-              <div className="story-meta">
-                <div className="story-name">{story.title}</div>
-                <div className="story-role">{story.role}</div>
-              </div>
-            </div>
-          </button>
-        ))}
-      </div>
-
-      <button type="button" className="story-slider-arrow story-slider-next" onClick={goStudentNext} aria-label="Sonraki öğrenci videosu">›</button>
-
-<div className="stories-footer">
-  
-  <div className="stories-footer-left">
-    <div className="stories-coin" aria-hidden="true">
-      <svg viewBox="0 0 64 64" fill="none">
-        <circle cx="32" cy="32" r="28" fill="url(#storiesCoinGrad)" />
-        <path
-          d="M32 18l4.4 8.9 9.8 1.4-7.1 6.9 1.7 9.8L32 40.4l-8.8 4.6 1.7-9.8-7.1-6.9 9.8-1.4L32 18Z"
-          fill="#8f5a00"
-        />
-      </svg>
-    </div>
-
-    <p>
-      <strong>2.000+</strong> öğrenci eğitim aldı
-    </p>
-  </div>
-
-  <Link to="/iletisim" className="stories-cta">
-    <span>Siz de Fixoku Eğitimi Hakkında Bilgi Alın</span>
-
-    <svg viewBox="0 0 24 24" fill="none">
-      <path
-        d="M5 12h14M13 6l6 6-6 6"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  </Link>
-
-</div>
-    </div>
-  </div>
-
-  {activeStudentVideo && (
-    <div className="trainer-video-modal" onClick={() => setActiveStudentVideo(null)}>
-      <div className="trainer-video-modal-inner" onClick={(e) => e.stopPropagation()}>
-        <button type="button" className="trainer-video-close" onClick={() => setActiveStudentVideo(null)} aria-label="Videoyu kapat">×</button>
-        <video src={activeStudentVideo.video} controls autoPlay playsInline className="trainer-video-player" />
-      </div>
-    </div>
-  )}
-</section>
+      <AssessmentTestCards onStartTest={openTest} />
+      <StudentStoriesSection />
 <section className="how-it-works-section">
   <div className="how-it-works-container">
     <div className="how-it-works-hero">
@@ -1483,33 +1150,16 @@ function App() {
           <div className="how-card-visual how-card-visual-book">
             <div className="how-card-clouds" />
 
-            <div className="how-card-illustration" aria-hidden="true">
-              <svg viewBox="0 0 220 160" fill="none">
-                <g>
-                  <path d="M48 118l50-28 42 24-48 29-44-25Z" fill="#d7d0e4" />
-                  <path d="M70 46l36-21 36 21-36 22-36-22Z" fill="#4f5d73" />
-                  <path d="M70 46v42l36 22V68L70 46Z" fill="#66758a" />
-                  <path d="M142 46v42l-36 22V68l36-22Z" fill="#3d4b5f" />
-
-                  <path d="M96 31l12-7 20 12-12 7-20-12Z" fill="#f39a2e" />
-                  <path d="M94 30l3 46 4 2 4-2 3-46h-14Z" fill="#f39a2e" />
-                  <path d="M98 78h8" stroke="#c96f00" strokeWidth="2" />
-
-                  <path d="M58 108l28-16 28 16-28 17-28-17Z" fill="#f0f0f5" />
-                  <path d="M58 108v12l28 16v-11l-28-17Z" fill="#d9dbe7" />
-                  <path d="M114 108v12l-28 16v-11l28-17Z" fill="#c8cbdb" />
-                  <path d="M82 95h8" stroke="#ef6418" strokeWidth="3" strokeLinecap="round" />
-
-                  <path d="M106 84l30-18 24 14-30 19-24-15Z" fill="#ea8a32" />
-                  <path d="M106 84v34l24 15V99l-24-15Z" fill="#d87d2b" />
-                  <path d="M160 80v34l-30 19V99l30-19Z" fill="#ef9b4a" />
-
-                  <path d="M132 74l20-12 20 12-20 12-20-12Z" fill="#f3f5fb" />
-                  <path d="M132 74v30l20 12V86l-20-12Z" fill="#dce3f1" />
-                  <path d="M172 74v30l-20 12V86l20-12Z" fill="#c7d1e3" />
-                  <path d="M148 62h8" stroke="#4aa3df" strokeWidth="3" strokeLinecap="round" />
-                </g>
-              </svg>
+            <div className="how-card-illustration">
+              <img
+                className="how-card-image how-card-image-contain"
+                src="/images/home/fixoku-system/fixoku-egitim-kitabi.png"
+                alt="Fixoku Eğitim Kitapları görseli"
+                width="250"
+                height="250"
+                loading="lazy"
+                decoding="async"
+              />
             </div>
           </div>
 
@@ -1541,27 +1191,16 @@ function App() {
           <div className="how-card-visual how-card-visual-software">
             <div className="how-card-clouds" />
 
-            <div className="how-card-illustration" aria-hidden="true">
-              <svg viewBox="0 0 220 160" fill="none">
-                <g>
-                  <path d="M52 110l45-27 34 20-45 28-34-21Z" fill="#d9d0e6" />
-                  <path d="M91 44l54 31v44l-54-31V44Z" fill="#39485f" />
-                  <path d="M145 75l16-9v45l-16 8V75Z" fill="#242f40" />
-                  <path d="M98 53l40 23v32L98 85V53Z" fill="#ff6a00" />
-                  <path d="M107 62h10v18h-10z" fill="#fff3d7" />
-                  <path d="M120 69h10v31h-10z" fill="#ffd24d" />
-                  <path d="M103 86l33 20" stroke="#243041" strokeWidth="3" />
-
-                  <path d="M122 125l27-16 31 18-28 17-30-19Z" fill="#3b4254" />
-                  <path d="M122 125v10l30 19v-10l-30-19Z" fill="#212839" />
-                  <path d="M180 127v9l-28 18v-10l28-17Z" fill="#525d74" />
-                  <path d="M136 116l13-8 31 18-13 8-31-18Z" fill="#59657e" />
-
-                  <path d="M163 54c8 0 15 5 17 13-2 2-5 5-9 7-7 4-15 4-22 0 2-12 6-20 14-20Z" fill="#ffd8bf" />
-                  <path d="M160 72l21 12" stroke="#ffcf9e" strokeWidth="10" strokeLinecap="round" />
-                  <circle cx="176" cy="60" r="4" fill="#ffb65c" />
-                </g>
-              </svg>
+            <div className="how-card-illustration">
+              <img
+                className="how-card-image how-card-image-contain"
+                src="/images/home/fixoku-system/yapay-zeka-destekli-yazilim.png"
+                alt="Fixoku yapay zekâ destekli yazılım ekranı"
+                width="250"
+                height="250"
+                loading="lazy"
+                decoding="async"
+              />
             </div>
           </div>
 
@@ -1593,40 +1232,16 @@ function App() {
           <div className="how-card-visual how-card-visual-mentor">
             <div className="how-card-clouds" />
 
-            <div className="how-card-illustration" aria-hidden="true">
-              <svg viewBox="0 0 220 160" fill="none">
-                <g>
-                  <path d="M126 44l18-10 18 10-18 10-18-10Z" fill="#55b0e8" />
-                  <path d="M126 44v30l18 10V54l-18-10Z" fill="#3f8fc8" />
-                  <path d="M162 44v30l-18 10V54l18-10Z" fill="#78c1ef" />
-
-                  <circle cx="176" cy="38" r="14" fill="#7ad15e" />
-                  <path d="M176 24v28M162 38h28" stroke="#2d7d45" strokeWidth="2" opacity=".55" />
-
-                  <path d="M44 102l32-18 24 14-33 19-23-15Z" fill="#ef4f7f" />
-                  <path d="M44 102v20l23 15v-20l-23-15Z" fill="#cf3f6d" />
-                  <path d="M100 98v19l-33 20v-20l33-19Z" fill="#ff7197" />
-
-                  <path d="M58 86l30-17 24 14-31 18-23-15Z" fill="#ffcb39" />
-                  <path d="M58 86v16l23 15v-16l-23-15Z" fill="#e2ac15" />
-                  <path d="M112 83v18l-31 16v-16l31-18Z" fill="#ffd85b" />
-
-                  <path d="M70 72l28-16 22 13-28 16-22-13Z" fill="#7e59d9" />
-                  <path d="M70 72v14l22 14V85L70 72Z" fill="#6846c3" />
-                  <path d="M120 69v16l-28 15V85l28-16Z" fill="#8d6de3" />
-
-                  <path d="M98 108l37-21 38 22-38 22-37-23Z" fill="#f4f4f7" />
-                  <path d="M98 108v18l37 23v-18l-37-23Z" fill="#dfe3ee" />
-                  <path d="M173 109v17l-38 23v-18l38-22Z" fill="#cfd5e3" />
-
-                  <circle cx="84" cy="60" r="8" fill="#ffd2b8" />
-                  <path d="M84 68v11M79 74h10" stroke="#5a3f3a" strokeWidth="3" strokeLinecap="round" />
-                  <path d="M80 53h8" stroke="#414b5a" strokeWidth="4" strokeLinecap="round" />
-
-                  <circle cx="150" cy="104" r="8" fill="#ffd2b8" />
-                  <path d="M150 112v10M145 118h10" stroke="#555" strokeWidth="3" strokeLinecap="round" />
-                </g>
-              </svg>
+            <div className="how-card-illustration">
+              <img
+                className="how-card-image how-card-image-cover"
+                src="/images/home/fixoku-system/uzman-egitmen-destegi.png"
+                alt="Fixoku uzman eğitmen desteğiyle sınıf eğitimi"
+                width="250"
+                height="250"
+                loading="lazy"
+                decoding="async"
+              />
             </div>
           </div>
 
@@ -2155,9 +1770,10 @@ function App() {
 
   </div>
 </section>
-      <Footer />
-
-    </div>
+          <Footer />
+        </div>
+      )}
+    </AssessmentTestExperience>
   );
 }
 

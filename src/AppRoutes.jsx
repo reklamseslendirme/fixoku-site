@@ -24,6 +24,7 @@ import TopicArticle from "./pages/content/TopicArticle.jsx";
 import TopicHub from "./pages/content/TopicHub.jsx";
 import Iletisim from "./pages/iletisim.jsx";
 import LegalPage from "./pages/LegalPage.jsx";
+import StudentReadingLanding from "./pages/StudentReadingLanding.jsx";
 
 const PanelApp = lazy(() => import("./panel/PanelApp.jsx"));
 
@@ -34,6 +35,10 @@ export default function AppRoutes() {
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/iletisim" element={<Iletisim />} />
+        <Route
+          path="/ogrenciler-icin-hizli-okuma-egitimi"
+          element={<StudentReadingLanding />}
+        />
         <Route path="/hizli-okuma" element={<QuickReadingHub />} />
         {quickReadingArticles.map((article) => (
           <Route

@@ -35,8 +35,13 @@ import {
   legalRoutePaths,
   publicRouteRegistry,
   quickReadingRoutePaths,
+  studentReadingLandingRoute,
   trainingRoutePaths,
 } from "../src/data/contentRoutes.js";
+import {
+  COMPLETED_FREE_TEST_COUNT,
+  TRAINED_STUDENT_COUNT,
+} from "../src/data/socialProof.js";
 import {
   quickReadingArticles,
   quickReadingHub,
@@ -252,7 +257,17 @@ check(
     legalPages.length === 3,
   "Üç hukuki route merkezi veri ve route registry içinde kayıtlı.",
 );
-check(indexableRoutePaths.length === 42, "Toplam indexlenebilir public route sayısı tam olarak 42.");
+check(indexableRoutePaths.length === 43, "Toplam indexlenebilir public route sayısı tam olarak 43.");
+check(
+  publicRouteRegistry.filter(
+    (route) => route.path === studentReadingLandingRoute.path,
+  ).length === 1 &&
+    studentReadingLandingRoute.title === "Öğrenciler İçin Hızlı Okuma Eğitimi | Fixoku" &&
+    studentReadingLandingRoute.description ===
+      "Fixoku’nun ücretsiz dikkat, okuma ve anlama testleriyle öğrencinizin mevcut seviyesini ölçün; hızlı okuma, anlama, dikkat ve odaklanma eğitim modelini inceleyin." &&
+    studentReadingLandingRoute.schemaType === "WebPage",
+  "Öğrenci landing route'u tekil ve onaylı metadata ile merkezi registry içinde.",
+);
 check(
   isUnique(publicRouteRegistry.map((route) => route.title)),
   "Indexlenebilir route title değerleri benzersiz.",
@@ -262,8 +277,11 @@ check(
   "Indexlenebilir route meta description değerleri benzersiz.",
 );
 check(
-  publicRouteRegistry.every((route) => route.title.length >= 45 && route.title.length <= 70),
-  "Title uzunlukları doğal SEO hedef aralığında.",
+  publicRouteRegistry.every((route) =>
+    route.path === studentReadingLandingRoute.path
+      ? route.title === "Öğrenciler İçin Hızlı Okuma Eğitimi | Fixoku"
+      : route.title.length >= 45 && route.title.length <= 70),
+  "Title değerleri doğal SEO hedef aralığında veya onaylı landing title sözleşmesinde.",
 );
 check(
   publicRouteRegistry.every((route) => route.description.length >= 140 && route.description.length <= 165),
@@ -796,6 +814,30 @@ check(
 );
 const appRoutesSource = await readFile(path.join(projectRoot, "src", "AppRoutes.jsx"), "utf8");
 const appSource = await readFile(path.join(projectRoot, "src", "App.jsx"), "utf8");
+const assessmentTestsSource = await readFile(
+  path.join(projectRoot, "src", "components", "assessment", "AssessmentTests.jsx"),
+  "utf8",
+);
+const studentLandingSource = await readFile(
+  path.join(projectRoot, "src", "pages", "StudentReadingLanding.jsx"),
+  "utf8",
+);
+const studentLandingCssSource = await readFile(
+  path.join(projectRoot, "src", "pages", "student-reading-landing.css"),
+  "utf8",
+);
+const studentStoriesSource = await readFile(
+  path.join(projectRoot, "src", "components", "StudentStoriesSection.jsx"),
+  "utf8",
+);
+const socialProofSource = await readFile(
+  path.join(projectRoot, "src", "data", "socialProof.js"),
+  "utf8",
+);
+const STANDING_CHILD_IMAGE_PATH =
+  "/images/landing/ogrenciler-icin-hizli-okuma-egitimi/ayakta-cocuk.png";
+const SEATED_CHILD_IMAGE_PATH =
+  "/images/landing/ogrenciler-icin-hizli-okuma-egitimi/oturan-cocuk.png";
 const contactSource = await readFile(path.join(projectRoot, "src", "pages", "iletisim.jsx"), "utf8");
 const readingTestSource = await readFile(path.join(projectRoot, "src", "ReadingSpeedTest.jsx"), "utf8");
 const attentionTestSource = await readFile(path.join(projectRoot, "src", "AttentionFocusTest.jsx"), "utf8");
@@ -826,18 +868,131 @@ const forbiddenHomepagePhrases = [
   "Okuma Testini Başlat",
   "2 dakikalık test ile",
 ];
+const homepageExperienceSource = `${appSource}\n${assessmentTestsSource}\n${studentStoriesSource}`;
 check(
-  requiredHomepagePhrases.every((phrase) => appSource.includes(phrase)) &&
-    forbiddenHomepagePhrases.every((phrase) => !appSource.includes(phrase)) &&
-    !/Fixoku Eğitim Kitabı(?!ları)/u.test(appSource),
+  requiredHomepagePhrases.every((phrase) => homepageExperienceSource.includes(phrase)) &&
+    forbiddenHomepagePhrases.every((phrase) => !homepageExperienceSource.includes(phrase)) &&
+    !/Fixoku Eğitim Kitabı(?!ları)/u.test(homepageExperienceSource),
   "Ana sayfa kaynak içeriği güncel Word sözleşmesindeki metinlerle eşleşiyor.",
 );
 check(
-  (appSource.match(/const target = 3000;/g) ?? []).length === 1 &&
-    appSource.includes('data-counter-target="3000"') &&
-    appSource.includes('<strong>2.000+</strong> öğrenci eğitim aldı') &&
-    !/<strong>3\.000\+<\/strong>\s*öğrenci eğitim aldı/iu.test(appSource),
-  "Test çözen öğrenci hedefi 3000; eğitim alan öğrenci istatistiği bağımsız olarak 2.000+.",
+  TRAINED_STUDENT_COUNT === 2000 &&
+    COMPLETED_FREE_TEST_COUNT === 3000 &&
+    socialProofSource.includes("export const TRAINED_STUDENT_COUNT = 2000;") &&
+    socialProofSource.includes("export const COMPLETED_FREE_TEST_COUNT = 3000;") &&
+    assessmentTestsSource.includes("data-counter-target={COMPLETED_FREE_TEST_COUNT}") &&
+    studentStoriesSource.includes("formatSocialProofCount(TRAINED_STUDENT_COUNT)") &&
+    studentLandingSource.includes("formatSocialProofCount(TRAINED_STUDENT_COUNT)") &&
+    studentLandingSource.includes("formatSocialProofCount(COMPLETED_FREE_TEST_COUNT)"),
+  "Test çözen 3000 ve eğitim alan 2000 istatistikleri tek merkezi veri kaynağından ayrı bağlamlarda kullanılıyor.",
+);
+
+const forbiddenStudentLandingPhrases = [
+  "28 gün",
+  "Türkiye’nin en iyi",
+  "Netlerini katlayacağız",
+  "İstediğin okulu kazandıracağız",
+  "Kesin başarı",
+  "Garanti sonuç",
+  "Ortalama 2 kat",
+  "12.000+",
+  "12000",
+  "3.000+ öğrenci eğitim aldı",
+  "Her iki test 2 dakikada tamamlanır",
+  "Ersin Usta",
+  "ERSİN USTA",
+  "Ersin usta",
+  "Uzman Eğitmenle Görüş",
+  "Yeni Nesil Akademik Gelişim Sistemi",
+];
+check(
+  (studentLandingSource.match(/<h1(?:\s|>)/g) ?? []).length === 1 &&
+    studentLandingSource.includes(studentReadingLandingRoute.heading) &&
+    studentLandingSource.includes("Okuma hızı, anlama oranı, dikkat ve odaklanma becerileri için ücretsiz") &&
+    forbiddenStudentLandingPhrases.every((phrase) => !studentLandingSource.includes(phrase)),
+  "Öğrenci landing sayfası tek onaylı H1 ile başlıyor; üst PDF hero'su ve yüksek riskli iddialar kaynakta yok.",
+);
+check(
+  appRoutesSource.includes('path="/ogrenciler-icin-hizli-okuma-egitimi"') &&
+    appRoutesSource.includes("<StudentReadingLanding />") &&
+    appSource.includes('to: "/ogrenciler-icin-hizli-okuma-egitimi"') &&
+    !appSource.includes('title: "Veliyim",\n    description: "Çocuğuma eğitim almak istiyorum.",\n    to: "/iletisim"'),
+  "Yeni landing route'u AppRoutes'a bağlı ve ana sayfadaki Veliyim kartı doğal hedef olarak güncellendi.",
+);
+check(
+  appSource.includes("<AssessmentTestExperience>") &&
+    appSource.includes("<AssessmentTestCards onStartTest={openTest} />") &&
+    studentLandingSource.includes("<AssessmentTestExperience>") &&
+    studentLandingSource.includes("<AssessmentTestCards") &&
+    (assessmentTestsSource.match(/import\("\.\.\/\.\.\/ReadingSpeedTest\.jsx"\)/g) ?? []).length === 1 &&
+    (assessmentTestsSource.match(/import\("\.\.\/\.\.\/AttentionFocusTest\.jsx"\)/g) ?? []).length === 1 &&
+    !appSource.includes("ReadingSpeedTest") &&
+    !appSource.includes("AttentionFocusTest") &&
+    !studentLandingSource.includes("ReadingSpeedTest") &&
+    !studentLandingSource.includes("AttentionFocusTest"),
+  "Ana sayfa ve öğrenci landing sayfası aynı kart, modal, state ve gerçek test componentlerini kullanıyor; test kodu yinelenmiyor.",
+);
+check(
+  appSource.includes("<StudentStoriesSection />") &&
+    studentLandingSource.includes("<StudentStoriesSection />") &&
+    studentStoriesSource.includes('className={`stories-section ${className}`.trim()}') &&
+    studentStoriesSource.includes("Fixoku</span> Eğitimi Alan Öğrenciler ve Veliler") &&
+    studentStoriesSource.includes('aria-label="Önceki öğrenci videosu"') &&
+    studentStoriesSource.includes('aria-label="Sonraki öğrenci videosu"') &&
+    studentStoriesSource.includes('className="trainer-video-modal"') &&
+    !appSource.includes('className="stories-section"') &&
+    !studentLandingSource.includes('className="stories-section"'),
+  "Ana sayfa ve öğrenci landing sayfası aynı öğrenci/veli video slider componentini ve veri kaynağını kullanıyor.",
+);
+check(
+  assessmentTestsSource.includes("Dikkat testi yaklaşık 2 dakika") &&
+    assessmentTestsSource.includes("Okuma ve anlama testi yaklaşık 5 dakika") &&
+    studentLandingSource.includes("Dikkat testi yaklaşık 2 dakika") &&
+    studentLandingSource.includes("Okuma ve anlama testi yaklaşık 5 dakika") &&
+    !studentLandingSource.includes("2 Dakikada Tamamlanır"),
+  "Dikkat testi yaklaşık 2, okuma ve anlama testi yaklaşık 5 dakika olarak ayrı sunuluyor.",
+);
+check(
+  studentLandingSource.includes(STANDING_CHILD_IMAGE_PATH) &&
+    studentLandingSource.includes(SEATED_CHILD_IMAGE_PATH) &&
+    studentLandingSource.includes("width: 607") &&
+    studentLandingSource.includes("height: 1013") &&
+    studentLandingSource.includes("width: 679") &&
+    studentLandingSource.includes("height: 905") &&
+    studentLandingSource.includes('alt="Okuma, anlama ve dikkat gelişimini destekleyen öğrenci"') &&
+    studentLandingSource.includes('alt="Fixoku ücretsiz seviye tespit testlerini uygulayan öğrenci"') &&
+    studentLandingSource.includes('loading="lazy"') &&
+    studentLandingSource.includes('decoding="async"') &&
+    studentLandingCssSource.includes("object-fit: contain") &&
+    studentLandingCssSource.includes("max-width: 100%") &&
+    studentLandingCssSource.includes("height: auto") &&
+    !studentLandingSource.includes("student-video-placeholder") &&
+    !studentLandingSource.includes("<iframe") &&
+    !studentLandingSource.includes("<video"),
+  "Landing iki onaylı çocuk PNG'sini gerçek ölçü, alt metin ve oran koruyan responsive kurallarla kullanıyor; özel video placeholder kaldırıldı.",
+);
+check(
+  [
+    "Yapay Zekâ Destekli Ölçüm Sistemi",
+    "126 Özel Gelişim Egzersizi",
+    "9 Kategoride Gelişim Analizi",
+    "Kitap + Yazılım Destekli Eğitim",
+  ].every((feature) => studentLandingSource.includes(feature)) &&
+    studentLandingSource.includes('className="student-seated-problem-frame"') &&
+    studentLandingSource.includes('className="student-standing-final-frame"') &&
+    studentLandingSource.includes('className="student-why-play" aria-hidden="true"') &&
+    studentLandingSource.includes('className="student-landing-shell student-info-grid"') &&
+    studentLandingSource.includes("Test Nasıl Çalışır?") &&
+    studentLandingSource.includes("Bu Testler Neyi Ölçer?") &&
+    studentLandingSource.includes("Test sonucunu uzmanla değerlendirerek çocuğunuzun gelişim alanları") &&
+    studentLandingSource.includes('href="https://wa.me/905334789253"') &&
+    studentLandingSource.includes('target="_blank"') &&
+    studentLandingSource.includes('onClick={() => openTest("attention")}') &&
+    studentLandingSource.includes('onClick={() => openTest("reading")}') &&
+    studentLandingSource.includes("<Footer showCta={false} />") &&
+    !studentLandingSource.includes("student-result-share") &&
+    !studentLandingSource.includes("student-landing-intro"),
+  "Landing PDF sırasındaki problem, play, üç kolon, kullanıcı kontrollü paylaşım, final CTA ve route-specific footer akışını içeriyor.",
 );
 check(
   footerSource.includes("Çocuğunuzun Akademik Gelişimini Ertelemeyin") &&
@@ -897,7 +1052,13 @@ check(
   "Hukuki sayfalar ortak LegalPage component'i üzerinden route sistemine bağlı.",
 );
 
-const activeNavigationSources = [appSource, headerSource, footerSource, contactSource];
+const activeNavigationSources = [
+  appSource,
+  headerSource,
+  footerSource,
+  contactSource,
+  studentLandingSource,
+];
 const staticInternalTargets = [];
 for (const source of activeNavigationSources) {
   for (const pattern of [
@@ -946,12 +1107,13 @@ check(
   "Aktif public kaynaklarda href=\"#\" bulunmuyor.",
 );
 check(
-  appSource.includes('id="testler"') &&
-    appSource.includes("useSyncExternalStore") &&
-    appSource.includes("getServerHydrationSnapshot") &&
-    appSource.includes("new URLSearchParams(location.search)") &&
-    appSource.includes('searchParams.delete("test")') &&
-    appSource.includes('hash: location.hash') &&
+  assessmentTestsSource.includes('id = "testler"') &&
+    assessmentTestsSource.includes("useSyncExternalStore") &&
+    assessmentTestsSource.includes("getServerHydrationSnapshot") &&
+    assessmentTestsSource.includes("new URLSearchParams(location.search)") &&
+    assessmentTestsSource.includes('searchParams.delete("test")') &&
+    assessmentTestsSource.includes('hash: location.hash') &&
+    assessmentTestsSource.includes("const activeTest = manualTest ??") &&
     headerSource.includes('/?test=reading') &&
     headerSource.includes('/?test=attention') &&
     footerSource.includes('/?test=reading') &&
@@ -965,6 +1127,7 @@ const phoneAndWhatsappSource = [
   contactSource,
   readingTestSource,
   attentionTestSource,
+  studentLandingSource,
 ].join("\n");
 const whatsappNumbers = [...phoneAndWhatsappSource.matchAll(/wa\.me\/(\d+)/g)].map((match) => match[1]);
 const telephoneNumbers = [...phoneAndWhatsappSource.matchAll(/tel:\+(\d+)/g)].map((match) => match[1]);
@@ -1005,6 +1168,8 @@ const readingRotationSource = await readFile(
 );
 const runtimeInventorySource = [
   appSource,
+  assessmentTestsSource,
+  studentLandingSource,
   headerSource,
   footerSource,
   contactSource,

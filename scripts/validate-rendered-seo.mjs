@@ -12,7 +12,13 @@ import {
   notFoundSeo,
   panelSeo,
   publicRouteRegistry,
+  studentReadingLandingRoute,
 } from "../src/data/contentRoutes.js";
+import {
+  COMPLETED_FREE_TEST_COUNT,
+  formatSocialProofCount,
+  TRAINED_STUDENT_COUNT,
+} from "../src/data/socialProof.js";
 import { buildContentSchemas } from "../src/utils/seoSchemas.js";
 import { startRenderedServer } from "./rendered-server.mjs";
 
@@ -212,8 +218,8 @@ check(
   "Bütün indexlenebilir public route'lar prerender edildi.",
 );
 check(
-  publicRouteRegistry.length === 42 && renderedRoutes.length === 42,
-  "Public route ve prerender HTML sayısı 42/42.",
+  publicRouteRegistry.length === 43 && renderedRoutes.length === 43,
+  "Public route ve prerender HTML sayısı 43/43.",
 );
 check(
   new Set(renderedRoutes.map((route) => route.hash)).size === renderedRoutes.length,
@@ -228,6 +234,7 @@ check(
 const renderedByPath = new Map(renderedRoutes.map((item) => [item.route, item]));
 const homeRendered = renderedByPath.get("/");
 const contactRendered = renderedByPath.get("/iletisim");
+const studentLandingRendered = renderedByPath.get(studentReadingLandingRoute.path);
 const homeCanonical = buildSiteUrl("/");
 const homeSchemaRoot = homeRendered?.schemas?.[0];
 const homeSchemaNodes = getSchemaNodes(homeRendered?.schemas ?? []);
@@ -380,6 +387,76 @@ check(
   "Üç hukuki route ilk HTML'de metin, görünür breadcrumb, WebPage + BreadcrumbList içeriyor ve pazarlama CTA bandı göstermiyor.",
 );
 
+const studentLandingHtml = studentLandingRendered?.html ?? "";
+const forbiddenStudentLandingPhrases = [
+  "Çocuğunuzun Okuma Hızını ve Dikkat Seviyesini 2 Dakikada Ücretsiz Ölçün",
+  "Yeni Nesil Akademik Gelişim Sistemi",
+  "Uzman Eğitmenle Görüş",
+  "28 gün",
+  "Türkiye’nin en iyi",
+  "Netlerini katlayacağız",
+  "İstediğin okulu kazandıracağız",
+  "Kesin başarı",
+  "Garanti sonuç",
+  "Ortalama 2 kat",
+  "12.000+",
+  "12000",
+  "3.000+ öğrenci eğitim aldı",
+  "Her iki test 2 dakikada tamamlanır",
+  "Ersin Usta",
+  "ERSİN USTA",
+  "Ersin usta",
+];
+check(
+  studentLandingRendered &&
+    JSON.stringify(studentLandingRendered.schemaTypes) ===
+      JSON.stringify(["WebPage", "BreadcrumbList"]) &&
+    getH1Count(studentLandingHtml) === 1 &&
+    studentLandingHtml.includes(studentReadingLandingRoute.heading) &&
+    forbiddenStudentLandingPhrases.every((phrase) => !studentLandingHtml.includes(phrase)),
+  "Öğrenci landing ilk HTML'i WebPage + BreadcrumbList, tek H1 ve güvenli içerik sözleşmesini karşılıyor.",
+);
+check(
+  (studentLandingHtml.match(/Ücretsiz Dikkat Testi/g) ?? []).length === 1 &&
+    (studentLandingHtml.match(/Ücretsiz Okuma ve Anlama Testi/g) ?? []).length === 1 &&
+    studentLandingHtml.includes("Dikkat Testini Başlat") &&
+    studentLandingHtml.includes("Okuma Ölçümünü Başlat") &&
+    studentLandingHtml.includes("Dikkat testi yaklaşık 2 dakika") &&
+    studentLandingHtml.includes("Okuma ve anlama testi yaklaşık 5 dakika"),
+  "Öğrenci landing ilk HTML'inde ortak iki test kartı tekil ve süreleri doğru.",
+);
+check(
+  studentLandingHtml.includes(formatSocialProofCount(TRAINED_STUDENT_COUNT)) &&
+    studentLandingHtml.includes("öğrenci Fixoku eğitimi aldı") &&
+    studentLandingHtml.includes(formatSocialProofCount(COMPLETED_FREE_TEST_COUNT)) &&
+    studentLandingHtml.includes("öğrenci ücretsiz testleri çözdü") &&
+    !studentLandingHtml.includes("3.000+ öğrenci eğitim aldı"),
+  "Öğrenci landing sosyal kanıt değerleri 2.000+ eğitim ve 3.000+ test bağlamlarında ayrışıyor.",
+);
+check(
+  studentLandingHtml.includes("Fixoku</span> Eğitimi Alan Öğrenciler ve Veliler") &&
+    studentLandingHtml.includes('aria-label="Önceki öğrenci videosu"') &&
+    studentLandingHtml.includes('aria-label="Sonraki öğrenci videosu"') &&
+    studentLandingHtml.includes('/images/landing/ogrenciler-icin-hizli-okuma-egitimi/ayakta-cocuk.png') &&
+    studentLandingHtml.includes('width="607"') &&
+    studentLandingHtml.includes('height="1013"') &&
+    studentLandingHtml.includes('/images/landing/ogrenciler-icin-hizli-okuma-egitimi/oturan-cocuk.png') &&
+    studentLandingHtml.includes('width="679"') &&
+    studentLandingHtml.includes('height="905"') &&
+    studentLandingHtml.includes('loading="lazy"') &&
+    studentLandingHtml.includes('class="student-seated-problem-frame"') &&
+    studentLandingHtml.includes('class="student-standing-final-frame"') &&
+    studentLandingHtml.includes('class="student-why-play" aria-hidden="true"') &&
+    studentLandingHtml.includes('class="student-landing-shell student-info-grid"') &&
+    !studentLandingHtml.includes("Çocuğunuzun Akademik Gelişimini Ertelemeyin") &&
+    !studentLandingHtml.includes('class="student-video-placeholder"') &&
+    !studentLandingHtml.includes("<iframe") &&
+    !studentLandingHtml.includes("<video") &&
+    studentLandingHtml.includes('href="https://wa.me/905334789253"') &&
+    studentLandingHtml.includes("Test sonucunu uzmanla değerlendirerek çocuğunuzun gelişim alanları"),
+  "Landing ortak öğrenci/veli video sliderını, iki onaylı çocuk görselini ve kullanıcı kontrollü WhatsApp akışını içeriyor.",
+);
+
 const combinedPublicHtml = renderedRoutes.map((item) => item.html).join("\n");
 const allRenderedHrefs = renderedRoutes.flatMap((item) =>
   getHrefValues(item.html).map((href) => ({ route: item.route, href })),
@@ -514,7 +591,7 @@ check(
 const sitemap = await readFile(getDistPath("sitemap.xml"), "utf8");
 const sitemapPaths = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => new URL(match[1]).pathname);
 check(
-  sitemapPaths.length === 42 &&
+  sitemapPaths.length === 43 &&
     sitemapPaths.length === indexableRoutePaths.length &&
     indexableRoutePaths.every((routePath) => sitemapPaths.includes(routePath)),
   "Sitemap ile prerender public route listesi uyumlu.",

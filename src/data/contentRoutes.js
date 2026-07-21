@@ -7,6 +7,23 @@ import { legalPages } from "./legalContent.js";
 import { quickReadingPages } from "./quickReadingContent.js";
 import { trainingPages } from "./trainingContent.js";
 
+export const studentReadingLandingRoute = {
+  path: "/ogrenciler-icin-hizli-okuma-egitimi",
+  title: "Öğrenciler İçin Hızlı Okuma Eğitimi | Fixoku",
+  description:
+    "Fixoku’nun ücretsiz dikkat, okuma ve anlama testleriyle öğrencinizin mevcut seviyesini ölçün; hızlı okuma, anlama, dikkat ve odaklanma eğitim modelini inceleyin.",
+  heading: "Çocuğunuzun Okuma, Anlama ve Dikkat Seviyesini Ücretsiz Ölçün",
+  distinguishingText: "Çocuğunuzun Okuma, Anlama ve Dikkat Seviyesini Ücretsiz Ölçün",
+  schemaType: "WebPage",
+  breadcrumbs: [
+    { label: "Ana Sayfa", path: "/" },
+    {
+      label: "Öğrenciler İçin Hızlı Okuma Eğitimi",
+      path: "/ogrenciler-icin-hizli-okuma-egitimi",
+    },
+  ],
+};
+
 const existingPublicRoutes = [
   {
     path: "/",
@@ -30,6 +47,7 @@ const existingPublicRoutes = [
       { label: "İletişim", path: "/iletisim" },
     ],
   },
+  studentReadingLandingRoute,
 ];
 
 function createContentRoutes(pages, { collectionLabel, collectionPath }) {
