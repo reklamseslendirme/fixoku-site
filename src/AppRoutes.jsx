@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import App from "./App.jsx";
 import SeoRouteManager from "./components/seo/Seo.jsx";
 import {
@@ -17,6 +17,8 @@ import { legalPages } from "./data/legalContent.js";
 import { blogArticles } from "./data/blogContent.js";
 import { quickReadingArticles } from "./data/quickReadingContent.js";
 import { trainingArticles, trainingHub } from "./data/trainingContent.js";
+import { INSTITUTION_READING_LANDING_PATH } from "./data/institutionReadingLanding.js";
+import { INSTRUCTOR_READING_LANDING_PATH } from "./data/instructorReadingLanding.js";
 import NotFound from "./pages/NotFound.jsx";
 import QuickReadingArticle from "./pages/content/QuickReadingArticle.jsx";
 import QuickReadingHub from "./pages/content/QuickReadingHub.jsx";
@@ -25,6 +27,8 @@ import TopicHub from "./pages/content/TopicHub.jsx";
 import Iletisim from "./pages/iletisim.jsx";
 import LegalPage from "./pages/LegalPage.jsx";
 import StudentReadingLanding from "./pages/StudentReadingLanding.jsx";
+import InstitutionReadingLanding from "./pages/InstitutionReadingLanding.jsx";
+import InstructorReadingLanding from "./pages/InstructorReadingLanding.jsx";
 
 const PanelApp = lazy(() => import("./panel/PanelApp.jsx"));
 
@@ -39,6 +43,22 @@ export default function AppRoutes() {
           path="/ogrenciler-icin-hizli-okuma-egitimi"
           element={<StudentReadingLanding />}
         />
+        <Route
+          path={INSTITUTION_READING_LANDING_PATH}
+          element={<InstitutionReadingLanding />}
+        />
+        <Route
+          path={INSTRUCTOR_READING_LANDING_PATH}
+          element={<InstructorReadingLanding />}
+        />        <Route
+          path="/egitmen-ol"
+          element={<Navigate replace to={INSTRUCTOR_READING_LANDING_PATH} />}
+        />
+        <Route
+          path="/okullar-icin"
+          element={<Navigate replace to={INSTITUTION_READING_LANDING_PATH} />}
+        />
+        {/* FIXOKU LEGACY ROUTE REDIRECTS M2C */}
         <Route path="/hizli-okuma" element={<QuickReadingHub />} />
         {quickReadingArticles.map((article) => (
           <Route

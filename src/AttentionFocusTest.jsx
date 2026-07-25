@@ -3236,4 +3236,570 @@ const attentionStyles = `
   }
 }
 
+
+
+/* =========================================================
+   FIXOKU ATTENTION RESPONSIVE M2B
+   Mobile, tablet and small notebook hardening
+========================================================= */
+
+.attention-modal-overlay {
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  overscroll-behavior: contain;
+}
+
+.attention-modal,
+.attention-modal * {
+  box-sizing: border-box;
+}
+
+.attention-modal {
+  max-height: calc(100vh - 16px);
+  max-height: calc(100svh - 16px);
+  max-height: calc(100dvh - 16px);
+}
+
+.attention-modal button,
+.attention-modal a,
+.attention-modal input {
+  touch-action: manipulation;
+}
+
+@media (min-width: 821px) and (max-height: 820px) {
+  .attention-modal-overlay {
+    padding: 8px;
+  }
+
+  .attention-modal {
+    min-height: 0;
+    max-height: calc(100vh - 16px);
+    max-height: calc(100dvh - 16px);
+    padding: 14px 18px 18px;
+    border-radius: 25px;
+  }
+
+  .attention-modal::before {
+    inset: 54px 18px 12px;
+    border-radius: 22px;
+  }
+
+  .attention-topline {
+    min-height: 36px;
+    margin-bottom: 6px;
+  }
+
+  .attention-panel,
+  .attention-game-panel {
+    min-height: 0;
+    margin-top: 0;
+    padding: 18px 28px;
+    border-radius: 28px;
+  }
+
+  .attention-title-block {
+    margin-bottom: 10px;
+  }
+
+  .attention-title-block span {
+    font-size: 34px;
+  }
+
+  .attention-title-block h2,
+  .attention-panel h2 {
+    font-size: 34px;
+  }
+
+  .attention-level-grid {
+    gap: 12px;
+    margin: 12px 0 14px;
+  }
+
+  .attention-level-card {
+    min-height: 150px;
+    padding: 12px;
+  }
+
+  .attention-primary-btn,
+  .attention-green-btn {
+    min-height: 48px;
+    font-size: 17px;
+  }
+
+  .attention-board {
+    gap: 10px;
+  }
+
+  .attention-cell {
+    width: 78px;
+    height: 78px;
+  }
+
+  .attention-difference-image {
+    min-height: 280px;
+  }
+
+  .attention-difference-image img {
+    height: 280px;
+  }
+
+  .attention-track-card,
+  .attention-text-card,
+  .attention-memory-card {
+    min-height: 360px;
+    padding: 18px 20px;
+  }
+
+  .attention-footerbar {
+    margin-top: 10px;
+  }
+
+  .attention-result-rings {
+    margin: 8px 0 10px;
+  }
+}
+
+@media (max-width: 820px) {
+  .attention-modal-overlay {
+    height: 100vh;
+    height: 100svh;
+    height: 100dvh;
+    padding: 4px;
+    overflow: hidden;
+  }
+
+  .attention-modal {
+    width: 100%;
+    height: calc(100vh - 8px);
+    height: calc(100svh - 8px);
+    height: calc(100dvh - 8px);
+    min-height: 0;
+    max-height: calc(100vh - 8px);
+    max-height: calc(100dvh - 8px);
+    padding: 10px;
+    border-radius: 18px;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .attention-modal::before {
+    inset: 54px 10px 10px;
+    border-radius: 18px;
+  }
+
+  .attention-close {
+    top: 7px;
+    right: 8px;
+    width: 44px;
+    height: 44px;
+    font-size: 30px;
+  }
+
+  .attention-topline {
+    min-height: 44px;
+    margin-bottom: 4px;
+    padding-right: 46px;
+  }
+
+  .attention-back {
+    min-height: 44px;
+    padding: 0 12px;
+  }
+
+  .attention-step-dots {
+    gap: 4px;
+    padding-right: 0;
+  }
+
+  .attention-step-dots span {
+    width: clamp(12px, 4vw, 18px);
+  }
+
+  .attention-panel,
+  .attention-game-panel {
+    width: 100%;
+    min-height: 0;
+    margin: 0 auto;
+    padding: 14px 12px;
+    border-radius: 20px;
+  }
+
+  .attention-title-block h2,
+  .attention-panel h2 {
+    overflow-wrap: anywhere;
+  }
+
+  .attention-primary-btn,
+  .attention-green-btn {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 16px;
+    font-size: 16px;
+  }
+
+  .attention-exercise-grid {
+    gap: 8px;
+  }
+
+  .attention-exercise-card {
+    min-height: 108px;
+  }
+
+  .attention-scorebar {
+    width: 100%;
+    gap: 8px;
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .attention-game-card,
+  .attention-difference-card,
+  .attention-track-card,
+  .attention-text-card,
+  .attention-memory-card {
+    width: 100%;
+  }
+
+  .attention-board {
+    max-width: 100%;
+    gap: clamp(6px, 2vw, 10px);
+  }
+
+  .attention-cell {
+    width: clamp(48px, 18vw, 70px);
+    height: clamp(48px, 18vw, 70px);
+  }
+
+  .attention-cell-number {
+    font-size: clamp(23px, 8vw, 30px);
+  }
+
+  .attention-cell-logo {
+    font-size: 10px;
+  }
+
+  .attention-under-board {
+    gap: 8px;
+  }
+
+  .attention-footerbar {
+    width: 100%;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .attention-total-progress {
+    height: 16px;
+  }
+
+  .attention-pause-btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .attention-difference-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .attention-difference-image {
+    min-height: 0;
+  }
+
+  .attention-difference-image img {
+    width: 100%;
+    height: clamp(180px, 55vw, 260px);
+    object-fit: cover;
+  }
+
+  .attention-track-card,
+  .attention-text-card,
+  .attention-memory-card {
+    min-height: clamp(300px, 56dvh, 420px);
+    padding: 16px 12px;
+    border-radius: 20px;
+  }
+
+  .attention-track-card::before,
+  .attention-text-card::before,
+  .attention-memory-card::before {
+    inset: 9px;
+    border-radius: 16px;
+  }
+
+  .attention-track-stage,
+  .attention-flying-area,
+  .attention-word-list,
+  .attention-word-options,
+  .attention-memory-options {
+    max-width: 100%;
+  }
+
+  .attention-result-panel {
+    padding: 14px 10px;
+  }
+
+  .attention-result-rings {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 8px;
+  }
+
+  .attention-result-cta {
+    width: 100%;
+    padding: 12px 10px;
+  }
+
+  .attention-result-form {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .attention-result-form input {
+    min-height: 46px;
+    font-size: 16px;
+  }
+
+  .attention-result-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .attention-whatsapp-btn,
+  .attention-call-btn,
+  .attention-phone-number {
+    width: 100%;
+    min-height: 48px;
+  }
+}
+
+@media (max-width: 360px) {
+  .attention-modal {
+    padding: 8px;
+  }
+
+  .attention-panel,
+  .attention-game-panel {
+    padding: 12px 9px;
+    border-radius: 18px;
+  }
+
+  .attention-title-block h2,
+  .attention-panel h2 {
+    font-size: 23px;
+  }
+
+  .attention-level-card {
+    grid-template-columns: 48px minmax(0, 1fr);
+    padding: 7px 8px;
+  }
+
+  .attention-cell {
+    width: clamp(47px, 17vw, 58px);
+    height: clamp(47px, 17vw, 58px);
+  }
+
+  .attention-difference-image img {
+    height: 170px;
+  }
+
+  .attention-track-card,
+  .attention-text-card,
+  .attention-memory-card {
+    min-height: 280px;
+    padding: 13px 9px;
+  }
+
+  .attention-ring {
+    width: 70px;
+    height: 70px;
+  }
+
+  .attention-ring-inner {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+@media (max-width: 900px) and (max-height: 560px) {
+  .attention-modal {
+    padding: 6px 8px;
+  }
+
+  .attention-topline {
+    min-height: 36px;
+  }
+
+  .attention-panel,
+  .attention-game-panel {
+    padding: 10px;
+  }
+
+  .attention-title-block {
+    margin-bottom: 6px;
+  }
+
+  .attention-title-block span {
+    font-size: 21px;
+  }
+
+  .attention-title-block h2,
+  .attention-panel h2 {
+    font-size: 23px;
+  }
+
+  .attention-difference-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .attention-difference-image img {
+    height: 180px;
+  }
+
+  .attention-track-card,
+  .attention-text-card,
+  .attention-memory-card {
+    min-height: 250px;
+  }
+}
+
+
+
+/* =========================================================
+   FIXOKU ATTENTION UX M2C
+   Level spacing, compact instructions and smaller track cups
+========================================================= */
+
+@media (max-width: 820px) {
+  .attention-level-grid {
+    gap: 12px;
+  }
+
+  .attention-eye-panel {
+    padding-top: 12px;
+  }
+
+  .attention-eye-panel .attention-badge {
+    margin-bottom: 7px;
+  }
+
+  .attention-eye-panel > h2 {
+    margin: 3px 0 5px;
+  }
+
+  .attention-eye-panel > .attention-muted {
+    margin: 0 0 7px;
+    line-height: 1.3;
+  }
+
+  .attention-eye-panel .attention-detail-card {
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 10px;
+    margin: 7px auto 9px;
+    padding: 11px 12px;
+    text-align: left;
+  }
+
+  .attention-eye-panel .attention-detail-icon {
+    width: 68px;
+    height: 68px;
+    margin: 0;
+  }
+
+  .attention-eye-panel .attention-detail-icon svg {
+    width: 42px;
+    height: 42px;
+  }
+
+  .attention-eye-panel .attention-detail-card h3 {
+    margin: 0 0 4px;
+    font-size: 19px;
+    line-height: 1.15;
+  }
+
+  .attention-eye-panel .attention-detail-card p {
+    margin: 3px 0;
+    font-size: 13px;
+    line-height: 1.28;
+  }
+
+  .attention-eye-panel .attention-green-btn {
+    margin-top: 0;
+  }
+
+  .attention-track-stage {
+    height: 190px;
+    margin: 18px auto 8px;
+  }
+
+  .attention-track-cup {
+    top: 50px;
+    width: 78px;
+    height: 78px;
+  }
+
+  .attention-track-cup-face {
+    width: 78px;
+    height: 78px;
+  }
+
+  .attention-track-ball {
+    width: 30px;
+    height: 30px;
+  }
+
+  .attention-track-stage::after {
+    bottom: 24px;
+    height: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .attention-level-grid {
+    gap: 10px;
+  }
+
+  .attention-eye-panel .attention-detail-card {
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 8px;
+    padding: 9px;
+  }
+
+  .attention-eye-panel .attention-detail-icon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .attention-eye-panel .attention-detail-icon svg {
+    width: 35px;
+    height: 35px;
+  }
+
+  .attention-eye-panel .attention-detail-card h3 {
+    font-size: 17px;
+  }
+
+  .attention-eye-panel .attention-detail-card p {
+    font-size: 12px;
+  }
+
+  .attention-track-stage {
+    height: 175px;
+  }
+
+  .attention-track-cup,
+  .attention-track-cup-face {
+    width: 70px;
+    height: 70px;
+  }
+
+  .attention-track-ball {
+    width: 27px;
+    height: 27px;
+  }
+}
+
 `;

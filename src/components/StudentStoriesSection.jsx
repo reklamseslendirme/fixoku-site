@@ -7,6 +7,7 @@ import {
 
 const studentStories = [
   {
+    id: "student-ali-grade-6",
     title: "Ali",
     role: "6. Sınıf Öğrencisi",
     badge: "Gerçek Öğrenci Deneyimi",
@@ -14,6 +15,7 @@ const studentStories = [
     poster: "/egitici1.jpeg",
   },
   {
+    id: "student-ece-grade-8",
     title: "Ece",
     role: "8. Sınıf Öğrencisi",
     badge: "Gerçek Öğrenci Deneyimi",
@@ -21,6 +23,7 @@ const studentStories = [
     poster: "/egitici2.jpeg",
   },
   {
+    id: "student-mert-grade-5",
     title: "Mert",
     role: "5. Sınıf Öğrencisi",
     badge: "Gerçek Öğrenci Deneyimi",
@@ -28,6 +31,7 @@ const studentStories = [
     poster: "/egitici3.jpeg",
   },
   {
+    id: "parent-ayse",
     title: "Ayşe Hanım",
     role: "Veli",
     badge: "Fixoku Velisi",
@@ -35,6 +39,7 @@ const studentStories = [
     poster: "/egitici4.jpeg",
   },
   {
+    id: "student-zeynep-grade-7",
     title: "Zeynep",
     role: "7. Sınıf Öğrencisi",
     badge: "Gerçek Öğrenci Deneyimi",
@@ -42,6 +47,7 @@ const studentStories = [
     poster: "/egitici1.jpeg",
   },
   {
+    id: "student-can-grade-4",
     title: "Can",
     role: "4. Sınıf Öğrencisi",
     badge: "Gerçek Öğrenci Deneyimi",
@@ -49,6 +55,7 @@ const studentStories = [
     poster: "/egitici2.jpeg",
   },
   {
+    id: "parent-merve",
     title: "Merve Hanım",
     role: "Veli",
     badge: "Fixoku Velisi",
@@ -56,6 +63,7 @@ const studentStories = [
     poster: "/egitici3.jpeg",
   },
   {
+    id: "student-kemal-grade-8",
     title: "Kemal",
     role: "8. Sınıf Öğrencisi",
     badge: "Gerçek Öğrenci Deneyimi",
@@ -64,7 +72,10 @@ const studentStories = [
   },
 ];
 
-export default function StudentStoriesSection({ className = "" }) {
+export default function StudentStoriesSection({
+  className = "",
+  subtitle = "Fixoku hızlı okuma ve dikkat geliştirme eğitimi alan öğrenciler ve veliler, eğitim sürecindeki deneyimlerini paylaşıyor.",
+}) {
   const [storyIndex, setStoryIndex] = useState(0);
   const [activeVideo, setActiveVideo] = useState(null);
 
@@ -96,10 +107,7 @@ export default function StudentStoriesSection({ className = "" }) {
             Ne Söylüyor?
           </h2>
 
-          <p className="stories-subtitle">
-            Fixoku hızlı okuma ve dikkat geliştirme eğitimi alan öğrenciler ve veliler,
-            eğitim sürecindeki deneyimlerini paylaşıyor.
-          </p>
+          <p className="stories-subtitle">{subtitle}</p>
         </div>
 
         <div className="stories-panel">
@@ -113,11 +121,11 @@ export default function StudentStoriesSection({ className = "" }) {
           </button>
 
           <div className="stories-grid">
-            {visibleStories.map((story, index) => (
+            {visibleStories.map((story) => (
               <button
                 type="button"
                 className="story-card"
-                key={`${story.title}-${index}`}
+                key={story.id}
                 onClick={() => setActiveVideo(story)}
               >
                 <div className={`story-badge ${story.role === "Veli" ? "story-badge-parent" : ""}`}>

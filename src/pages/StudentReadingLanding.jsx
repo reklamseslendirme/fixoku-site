@@ -20,8 +20,8 @@ const STANDING_CHILD_IMAGE = {
 
 const SEATED_CHILD_IMAGE = {
   src: "/images/landing/ogrenciler-icin-hizli-okuma-egitimi/oturan-cocuk.png",
-  width: 679,
-  height: 905,
+  width: 1405,
+  height: 1120,
 };
 
 const parentQuestions = [

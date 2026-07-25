@@ -1,14 +1,26 @@
 {
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "rewrites": [
-    {
-      "source": "/panel",
-      "destination": "/panel.html"
-    },
-    {
-      "source": "/panel/:path*",
-      "destination": "/panel.html"
-    }
-  ]
+    "cleanUrls":  true,
+    "trailingSlash":  false,
+    "rewrites":  [
+                     {
+                         "source":  "/panel",
+                         "destination":  "/panel.html"
+                     },
+                     {
+                         "source":  "/panel/:path*",
+                         "destination":  "/panel.html"
+                     }
+                 ],
+    "redirects":  [
+                      {
+                          "source":  "/egitmen-ol",
+                          "destination":  "/hizli-okuma-egitmeni-ol",
+                          "permanent":  true
+                      },
+                      {
+                          "source":  "/okullar-icin",
+                          "destination":  "/kurumlar-icin-hizli-okuma-egitimi",
+                          "permanent":  true
+                      }
+                  ]
 }

@@ -8,6 +8,7 @@ import { businessIdentity, contactPhones } from "../src/data/legalContent.js";
 import {
   getPrerenderOutputPath,
   indexableRoutePaths,
+  institutionReadingLandingRoute,
   legalRoutePaths,
   notFoundSeo,
   panelSeo,
@@ -188,7 +189,7 @@ for (const route of publicRouteRegistry) {
     `${route.path}: beklenen JSON-LD türleri doğru.`,
   );
   check(getH1Count(html) === 1, `${route.path}: prerender HTML içinde tek H1 var.`);
-  check(html.includes(route.distinguishingText), `${route.path}: ayırt edici ana içerik mevcut.`);
+  check(getVisibleText(html).includes(route.distinguishingText), `${route.path}: ayırt edici ana içerik mevcut.`);
   check(
     html.includes('<div id="root" data-render-mode="prerendered"><'),
     `${route.path}: prerender root dolu ve işaretli.`,
@@ -218,8 +219,11 @@ check(
   "Bütün indexlenebilir public route'lar prerender edildi.",
 );
 check(
-  publicRouteRegistry.length === 43 && renderedRoutes.length === 43,
-  "Public route ve prerender HTML sayısı 43/43.",
+  publicRouteRegistry.length === indexableRoutePaths.length &&
+    renderedRoutes.length === indexableRoutePaths.length &&
+    indexableRoutePaths.includes("/hizli-okuma-egitmeni-ol") &&
+    indexableRoutePaths.filter((routePath) => routePath === "/hizli-okuma-egitmeni-ol").length === 1,
+  `Public route ve prerender HTML sayısı ${indexableRoutePaths.length}/${indexableRoutePaths.length}; eğitmen route'u tekil.`,
 );
 check(
   new Set(renderedRoutes.map((route) => route.hash)).size === renderedRoutes.length,
@@ -227,14 +231,15 @@ check(
 );
 check(
   contentExplorerGroups.length === 6 &&
-    contentExplorerGroups.reduce((total, group) => total + group.items.length, 0) === 37,
-  "Global Content Explorer altı grup ve 37 içerik öğesiyle değişmeden kaldı.",
+    contentExplorerGroups.reduce((total, group) => total + group.items.length, 0) === 35,
+  "Global Content Explorer altı grup ve 35 içerik öğesiyle güncel yapıyı koruyor.",
 );
 
 const renderedByPath = new Map(renderedRoutes.map((item) => [item.route, item]));
 const homeRendered = renderedByPath.get("/");
 const contactRendered = renderedByPath.get("/iletisim");
 const studentLandingRendered = renderedByPath.get(studentReadingLandingRoute.path);
+const institutionLandingRendered = renderedByPath.get(institutionReadingLandingRoute.path);
 const homeCanonical = buildSiteUrl("/");
 const homeSchemaRoot = homeRendered?.schemas?.[0];
 const homeSchemaNodes = getSchemaNodes(homeRendered?.schemas ?? []);
@@ -441,8 +446,8 @@ check(
     studentLandingHtml.includes('width="607"') &&
     studentLandingHtml.includes('height="1013"') &&
     studentLandingHtml.includes('/images/landing/ogrenciler-icin-hizli-okuma-egitimi/oturan-cocuk.png') &&
-    studentLandingHtml.includes('width="679"') &&
-    studentLandingHtml.includes('height="905"') &&
+    studentLandingHtml.includes('width="1405"') &&
+    studentLandingHtml.includes('height="1120"') &&
     studentLandingHtml.includes('loading="lazy"') &&
     studentLandingHtml.includes('class="student-seated-problem-frame"') &&
     studentLandingHtml.includes('class="student-standing-final-frame"') &&
@@ -455,6 +460,120 @@ check(
     studentLandingHtml.includes('href="https://wa.me/905334789253"') &&
     studentLandingHtml.includes("Test sonucunu uzmanla değerlendirerek çocuğunuzun gelişim alanları"),
   "Landing ortak öğrenci/veli video sliderını, iki onaylı çocuk görselini ve kullanıcı kontrollü WhatsApp akışını içeriyor.",
+);
+
+const institutionLandingHtml = institutionLandingRendered?.html ?? "";
+const institutionFormHtml = institutionLandingHtml.match(
+  /<section class="institution-form-section"[\s\S]*?<\/section>/i,
+)?.[0] ?? "";
+const institutionEmptyVideoHtml = ["hero", "features"].map((variant) =>
+  institutionLandingHtml.match(
+    new RegExp(`<div[^>]*data-empty-video="${variant}"[\\s\\S]*?<\\/div>`, "i"),
+  )?.[0] ?? "",
+);
+check(
+  institutionLandingRendered &&
+    JSON.stringify(institutionLandingRendered.schemaTypes) ===
+      JSON.stringify(["WebPage", "BreadcrumbList"]) &&
+    getH1Count(institutionLandingHtml) === 1 &&
+    institutionLandingHtml.includes(institutionReadingLandingRoute.heading) &&
+    !["FAQPage", "Review", "AggregateRating", "Offer"].some((type) =>
+      institutionLandingHtml.includes(`\"@type\":\"${type}\"`),
+    ),
+  "Kurum landing ilk HTML'i WebPage + BreadcrumbList, tek H1 ve güvenli schema sözleşmesini karşılıyor.",
+);
+check(
+  institutionLandingHtml.includes("Fixoku</span> Eğitimi Alan Öğrenciler ve Veliler") &&
+    institutionLandingHtml.includes("Fixoku</span> Eğitmenleri Ne Söylüyor?") &&
+    institutionLandingHtml.includes('aria-label="Önceki öğrenci videosu"') &&
+    institutionLandingHtml.includes('aria-label="Sonraki öğrenci videosu"') &&
+    institutionLandingHtml.includes('aria-label="Önceki video"') &&
+    institutionLandingHtml.includes('aria-label="Sonraki video"'),
+  "Kurum landing ilk HTML'inde iki gerçek ortak video sliderı doğru bileşenlerden geliyor.",
+);
+check(
+  (institutionLandingHtml.match(/data-empty-video=/g) ?? []).length === 2 &&
+    institutionEmptyVideoHtml.every((html) =>
+      html.includes('role="img"') &&
+      html.includes('aria-label="') &&
+      html.includes("institution-placeholder-play") &&
+      !/<(?:video|button|a)\b/i.test(html) &&
+      !/tabindex=|onclick=/i.test(html)
+    ) &&
+    institutionEmptyVideoHtml[0] !== institutionEmptyVideoHtml[1],
+  "Kurum landing ilk HTML'inde iki farklı aria-label taşıyan, turuncu play işaretli ve etkileşimsiz boş medya alanı var.",
+);
+check(
+  (institutionLandingHtml.match(/data-institution-type=/g) ?? []).length === 5 &&
+    (institutionLandingHtml.match(/data-institution-benefit=/g) ?? []).length === 5 &&
+    (institutionLandingHtml.match(/data-institution-feature=/g) ?? []).length === 3 &&
+    (institutionLandingHtml.match(/data-feature-visibility="full"/g) ?? []).length === 2 &&
+    (institutionLandingHtml.match(/data-feature-visibility="partial"/g) ?? []).length === 1 &&
+    (institutionLandingHtml.match(/data-institution-process=/g) ?? []).length === 3 &&
+    (institutionLandingHtml.match(/data-process-visibility="full"/g) ?? []).length === 2 &&
+    (institutionLandingHtml.match(/data-process-visibility="partial"/g) ?? []).length === 1 &&
+    (institutionLandingHtml.match(/data-feature-summary=/g) ?? []).length === 6 &&
+    institutionLandingHtml.includes('data-institution-circle-count="5"') &&
+    institutionLandingHtml.includes('data-benefit-count="5"') &&
+    institutionLandingHtml.includes('data-feature-count="11"') &&
+    institutionLandingHtml.includes('data-visible-feature-count="3"') &&
+    (institutionLandingHtml.match(/class="institution-feature-number"/g) ?? []).length === 3 &&
+    !institutionLandingHtml.includes("institution-feature-icon") &&
+    institutionLandingHtml.includes('id="institution-feature-list"') &&
+    institutionLandingHtml.includes('aria-controls="institution-feature-list"') &&
+    institutionLandingHtml.includes('aria-expanded="false"') &&
+    institutionLandingHtml.includes("TÜM ÖZELLİKLERİ GÖR") &&
+    institutionLandingHtml.includes('data-honeycomb-count="6"') &&
+    institutionLandingHtml.includes('data-process-steps="5"') &&
+    institutionLandingHtml.includes('data-process-steps="7"') &&
+    institutionLandingHtml.includes('data-visible-process-count="3"') &&
+    institutionLandingHtml.includes('id="institution-detailed-process-list"') &&
+    institutionLandingHtml.includes('aria-controls="institution-detailed-process-list"') &&
+    institutionLandingHtml.includes("TÜM ADIMLARI GÖR") &&
+    !institutionLandingHtml.includes("data-process-summary=") &&
+    !institutionLandingHtml.includes("data-process-summary-count=") &&
+    !institutionLandingHtml.includes("institution-summary-icon") &&
+    (institutionLandingHtml.match(/data-video-type="student-stories"/g) ?? []).length === 1 &&
+    (institutionLandingHtml.match(/data-video-type="trainer-stories"/g) ?? []).length === 1,
+  "Kurum landing ilk HTML'i 5 kurum türü, 5 kazanım, 6 honeycomb maddesi, 11/7 toplam sözleşmesiyle 2 tam + 1 önizleme, tekrarsız süreç ve tekil sliderları içeriyor.",
+);
+const institutionBeeAssets = [
+  "/images/institution-bees/bee-school.webp",
+  "/images/institution-bees/bee-course.webp",
+  "/images/institution-bees/bee-study.webp",
+  "/images/institution-bees/bee-development.webp",
+  "/images/institution-bees/bee-academy.webp",
+];
+check(
+  institutionBeeAssets.every((assetPath) => institutionLandingHtml.includes(assetPath)) &&
+    new Set(institutionBeeAssets).size === 5 &&
+    (institutionLandingHtml.match(/class="institution-reading__bee-image/g) ?? []).length === 5 &&
+    (institutionLandingHtml.match(/<img[^>]+institution-reading__bee-image[^>]+alt="/g) ?? []).length === 5 &&
+    !institutionLandingHtml.includes("data-bee-anatomy") &&
+    !institutionLandingHtml.includes("data-bee-leg-count") &&
+    !institutionLandingHtml.includes("data-bee-wing-count") &&
+    !institutionLandingHtml.includes("data-bee-pose") &&
+    institutionLandingHtml.includes("institution-brand-highlight") &&
+    !institutionLandingHtml.includes("dangerouslySetInnerHTML"),
+  "Kurum landing ilk HTML'i güvenli marka vurgusu ile beş farklı WebP arı görselini anlamlı img yapısıyla içeriyor.",
+);
+check(
+  [
+    "fullName",
+    "institutionName",
+    "email",
+    "phone",
+    "city",
+    "district",
+    "institutionType",
+    "studentCount",
+    "message",
+    "consent",
+  ].every((fieldName) => institutionFormHtml.includes(`name="${fieldName}"`)) &&
+    institutionFormHtml.includes('href="/kvkk"') &&
+    institutionFormHtml.includes("info@fixoku.com") &&
+    !institutionFormHtml.includes("mailto:"),
+  "Kurum landing ilk HTML'i erişilebilir başvuru alanlarını, KVKK bağlantısını ve mailto içermeyen iletişim bilgisini sunuyor.",
 );
 
 const combinedPublicHtml = renderedRoutes.map((item) => item.html).join("\n");
@@ -591,8 +710,10 @@ check(
 const sitemap = await readFile(getDistPath("sitemap.xml"), "utf8");
 const sitemapPaths = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => new URL(match[1]).pathname);
 check(
-  sitemapPaths.length === 43 &&
-    sitemapPaths.length === indexableRoutePaths.length &&
+  sitemapPaths.length === indexableRoutePaths.length &&
+    sitemapPaths.filter((routePath) => routePath === "/hizli-okuma-egitmeni-ol").length === 1 &&
+    !sitemapPaths.some((routePath) => routePath.startsWith("/panel")) &&
+    !sitemapPaths.some((routePath) => routePath.includes("404")) &&
     indexableRoutePaths.every((routePath) => sitemapPaths.includes(routePath)),
   "Sitemap ile prerender public route listesi uyumlu.",
 );

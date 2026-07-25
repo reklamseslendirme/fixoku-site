@@ -150,7 +150,7 @@ function Footer({ showCta = true }) {
               <h3>{column.title}</h3>
               <ul>
                 {column.links.map((link) => (
-                  <li key={link.to}>
+                  <li key={`${column.title}-${link.to}-${link.label}`}>
                     <Link to={link.to}>{link.label}</Link>
                   </li>
                 ))}

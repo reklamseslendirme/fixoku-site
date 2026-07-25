@@ -70,7 +70,7 @@ export const corporateHub = {
   },
 };
 
-export const corporateArticles = [
+const corporateArticleDefinitions = [
   {
     kind: "article",
     slug: "okullar-icin",
@@ -323,6 +323,10 @@ export const corporateArticles = [
     },
   },
 ];
+/* FIXOKU CORPORATE LEGACY FILTER M2C */
+export const corporateArticles = corporateArticleDefinitions.filter(
+  (article) => !["/okullar-icin", "/egitmen-ol"].includes(article.path)
+);
 
 export const corporatePages = [corporateHub, ...corporateArticles];
 

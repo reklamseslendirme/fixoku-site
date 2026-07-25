@@ -26,6 +26,17 @@ import {
 } from "../src/data/knowledgeCenterContent.js";
 import { businessIdentity, contactPhones, legalPages } from "../src/data/legalContent.js";
 import {
+  detailedInstitutionProcess,
+  institutionBenefits,
+  institutionFeatureSummaries,
+  institutionFeatures,
+  institutionHero,
+  institutionReadingLandingRoute,
+  institutionSocialProof,
+  institutionTypes,
+  shortInstitutionProcess,
+} from "../src/data/institutionReadingLanding.js";
+import {
   attentionFocusRoutePaths,
   blogRoutePaths,
   corporateRoutePaths,
@@ -35,9 +46,9 @@ import {
   legalRoutePaths,
   publicRouteRegistry,
   quickReadingRoutePaths,
-  studentReadingLandingRoute,
   trainingRoutePaths,
 } from "../src/data/contentRoutes.js";
+import { studentReadingLandingRoute } from "../src/data/contentRoutes.js";
 import {
   COMPLETED_FREE_TEST_COUNT,
   TRAINED_STUDENT_COUNT,
@@ -52,6 +63,7 @@ import {
   trainingHub,
   trainingPages,
 } from "../src/data/trainingContent.js";
+import { trainerStories } from "../src/data/trainerStories.js";
 import { buildContentSchemas } from "../src/utils/seoSchemas.js";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -150,8 +162,6 @@ const requiredTrainingRoutes = [
 
 const requiredCorporateRoutes = [
   "/hakkimizda",
-  "/okullar-icin",
-  "/egitmen-ol",
   "/sss",
 ];
 
@@ -224,18 +234,18 @@ check(
 );
 check(
   requiredCorporateRoutes.every((routePath) => corporateRoutePaths.includes(routePath)) &&
-    corporateRoutePaths.length === 4,
-  "Kurumsal hub ve üç alt route merkezi registry içinde kayıtlı.",
+    corporateRoutePaths.length === 2,
+  "Kurumsal hub ve bir alt route merkezi registry içinde kayıtlı.",
 );
 check(
-  corporatePages.length === 4 &&
-    corporateArticles.length === 3 &&
+  corporatePages.length === 2 &&
+    corporateArticles.length === 1 &&
     corporateHub.path === "/hakkimizda" &&
     corporateHub.schemaType === "AboutPage" &&
     corporateArticles.every(
       (article) => article.collectionPath === "/hakkimizda" && article.kind === "article",
     ),
-  "Kurumsal merkezi veri kümesi bir hub ve üç gerçek alt içerik taşıyor.",
+  "Kurumsal merkezi veri kümesi bir hub ve bir gerçek alt içerik taşıyor.",
 );
 const forbiddenCorporateRoutes = [
   "/kurumsal",
@@ -257,7 +267,7 @@ check(
     legalPages.length === 3,
   "Üç hukuki route merkezi veri ve route registry içinde kayıtlı.",
 );
-check(indexableRoutePaths.length === 43, "Toplam indexlenebilir public route sayısı tam olarak 43.");
+check(indexableRoutePaths.length === 44, "Toplam indexlenebilir public route sayısı tam olarak 44.");
 check(
   publicRouteRegistry.filter(
     (route) => route.path === studentReadingLandingRoute.path,
@@ -267,6 +277,17 @@ check(
       "Fixoku’nun ücretsiz dikkat, okuma ve anlama testleriyle öğrencinizin mevcut seviyesini ölçün; hızlı okuma, anlama, dikkat ve odaklanma eğitim modelini inceleyin." &&
     studentReadingLandingRoute.schemaType === "WebPage",
   "Öğrenci landing route'u tekil ve onaylı metadata ile merkezi registry içinde.",
+);
+check(
+  publicRouteRegistry.filter(
+    (route) => route.path === institutionReadingLandingRoute.path,
+  ).length === 1 &&
+    institutionReadingLandingRoute.title ===
+      "Kurumlar İçin Hızlı Okuma Eğitimi | Fixoku Akademi" &&
+    institutionReadingLandingRoute.description ===
+      "Fixoku Akademi’nin yapay zekâ destekli hızlı okuma, anlama, dikkat ve odaklanma modelini okul, kurs, etüt merkezi ve eğitim kurumunuzda uygulayın." &&
+    institutionReadingLandingRoute.schemaType === "WebPage",
+  "Kurum landing route'u tekil ve onaylı metadata ile merkezi registry içinde.",
 );
 check(
   isUnique(publicRouteRegistry.map((route) => route.title)),
@@ -744,14 +765,14 @@ const expectedExplorerCounts = new Map([
   ["Fixoku Eğitimi", 7],
   ["Bilgi Merkezi", 6],
   ["Eğitimlerimiz", 8],
-  ["Kurumsal", 4],
+  ["Kurumsal", 2],
 ]);
 check(
   contentExplorerGroups.length === expectedExplorerCounts.size &&
     contentExplorerGroups.every(
       (group) => expectedExplorerCounts.get(group.label) === group.items.length,
     ),
-  "Global Content Explorer altı merkezi grubu 6, 6, 7, 6, 8 ve 4 içerikle üretiyor.",
+  "Global Content Explorer altı merkezi grubu 6, 6, 7, 6, 8 ve 2 içerikle üretiyor.",
 );
 check(
   contentExplorerGroups
@@ -763,7 +784,7 @@ check(
   contentExplorerGroups
     .find((group) => group.label === "Kurumsal")
     ?.items.every((item) => requiredCorporateRoutes.includes(item.path)),
-  "Global Content Explorer Kurumsal grubunu dört gerçek route'tan otomatik oluşturuyor.",
+  "Global Content Explorer Kurumsal grubunu iki gerçek route'tan otomatik oluşturuyor.",
 );
 
 const headerSource = await readFile(
@@ -834,6 +855,32 @@ const socialProofSource = await readFile(
   path.join(projectRoot, "src", "data", "socialProof.js"),
   "utf8",
 );
+const trainerStoriesSource = await readFile(
+  path.join(projectRoot, "src", "components", "TrainerStoriesSection.jsx"),
+  "utf8",
+);
+const trainerStoriesDataSource = await readFile(
+  path.join(projectRoot, "src", "data", "trainerStories.js"),
+  "utf8",
+);
+const institutionLandingSource = await readFile(
+  path.join(projectRoot, "src", "pages", "InstitutionReadingLanding.jsx"),
+  "utf8",
+);
+const institutionLandingCssSource = await readFile(
+  path.join(projectRoot, "src", "pages", "institution-reading-landing.css"),
+  "utf8",
+);
+const institutionApiSource = await readFile(
+  path.join(projectRoot, "api", "institution-application.js"),
+  "utf8",
+);
+const institutionContractSource = await readFile(
+  path.join(projectRoot, "scripts", "test-institution-application.mjs"),
+  "utf8",
+);
+const packageSource = await readFile(path.join(projectRoot, "package.json"), "utf8");
+const viteConfigSource = await readFile(path.join(projectRoot, "vite.config.js"), "utf8");
 const STANDING_CHILD_IMAGE_PATH =
   "/images/landing/ogrenciler-icin-hizli-okuma-egitimi/ayakta-cocuk.png";
 const SEATED_CHILD_IMAGE_PATH =
@@ -943,6 +990,196 @@ check(
     !appSource.includes('className="stories-section"') &&
     !studentLandingSource.includes('className="stories-section"'),
   "Ana sayfa ve öğrenci landing sayfası aynı öğrenci/veli video slider componentini ve veri kaynağını kullanıyor.",
+);
+check(
+  appRoutesSource.includes("INSTITUTION_READING_LANDING_PATH") &&
+    appRoutesSource.includes("<InstitutionReadingLanding />") &&
+    appSource.includes("INSTITUTION_READING_LANDING_PATH") &&
+    headerSource.includes("INSTITUTION_READING_LANDING_PATH") &&
+    headerSource.includes('article.navLabel === "Kurumunuzda Eğitim Verin"'),
+  "Kurum landing route'u AppRoutes, ana sayfa kurum kartı ve Kurumsal menü hedefiyle bağlı.",
+);
+check(
+  (institutionLandingSource.match(/<h1(?:\s|>)/g) ?? []).length === 1 &&
+    institutionLandingSource.includes("{institutionReadingLandingRoute.heading}") &&
+    institutionTypes.length === 5 &&
+    institutionBenefits.length === 5 &&
+    institutionFeatureSummaries.length === 6 &&
+    institutionFeatures.length === 11 &&
+    shortInstitutionProcess.length === 5 &&
+    detailedInstitutionProcess.length === 7,
+  "Kurum landing tek H1, 5 kurum türü, 5 kazanım, 6 honeycomb maddesi, 11 özellik ve 5/7 süreç sözleşmesini karşılıyor.",
+);
+check(
+  /<StudentStoriesSection\s+[\s\S]*?className="institution-shared-stories"[\s\S]*?\/>/.test(
+    institutionLandingSource,
+  ) &&
+    /<TrainerStoriesSection\s+[\s\S]*?className="institution-shared-trainers"[\s\S]*?\/>/.test(
+      institutionLandingSource,
+    ) &&
+    (institutionLandingSource.match(/<StudentStoriesSection(?:\s|>)/g) ?? []).length === 1 &&
+    (institutionLandingSource.match(/<TrainerStoriesSection(?:\s|>)/g) ?? []).length === 1 &&
+    appSource.includes("<TrainerStoriesSection />") &&
+    !appSource.includes('className="trainer-videos-section"') &&
+    trainerStoriesSource.includes('className={`trainer-videos-section ${className}`.trim()}') &&
+    trainerStories.length === 8 &&
+    isUnique(trainerStories.map((story) => story.id)) &&
+    trainerStoriesDataSource.includes('id: "trainer-burak-antalya"'),
+  "Öğrenci ve eğitmen video alanları ortak componentlerden geliyor; ana sayfadaki inline eğitmen sliderı kaldırıldı.",
+);
+check(
+  institutionLandingSource.includes("function InstitutionVideoPlaceholder({ ariaLabel, variant })") &&
+    (institutionLandingSource.match(/<InstitutionVideoPlaceholder(?:\s|>)/g) ?? []).length === 2 &&
+    institutionLandingSource.includes('variant="hero"') &&
+    institutionLandingSource.includes('variant="features"') &&
+    institutionLandingSource.includes("data-empty-video={variant}") &&
+    institutionLandingSource.includes('role="img"') &&
+    institutionLandingSource.includes('aria-label={ariaLabel}') &&
+    institutionLandingSource.includes('aria-hidden="true"') &&
+    !(institutionLandingSource.match(/function InstitutionVideoPlaceholder[\s\S]*?\n}/)?.[0] ?? "").includes("onClick") &&
+    !institutionLandingSource.includes("<video") &&
+    /\.institution-video-placeholder\s*\{[\s\S]*?cursor:\s*default;[\s\S]*?\}/.test(
+      institutionLandingCssSource,
+    ),
+  "Kurum landing iki farklı etiketli, ortak, dekoratif ve etkileşimsiz boş play alanı kullanıyor.",
+);
+check(
+  institutionLandingSource.includes("data-institution-circle-count={institutionTypes.length}") &&
+    institutionLandingSource.includes("data-benefit-count={institutionBenefits.length}") &&
+    institutionLandingSource.includes("data-feature-count={institutionFeatures.length}") &&
+    institutionLandingSource.includes("data-honeycomb-count={institutionFeatureSummaries.length}") &&
+    !institutionLandingSource.includes("data-process-summary-count=") &&
+    !institutionLandingSource.includes("data-process-summary=") &&
+    !institutionLandingSource.includes("institution-summary-icon") &&
+    institutionLandingSource.includes('className="institution-feature-bars institution-feature-cards"') &&
+    institutionLandingSource.includes("institutionFeatures.slice(0, 3)") &&
+    institutionLandingSource.includes("detailedInstitutionProcess.slice(0, 3)") &&
+    institutionLandingSource.includes('data-feature-visibility={!featuresExpanded && index === 2 ? "partial" : "full"}') &&
+    institutionLandingSource.includes('data-process-visibility={!processExpanded && index === 2 ? "partial" : "full"}') &&
+    institutionLandingSource.includes('aria-controls="institution-feature-list"') &&
+    institutionLandingSource.includes('aria-controls="institution-detailed-process-list"') &&
+    institutionLandingSource.includes("aria-expanded={featuresExpanded}") &&
+    institutionLandingSource.includes("aria-expanded={processExpanded}") &&
+    !institutionLandingSource.includes('className="institution-feature-icon"') &&
+    institutionLandingCssSource.includes("grid-template-columns: 82px minmax(0, 1fr)") &&
+    institutionLandingSource.includes('"TÜM ÖZELLİKLERİ GÖR"') &&
+    institutionLandingSource.includes('"TÜM ADIMLARI GÖR"') &&
+    (institutionLandingSource.match(/"DAHA AZ GÖSTER"/g) ?? []).length === 2 &&
+    !institutionLandingSource.includes("<details"),
+  "Kurum grafikleri merkezi sayıları taşıyor; özellikler ve ayrıntılı süreç bağımsız, erişilebilir 2 tam + 1 önizleme açılımları kullanıyor.",
+);
+check(
+    institutionLandingSource.includes("function InstitutionBrandText({ children })") &&
+    institutionLandingSource.includes("children.split(/(Fixoku Akademi|FİXOKU AKADEMİ)/g)") &&
+    institutionLandingSource.includes('className="institution-brand-highlight"') &&
+    !institutionLandingSource.includes("dangerouslySetInnerHTML") &&
+    institutionLandingSource.includes("function BeeAccessories({ variant })") &&
+    institutionLandingSource.includes("function BeeWings({ wingGradientId, leftTransform, rightTransform })") &&
+    institutionLandingSource.includes("function BeeFace({ faceGradientId, look, transform })") &&
+    institutionLandingSource.includes("function InstitutionBeeIllustration({ variant, title, animated = true, className = \"\" })") &&
+    [
+      "standing-learning-left",
+      "rushing-right-with-test",
+      "seated-focused-over-notebook",
+      "rising-inspired-upward",
+      "technology-working-right",
+    ].every((pose) =>
+      institutionLandingSource.includes(`pose: \"${pose}\"`),
+    ) &&
+    [
+      "book-graduation-cap",
+      "test-pencil-timer",
+      "desk-notebook-lamp",
+      "brain-lightbulb-focus-rings",
+      "laptop-books-growth-graph",
+    ].every((accessory) => institutionLandingSource.includes(`data-bee-accessory=\"${accessory}\"`)) &&
+    institutionLandingSource.includes('data-bee-leg-count="6"') &&
+    institutionLandingSource.includes('data-bee-wing-count="4"') &&
+    institutionLandingSource.includes('data-bee-expression="warm-bright-friendly"') &&
+    institutionLandingSource.includes('data-bee-style="friendly-soft-professional"') &&
+    institutionLandingSource.includes('data-bee-anatomy="head-thorax-striped-abdomen-two-antennae-six-legs-four-wings-veins-eyes"') &&
+    institutionLandingSource.includes('data-wing-group="left"') &&
+    institutionLandingSource.includes('data-wing-group="right"') &&
+    institutionLandingCssSource.includes("@keyframes institution-bee-wing-left") &&
+    institutionLandingCssSource.includes("@keyframes institution-bee-wing-right") &&
+    institutionLandingCssSource.includes("animation: institution-bee-wing-left 0.86s") &&
+    institutionLandingCssSource.includes("animation: institution-bee-wing-right 0.94s") &&
+    /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.institution-bee\.is-animated \.institution-bee-wing-left,[\s\S]*?animation:\s*none !important;/.test(
+      institutionLandingCssSource,
+    ),
+  "Kurum landing güvenli marka vurgusu, beş bağlamsal arı varyantı, tam arı anatomisi ve reduced-motion uyumlu kanat animasyonu içeriyor.",
+);
+check(
+  institutionHero.paragraphs.length === 3 &&
+    institutionLandingSource.includes("institutionHero.paragraphs[0]") &&
+    institutionLandingSource.includes("institutionHero.paragraphs.slice(1).map") &&
+    institutionTypes.some((item) =>
+      item.text.includes("LGS, YKS ve ara sınıf öğrencilerinde uzun soruları daha hızlı okuma"),
+    ) &&
+    institutionFeatures.some((item) =>
+      item.text.includes("yaklaşık 11.000 kelimelik içerik havuzu"),
+    ) &&
+    detailedInstitutionProcess.some((item) =>
+      item.text.includes("21 günlük sistemli yapıda 9 kategori ve 126 egzersiz"),
+    ) &&
+    institutionSocialProof.studentText.includes("okuma, anlama, dikkat, odaklanma") &&
+    institutionSocialProof.trainerText.includes("yazılım takibi, egzersiz süreci"),
+  "Kurum landing kritik hero, kurum, özellik, süreç ve sosyal kanıt metinlerini merkezi DOCX verisinden eksiksiz kullanıyor.",
+);
+check(
+  studentStoriesSource.includes("key={story.id}") &&
+    trainerStoriesSource.includes("key={story.id}") &&
+    headerSource.includes('key={`${menu.key}-${item.to}-${item.label}`}') &&
+    footerSource.includes('key={`${column.title}-${link.to}-${link.label}`}'),
+  "Öğrenci, eğitmen, Header ve Footer listeleri stabil benzersiz React key kullanıyor.",
+);
+check(
+  [
+    "fullName",
+    "institutionName",
+    "email",
+    "phone",
+    "city",
+    "district",
+    "institutionType",
+    "studentCount",
+    "message",
+    "consent",
+  ].every((fieldName) => institutionLandingSource.includes(`name="${fieldName}"`)) &&
+    institutionLandingSource.includes('fetch("/api/institution-application"') &&
+    institutionLandingSource.includes('href="/kvkk"') &&
+    !institutionLandingSource.includes("mailto:") &&
+    institutionLandingSource.includes("Başvurunuz alınmıştır. Ekibimiz sizinle iletişime geçecektir."),
+  "Kurum formu tüm alanları, KVKK onayını, same-origin API çağrısını ve yalnız gerçek 200 sonrası başarı mesajını içeriyor.",
+);
+check(
+  institutionApiSource.includes('INSTITUTION_APPLICATION_RECIPIENT = "info@fixoku.com"') &&
+    institutionApiSource.includes("nodemailer.createTransport") &&
+    institutionApiSource.includes("SITE_ORIGIN") &&
+    ["SMTP_HOST", "SMTP_PORT", "SMTP_SECURE", "SMTP_USER", "SMTP_PASS", "MAIL_FROM"].every(
+      (name) => institutionApiSource.includes(name),
+    ) &&
+    !institutionApiSource.includes("VITE_") &&
+    institutionApiSource.includes("FORM_RATE_LIMIT_STATUS = \"BEST_EFFORT_INSTANCE_LOCAL\"") &&
+    institutionApiSource.includes("sendJson(response, 503") &&
+    institutionApiSource.includes("sendJson(response, 502"),
+  "Vercel mail function sabit recipient, server-side SMTP env, origin, fail-closed ve kontrollü teslim hatası sözleşmesini uyguluyor.",
+);
+check(
+  packageSource.includes('"nodemailer"') &&
+    packageSource.includes('"test:institution-form"') &&
+    viteConfigSource.includes("fixoku-institution-application-api") &&
+    viteConfigSource.includes("/api/institution-application") &&
+    institutionContractSource.includes("real SMTP delivery disabled") &&
+    institutionContractSource.includes("INSTITUTION_APPLICATION_RECIPIENT"),
+  "Yalnız nodemailer bağımlılığı, yerel aynı API middleware'i ve gerçek teslimat yapmayan contract testi kayıtlı.",
+);
+check(
+  institutionLandingCssSource.includes("overflow-x: clip") &&
+    institutionLandingCssSource.includes("@media (max-width: 900px)") &&
+    institutionLandingCssSource.includes("@media (max-width: 480px)") &&
+    institutionLandingCssSource.includes("@media (prefers-reduced-motion: reduce)"),
+  "Kurum landing CSS'i masaüstü, tablet, mobil, yatay taşma ve azaltılmış hareket kurallarını içeriyor.",
 );
 check(
   assessmentTestsSource.includes("Dikkat testi yaklaşık 2 dakika") &&

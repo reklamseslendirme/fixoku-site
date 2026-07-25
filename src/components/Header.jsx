@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ATTENTION_FOCUS_HUB_PATH,
   attentionFocusArticles,
@@ -11,6 +11,8 @@ import {
 } from "../data/fixokuEducationContent.js";
 import { quickReadingArticles } from "../data/quickReadingContent.js";
 import { TRAINING_HUB_PATH, trainingArticles } from "../data/trainingContent.js";
+import { INSTITUTION_READING_LANDING_PATH } from "../data/institutionReadingLanding.js";
+import { INSTRUCTOR_READING_LANDING_PATH } from "../data/instructorReadingLanding.js";
 
 const desktopIconPaths = {
   book: <><path d="M5 5.8C5 4.8 5.8 4 6.8 4H11c1.4 0 2.6.5 3.5 1.3A5.2 5.2 0 0 1 18 4h.7c1 0 1.8.8 1.8 1.8V19c0 .6-.4 1-1 1h-1.8c-1.2 0-2.3.4-3.2 1.1A5.5 5.5 0 0 0 11 20H6.8C5.8 20 5 19.2 5 18.2V5.8Z" /><path d="M14.5 5.3v15.6" /></>,
@@ -27,7 +29,23 @@ const desktopIconPaths = {
 };
 
 const BLOG_PATH = "/blog";
+/* FIXOKU CORPORATE MENU M2C */
 const corporateMenuItems = [
+  {
+    label: "Kurumunuzda Eğitim Verin",
+    to: INSTITUTION_READING_LANDING_PATH,
+    icon: "school",
+  },
+  {
+    label: "Hızlı Okuma Eğitmeni Ol",
+    to: INSTRUCTOR_READING_LANDING_PATH,
+    icon: "trainer",
+  },
+  {
+    label: "Öğrenciler İçin Hızlı Okuma Eğitimi",
+    to: "/ogrenciler-icin-hizli-okuma-egitimi",
+    icon: "student",
+  },
   ...corporateArticles.map((article) => ({
     label: article.navLabel,
     to: article.path,
@@ -35,7 +53,6 @@ const corporateMenuItems = [
   })),
   { label: "Blog", to: BLOG_PATH, icon: "message" },
 ];
-
 const desktopMenuItems = [
   {
     key: "hizli-okuma",
@@ -187,6 +204,9 @@ function Header() {
   const [mobileActiveMenu, setMobileActiveMenu] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAfterHero, setIsAfterHero] = useState(false);
+  const mobileMenuButtonRef = useRef(null);
+  const mobileDrawerRef = useRef(null);
+  const mobileMenuWasOpenRef = useRef(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -207,13 +227,98 @@ function Header() {
 
   useEffect(() => {
     document.body.classList.toggle("fixoku-menu-open", isMobileMenuOpen);
-    return () => document.body.classList.remove("fixoku-menu-open");
+    document.documentElement.classList.toggle("fixoku-menu-open", isMobileMenuOpen);
+
+    return () => {
+      document.body.classList.remove("fixoku-menu-open");
+      document.documentElement.classList.remove("fixoku-menu-open");
+    };
   }, [isMobileMenuOpen]);
 
-  const closeMobileMenu = () => {
+  const closeMobileMenu = useCallback(() => {
     setIsMobileMenuOpen(false);
     setMobileActiveMenu("");
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return undefined;
+
+    mobileMenuWasOpenRef.current = true;
+    const drawer = mobileDrawerRef.current;
+    const focusableSelector = [
+      'a[href]',
+      'button:not([disabled])',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])',
+    ].join(',');
+
+    const focusFirstControl = () => {
+      const firstControl = drawer?.querySelector(focusableSelector);
+      (firstControl || drawer)?.focus();
+    };
+
+    const animationFrame = window.requestAnimationFrame(focusFirstControl);
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeMobileMenu();
+        return;
+      }
+
+      if (event.key !== "Tab" || !drawer) return;
+
+      const focusableControls = Array.from(drawer.querySelectorAll(focusableSelector))
+        .filter((element) => !element.hasAttribute("disabled") && element.getClientRects().length > 0);
+
+      if (!focusableControls.length) {
+        event.preventDefault();
+        drawer.focus();
+        return;
+      }
+
+      const firstControl = focusableControls[0];
+      const lastControl = focusableControls[focusableControls.length - 1];
+
+      if (event.shiftKey && document.activeElement === firstControl) {
+        event.preventDefault();
+        lastControl.focus();
+      } else if (!event.shiftKey && document.activeElement === lastControl) {
+        event.preventDefault();
+        firstControl.focus();
+      }
+    };
+
+    const handleResize = () => {
+      if (window.innerWidth > 1100) closeMobileMenu();
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      document.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [closeMobileMenu, isMobileMenuOpen]);
+
+  useEffect(() => {
+    if (isMobileMenuOpen || !mobileMenuWasOpenRef.current) return;
+
+    mobileMenuWasOpenRef.current = false;
+    window.requestAnimationFrame(() => mobileMenuButtonRef.current?.focus());
+  }, [isMobileMenuOpen]);
+
+  useEffect(() => {
+    const animationFrame = window.requestAnimationFrame(() => {
+      closeMobileMenu();
+    });
+
+    return () => window.cancelAnimationFrame(animationFrame);
+  }, [closeMobileMenu, location.hash, location.pathname, location.search]);
 
   const toggleMobileSubMenu = (menuName) => {
     setMobileActiveMenu((current) => (current === menuName ? "" : menuName));
@@ -303,7 +408,7 @@ function Header() {
                   {desktopActiveMenu === menu.key && (
                     <div className="dropdown icon-dropdown">
                       {menu.items.map((item) => (
-                        <Link key={item.to} to={item.to}>
+                        <Link key={`${menu.key}-${item.to}-${item.label}`} to={item.to}>
                           <DesktopDropdownIcon type={item.icon} />
                           <span>{item.label}</span>
                         </Link>
@@ -316,7 +421,7 @@ function Header() {
             </nav>
 
             <div className="top-actions">
-              <Link to="/panel" className="action-btn login-btn">Sisteme Giriş</Link>
+
               <Link to={TRAINING_HUB_PATH} className="action-btn store-btn">Eğitimleri İncele</Link>
             </div>
           </div>
@@ -329,25 +434,39 @@ function Header() {
         <div className="topbar-wrap">
           <div className="logo-floating">
             <Link to="/" className="logo-area" aria-label="Fixoku Ana Sayfa" onClick={closeMobileMenu}>
-              <img src="/logo-fixoku.png" alt="Fixoku Logo" className="site-logo" />
+              <img src="/siyah-logo-fixoku.png" alt="Fixoku Logo" className="site-logo" />
             </Link>
           </div>
 
           <button
+            ref={mobileMenuButtonRef}
             type="button"
             className={`hamburger-btn ${isMobileMenuOpen ? "is-open" : ""}`}
             aria-label={isMobileMenuOpen ? "Menüyü kapat" : "Menüyü aç"}
             aria-expanded={isMobileMenuOpen}
+            aria-controls="fixoku-mobile-navigation"
             onClick={() => setIsMobileMenuOpen((open) => !open)}
           >
             <span /><span /><span />
           </button>
 
-          <aside className={`mobile-drawer ${isMobileMenuOpen ? "is-open" : ""}`} aria-label="Fixoku mobil menü">
+          <aside
+            ref={mobileDrawerRef}
+            id="fixoku-mobile-navigation"
+            className={`mobile-drawer ${isMobileMenuOpen ? "is-open" : ""}`}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Fixoku mobil menü"
+            aria-hidden={!isMobileMenuOpen}
+            tabIndex={-1}
+          >
             <div className="mobile-drawer-profile mobile-logo-only">
               <Link to="/" className="mobile-profile-logo" onClick={closeMobileMenu}>
                 <img src="/siyah-logo-fixoku.png" alt="Fixoku" />
               </Link>
+              <button type="button" className="mobile-drawer-close" aria-label="Menüyü kapat" onClick={closeMobileMenu}>
+                <span aria-hidden="true">×</span>
+              </button>
             </div>
 
             <nav className="mobile-nav-list" aria-label="Ana menü">
@@ -382,7 +501,7 @@ function Header() {
                   )}
                   {mobileActiveMenu === menu.key && (
                     <div className="mobile-accordion-dropdown">
-                      {menu.items.map((item) => <Link key={item.to} to={item.to} onClick={closeMobileMenu}>{item.label}</Link>)}
+                      {menu.items.map((item) => <Link key={`${menu.key}-${item.to}-${item.label}`} to={item.to} onClick={closeMobileMenu}>{item.label}</Link>)}
                     </div>
                   )}
                 </div>
@@ -394,7 +513,7 @@ function Header() {
             </nav>
 
             <div className="mobile-actions">
-              <Link to="/panel" className="action-btn login-btn" onClick={closeMobileMenu}>Sisteme Giriş</Link>
+
               <Link to={TRAINING_HUB_PATH} className="action-btn store-btn" onClick={closeMobileMenu}>Eğitimleri İncele</Link>
             </div>
 
@@ -411,7 +530,6 @@ function Header() {
         <Link to="/" className={location.pathname === "/" ? "is-active" : ""}><MobileIcon type="home" /><span>Ana Sayfa</span></Link>
         <Link to="/#testler" className={location.pathname === "/" && (location.hash === "#testler" || ["reading", "attention"].includes(new URLSearchParams(location.search).get("test"))) ? "is-active" : ""}><MobileIcon type="target" /><span>Testler</span></Link>
         <Link to={TRAINING_HUB_PATH} className={location.pathname.startsWith(TRAINING_HUB_PATH) ? "is-active" : ""}><MobileIcon type="book" /><span>Eğitimler</span></Link>
-        <Link to="/panel" className={location.pathname.startsWith("/panel") ? "is-active" : ""}><MobileIcon type="user" /><span>Hesabım</span></Link>
       </nav>
 
       <style>{`
@@ -999,7 +1117,228 @@ function Header() {
             background: rgba(243,112,33,0.12) !important;
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.65) !important;
           }
+
+
         }
+
+        /* Mobile UX M1: final overrides, intentionally last in this scoped stylesheet. */
+        @media (max-width: 1100px) {
+          .mobile-top-header {
+            position: relative;
+            z-index: 1190;
+            padding-top: env(safe-area-inset-top);
+          }
+
+          .mobile-top-header .top-header-inner.top-header-with-contact {
+            min-height: 50px;
+            padding: 7px max(16px, env(safe-area-inset-right)) 7px max(16px, env(safe-area-inset-left));
+          }
+
+          .mobile-top-header .top-banner-svg {
+            width: min(228px, 72vw);
+          }
+
+          .mobile-topbar {
+            top: calc(50px + env(safe-area-inset-top));
+            padding-right: max(12px, env(safe-area-inset-right));
+            padding-left: max(12px, env(safe-area-inset-left));
+          }
+
+          .mobile-topbar .topbar-wrap {
+            width: min(100%, 760px);
+            min-height: 64px;
+            padding: 7px 8px 7px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.78);
+            box-shadow: 0 14px 38px rgba(35, 16, 61, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(22px) saturate(165%);
+            -webkit-backdrop-filter: blur(22px) saturate(165%);
+          }
+
+          .mobile-topbar .logo-area {
+            min-height: 48px;
+            display: inline-flex;
+            align-items: center;
+          }
+
+          .mobile-topbar .site-logo {
+            width: clamp(116px, 31vw, 136px);
+          }
+
+          .hamburger-btn,
+          .hamburger-btn.is-open {
+            width: 48px !important;
+            min-width: 48px !important;
+            height: 48px !important;
+            min-height: 48px !important;
+            border-radius: 16px !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+            background: rgba(255, 255, 255, 0.94) !important;
+            box-shadow: 0 9px 24px rgba(35, 16, 61, 0.16) !important;
+          }
+
+          .hamburger-btn:focus-visible,
+          .mobile-drawer-close:focus-visible,
+          .mobile-main-link:focus-visible,
+          .mobile-nav-parent-link:focus-visible,
+          .mobile-nav-toggle:focus-visible,
+          .mobile-nav-button:focus-visible,
+          .mobile-accordion-dropdown a:focus-visible,
+          .mobile-actions .action-btn:focus-visible,
+          .mobile-contact-link:focus-visible,
+          .mobile-bottom-nav a:focus-visible {
+            outline: 3px solid #f37021 !important;
+            outline-offset: 3px !important;
+          }
+
+          .mobile-menu-backdrop,
+          .mobile-menu-backdrop.is-open {
+            display: block !important;
+            pointer-events: auto !important;
+            cursor: pointer !important;
+            background: rgba(25, 8, 38, 0.38) !important;
+            backdrop-filter: blur(7px) saturate(125%) !important;
+            -webkit-backdrop-filter: blur(7px) saturate(125%) !important;
+          }
+
+          .mobile-drawer.is-open {
+            width: min(88vw, 380px);
+            height: 100vh;
+            height: 100svh;
+            height: 100dvh;
+            max-height: none;
+            padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) calc(92px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+            border-radius: 0 30px 30px 0;
+            overscroll-behavior: contain;
+            scrollbar-gutter: stable;
+            background: linear-gradient(155deg, rgba(255, 255, 255, 0.96), rgba(247, 242, 252, 0.94) 60%, rgba(255, 244, 237, 0.96)) !important;
+            box-shadow: 26px 0 70px rgba(20, 0, 38, 0.28), inset -1px 0 0 rgba(255, 255, 255, 0.84) !important;
+          }
+
+          .mobile-drawer-profile.mobile-logo-only {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            min-height: 62px;
+            justify-content: space-between !important;
+            margin: 0 0 14px !important;
+            padding: 8px 8px 8px 14px !important;
+            border-radius: 20px !important;
+            background: rgba(255, 255, 255, 0.8) !important;
+          }
+
+          .mobile-drawer-close {
+            width: 44px;
+            min-width: 44px;
+            height: 44px;
+            min-height: 44px;
+            border: 1px solid rgba(90, 22, 120, 0.12);
+            border-radius: 15px;
+            display: inline-grid;
+            place-items: center;
+            color: #42115f;
+            background: rgba(255, 255, 255, 0.94);
+            box-shadow: 0 8px 20px rgba(35, 16, 61, 0.1);
+            font-size: 30px;
+            line-height: 1;
+          }
+
+          .mobile-main-link,
+          .mobile-nav-button,
+          .mobile-nav-parent-link,
+          .mobile-nav-toggle {
+            min-height: 48px;
+          }
+
+          .mobile-main-link,
+          .mobile-nav-button {
+            height: auto;
+            padding-top: 7px;
+            padding-bottom: 7px;
+            border-radius: 16px;
+            line-height: 1.2;
+          }
+
+          .mobile-nav-toggle {
+            width: 48px;
+            min-width: 48px;
+            height: 48px;
+          }
+
+          .mobile-accordion-dropdown {
+            margin-left: 42px;
+            gap: 4px;
+          }
+
+          .mobile-accordion-dropdown a {
+            min-height: 44px;
+            padding: 10px 12px;
+            font-size: 14px;
+            line-height: 1.3;
+          }
+
+          .mobile-actions .action-btn {
+            min-height: 50px;
+            border-radius: 16px;
+            font-size: 14px;
+          }
+
+          .mobile-contact-link,
+          .mobile-contact-link:link,
+          .mobile-contact-link:visited {
+            min-height: 44px;
+            padding: 10px;
+            font-size: 14px;
+          }
+
+          .mobile-bottom-nav {
+            height: calc(72px + env(safe-area-inset-bottom));
+            min-height: calc(72px + env(safe-area-inset-bottom));
+            padding-right: max(10px, env(safe-area-inset-right));
+            padding-bottom: calc(7px + env(safe-area-inset-bottom));
+            padding-left: max(10px, env(safe-area-inset-left));
+          }
+
+          .mobile-bottom-nav a {
+            min-height: 48px;
+          }
+        }
+
+        @media (max-width: 390px) {
+          .mobile-topbar {
+            padding-right: max(8px, env(safe-area-inset-right));
+            padding-left: max(8px, env(safe-area-inset-left));
+          }
+
+          .mobile-topbar .topbar-wrap {
+            min-height: 60px;
+            padding-left: 10px;
+            border-radius: 21px;
+          }
+
+          .mobile-topbar .site-logo {
+            width: 112px;
+          }
+
+          .mobile-drawer.is-open {
+            width: min(92vw, 354px);
+          }
+        }
+
+        @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+          @media (max-width: 1100px) {
+            .mobile-topbar .topbar-wrap,
+            .mobile-drawer.is-open,
+            .mobile-drawer-profile.mobile-logo-only,
+            .mobile-bottom-nav {
+              background: rgba(255, 255, 255, 0.97) !important;
+            }
+          }
+        }
+
       `}</style>
     </>
   );

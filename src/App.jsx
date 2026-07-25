@@ -3,10 +3,13 @@ import { Link } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import StudentStoriesSection from "./components/StudentStoriesSection.jsx";
+import TrainerStoriesSection from "./components/TrainerStoriesSection.jsx";
+import LiveEducationEngine from "./components/LiveEducationEngine.jsx";
 import {
   AssessmentTestCards,
   AssessmentTestExperience,
 } from "./components/assessment/AssessmentTests.jsx";
+import { INSTITUTION_READING_LANDING_PATH } from "./data/institutionReadingLanding.js";
 
 function HeroSlideHeading({ active, className, children }) {
   const HeadingTag = active ? "h1" : "div";
@@ -29,13 +32,13 @@ const helpAudienceCards = [
   {
     title: "Eğitmenim",
     description: "Eğitmen olmak istiyorum.",
-    to: "/egitmen-ol",
+    to: "/hizli-okuma-egitmeni-ol",
     icon: "trainer",
   },
   {
     title: "Kurum Sahibiyim",
     description: "Kurumumda eğitim vermek istiyorum.",
-    to: "/okullar-icin",
+    to: INSTITUTION_READING_LANDING_PATH,
     icon: "institution",
   },
 ];
@@ -87,282 +90,46 @@ function HelpAudienceIcon({ type }) {
 
 function App() {
   const [activeSlide, setActiveSlide] = useState(0);
-  const [engineActiveModule, setEngineActiveModule] = useState(0);
-  const [engineFeedStart, setEngineFeedStart] = useState(0);
-  const [liveNumbers, setLiveNumbers] = useState({
-    studentsReading: 207,
-    focusStudents: 97,
-    attentionTasks: 62,
-    challenges: 41,
-  });
+  const [isMobileViewport, setIsMobileViewport] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(max-width: 768px)").matches
+  );
 
-  const [trainerStoryIndex, setTrainerStoryIndex] = useState(0);
-  const [activeTrainerVideo, setActiveTrainerVideo] = useState(null);
-
-  const trainerStories = useMemo(
-  () => [
-    {
-      title: "Burak Öğretmen",
-      role: "Fixoku Eğitmeni",
-      badge: "Fixoku Eğitmeni / Antalya",
-      video: "/dynavit.mp4",
-      poster: "/egitici1.jpeg",
-    },
-    {
-      title: "Ayşe Öğretmen",
-      role: "Fixoku Eğitmeni",
-      badge: "Fixoku Eğitmeni / Ankara",
-      video: "/dynavit.mp4",
-      poster: "/egitici2.jpeg",
-    },
-    {
-      title: "Mehmet Öğretmen",
-      role: "Fixoku Eğitmeni",
-      badge: "Fixoku Eğitmeni / İstanbul",
-      video: "/dynavit.mp4",
-      poster: "/egitici3.jpeg",
-    },
-    {
-      title: "Zeynep Öğretmen",
-      role: "Fixoku Eğitmeni",
-      badge: "Fixoku Eğitmeni / İzmir",
-      video: "/dynavit.mp4",
-      poster: "/egitici4.jpeg",
-    },
-    {
-      title: "Elif Öğretmen",
-      role: "Fixoku Eğitmeni",
-      badge: "Fixoku Eğitmeni / Bursa",
-      video: "/dynavit.mp4",
-      poster: "/egitici1.jpeg",
-    },
-    {
-      title: "Can Öğretmen",
-      role: "Fixoku Eğitmeni",
-      badge: "Fixoku Eğitmeni / Konya",
-      video: "/dynavit.mp4",
-      poster: "/egitici2.jpeg",
-    },
-    {
-      title: "Merve Öğretmen",
-      role: "Fixoku Eğitmeni",
-      badge: "Fixoku Eğitmeni / Eskişehir",
-      video: "/dynavit.mp4",
-      poster: "/egitici3.jpeg",
-    },
-    {
-      title: "Kemal Öğretmen",
-      role: "Fixoku Eğitmeni",
-      badge: "Fixoku Eğitmeni / Adana",
-      video: "/dynavit.mp4",
-      poster: "/egitici4.jpeg",
-    },
-  ],
-  []
-);
-
-  const trainerVisibleStories = useMemo(() => {
-    return Array.from({ length: 4 }, (_, i) => trainerStories[(trainerStoryIndex + i) % trainerStories.length]);
-  }, [trainerStories, trainerStoryIndex]);
-
-  const goTrainerPrev = () => {
-    setTrainerStoryIndex((prev) => prev === 0 ? trainerStories.length - 1 : prev - 1);
-  };
-
-  const goTrainerNext = () => {
-    setTrainerStoryIndex((prev) => (prev + 1) % trainerStories.length);
-  };
+  const sliderCount = isMobileViewport ? 4 : 3;
 
   useEffect(() => {
-    const trainerInterval = setInterval(() => {
-      setTrainerStoryIndex((prev) => (prev + 1) % trainerStories.length);
-    }, 10000);
-    return () => clearInterval(trainerInterval);
-  }, [trainerStories.length]);
+    const viewportQuery = window.matchMedia("(max-width: 768px)");
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % 3);
-    }, 90000);
+    const handleViewportChange = (event) => {
+      setIsMobileViewport(event.matches);
+      setActiveSlide((current) =>
+        Math.min(current, event.matches ? 3 : 2)
+      );
+    };
 
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const moduleInterval = setInterval(() => {
-      setEngineActiveModule((prev) => (prev + 1) % 4);
-    }, 3200);
-
-    const feedInterval = setInterval(() => {
-      setEngineFeedStart((prev) => (prev + 1) % 8);
-    }, 2200);
-
-    const numberInterval = setInterval(() => {
-      setLiveNumbers((prev) => ({
-        studentsReading: Math.max(
-          180,
-          prev.studentsReading + (Math.random() > 0.5 ? 1 : -1)
-        ),
-        focusStudents: Math.max(
-          70,
-          prev.focusStudents + (Math.random() > 0.5 ? 1 : -1)
-        ),
-        attentionTasks: Math.max(
-          45,
-          prev.attentionTasks + (Math.random() > 0.5 ? 1 : -1)
-        ),
-        challenges: Math.max(
-          25,
-          prev.challenges + (Math.random() > 0.5 ? 1 : -1)
-        ),
-      }));
-    }, 1800);
+    if (viewportQuery.addEventListener) {
+      viewportQuery.addEventListener("change", handleViewportChange);
+    } else {
+      viewportQuery.addListener(handleViewportChange);
+    }
 
     return () => {
-      clearInterval(moduleInterval);
-      clearInterval(feedInterval);
-      clearInterval(numberInterval);
+      if (viewportQuery.removeEventListener) {
+        viewportQuery.removeEventListener("change", handleViewportChange);
+      } else {
+        viewportQuery.removeListener(handleViewportChange);
+      }
     };
   }, []);
 
-  const engineModules = useMemo(
-    () => [
-      {
-        key: "odak",
-        label: "Odaklanma",
-        short: "Odak",
-        color: "yellow",
-        icon: (
-          <svg viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="7" stroke="currentColor" strokeWidth="1.8" />
-            <circle cx="12" cy="12" r="2.5" stroke="currentColor" strokeWidth="1.8" />
-            <path
-              d="M12 2v3M12 19v3M2 12h3M19 12h3"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-            />
-          </svg>
-        ),
-        title: "Odaklanma Sistemi",
-        value: `${liveNumbers.focusStudents}`,
-        unit: "aktif kullanıcı",
-        sub: "Odak egzersizleri şu anda sistem üzerinde devam ediyor.",
-        progress: 74,
-        badge: "Canlı Veri",
-        score: "374",
-      },
-      {
-        key: "okuma",
-        label: "Meydan Okuma",
-        short: "Okuma",
-        color: "green",
-        icon: (
-          <svg viewBox="0 0 24 24" fill="none">
-            <path
-              d="M4 6.5C4 5.7 4.7 5 5.5 5H10c1.4 0 2.7.5 3.7 1.3.9-.8 2.2-1.3 3.6-1.3h1.2c.8 0 1.5.7 1.5 1.5V18c0 .6-.4 1-1 1h-1.7c-1.3 0-2.5.4-3.6 1.1A6.6 6.6 0 0 0 10 19H5.5c-.8 0-1.5-.7-1.5-1.5v-11Z"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M12.8 6.5V19.8"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-            />
-          </svg>
-        ),
-        title: "Meydan Okuma Sistemi",
-        value: `${liveNumbers.challenges}`,
-        unit: "aktif eşleşme",
-        sub: "Öğrenciler canlı olarak birbirleriyle yarışıyor.",
-        progress: 81,
-        badge: "Canlı Veri",
-        score: "441",
-      },
-      {
-        key: "dikkat",
-        label: "Dikkat",
-        short: "Dikkat",
-        color: "blue",
-        icon: (
-          <svg viewBox="0 0 24 24" fill="none">
-            <path
-              d="M12 3c-3.5 0-6 2.4-6 5.5 0 1.7.7 3 1.8 4.1.7.7 1.2 1.5 1.2 2.4V16h6v-1c0-.9.5-1.7 1.2-2.4C17.3 11.5 18 10.2 18 8.5 18 5.4 15.5 3 12 3Z"
-              stroke="currentColor"
-              strokeWidth="1.8"
-            />
-            <path
-              d="M9.5 19h5M10 16h4M10.5 21h3"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-            />
-          </svg>
-        ),
-        title: "Dikkat Gelişim Sistemi",
-        value: `${liveNumbers.attentionTasks}`,
-        unit: "tamamlanan görev",
-        sub: "Dikkat egzersizleri düzenli şekilde tamamlanıyor.",
-        progress: 68,
-        badge: "Canlı Veri",
-        score: "328",
-      },
-      {
-        key: "duello",
-        label: "Düello",
-        short: "Düello",
-        color: "red",
-        icon: (
-          <svg viewBox="0 0 24 24" fill="none">
-            <path
-              d="M7 4h10M8 4c0 3-2 4-2 7a6 6 0 0 0 12 0c0-3-2-4-2-7"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-            />
-            <path
-              d="M9 18h6M8 21h8"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-            />
-          </svg>
-        ),
-        title: "Canlı Düello Sistemi",
-        value: "30",
-        unit: "aktif yarışma",
-        sub: "Öğrenciler karşılıklı rekabet ile hız kazanıyor.",
-        progress: 77,
-        badge: "Canlı Veri",
-        score: "295",
-      },
-    ],
-    [liveNumbers]
-  );
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % sliderCount);
+    }, 90000);
 
-  const engineFeedItems = useMemo(
-    () => [
-      { text: "Yeni düelloda eşleşti", value: "+6", tone: "yellow" },
-      { text: "Meydan okuması kazandı", value: "+32", tone: "green" },
-      { text: "Aylık sertifika görevini tamamladı", value: "+17", tone: "green" },
-      { text: "Hızlı okuma görevine başladı", value: "+9", tone: "blue" },
-      { text: "Canlı odaklanma turuna katıldı", value: "+11", tone: "yellow" },
-      { text: "Dikkat modülünü tamamladı", value: "+14", tone: "blue" },
-      { text: "Yeni rekabet oturumu açtı", value: "+8", tone: "red" },
-      { text: "Meydan okuma puanı yükseldi", value: "+21", tone: "green" },
-    ],
-    []
-  );
-
-  const visibleFeed = useMemo(() => {
-    return Array.from({ length: 3 }, (_, i) => {
-      return engineFeedItems[(engineFeedStart + i) % engineFeedItems.length];
-    });
-  }, [engineFeedItems, engineFeedStart]);
-
-  const activeEngineModuleData = engineModules[engineActiveModule];
+    return () => window.clearInterval(interval);
+  }, [sliderCount]);
 
   const educationStoreItems = useMemo(
     () => [
@@ -473,7 +240,7 @@ function App() {
       type: "student",
       bg: "/1.webp",
       topBadge: "TÜRKİYE’NİN YAPAY ZEKA DESTEKLİ İLK HIZLI OKUMA EĞİTİM YAZILIMI",
-      mobileTopBadge: "TÜRKİYE’NİN AI DESTEKLİ İLK HIZLI OKUMA EĞİTİMİ",
+      mobileTopBadge: "AI DESTEKLİ HIZLI OKUMA",
       title: (
         <span className="hero-title-mobile-wrap">
           <span className="hero-title-line hero-title-line-1">
@@ -669,19 +436,29 @@ function App() {
     },
   ];
 
+  const mobileEngineSlide = {
+    id: 4,
+    type: "engine-mobile",
+    bg: "",
+  };
+
+  const visibleSliderData = isMobileViewport
+    ? [...sliderData, mobileEngineSlide]
+    : sliderData;
+
   return (
     <AssessmentTestExperience>
       {({ openTest }) => (
         <div className="page">
           <Header />
       <section className="hero-slider">
-        {sliderData.map((slide, index) => (
+        {visibleSliderData.map((slide, index) => (
           <div
             key={slide.id}
             className={`hero-slide ${
               activeSlide === index ? "is-active" : ""
             } hero-slide-${slide.type}`}
-            style={{ backgroundImage: `url(${slide.bg})` }}
+            style={slide.bg ? { backgroundImage: `url(${slide.bg})` } : undefined}
           >
             <div className="hero-slide-overlay" />
 
@@ -794,249 +571,182 @@ function App() {
               )}
 
               {slide.type === "engine" && (
-  <div className="engine-layout engine-layout-compact">
-    <div className="engine-left engine-left-compact">
-      <div className="engine-kicker">Fixoku Canlı Sistem</div>
+                <>
+                  <div className="engine-desktop-view">
+                    <div className="engine-layout engine-layout-compact">
+                      <div className="engine-left engine-left-compact">
+                        <div className="engine-kicker">
+                          Fixoku Canlı Eğitim Sistemi
+                        </div>
 
-      <HeroSlideHeading active={activeSlide === index} className="engine-title-main">
-        Fixoku’da <span>Eğitim Süreci</span>
-        <br />
-        Canlı Çalışır
-      </HeroSlideHeading>
+                        <HeroSlideHeading
+                          active={activeSlide === index}
+                          className="engine-title-main"
+                        >
+                          <span className="engine-title-topline">Fixoku’da</span>
+                          <span className="engine-title-highlight">
+                            Eğitim Süreci
+                          </span>
+                          <span className="engine-title-bottomline">
+                            Canlı Çalışır
+                          </span>
+                        </HeroSlideHeading>
 
-      <p className="engine-desc-main">
-        Öğrenci gelişimi, eğitmen ilerleyişi, meydan okumalar ve analizler tek
-        sistem içinde anlık olarak hareket eder.
-      </p>
+                        <p className="engine-desc-main">
+                          Öğrenci çalışmaları tek merkezde izlenir; egzersizler
+                          gelişime göre şekillenir ve sonuçlar düzenli raporlanır.
+                        </p>
 
-      <div className="engine-feature-cards compact-cards">
-        <div className="engine-feature-card compact-feature">
-          <div className="engine-feature-icon">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path
-                d="M5 19V10"
-                stroke="currentColor"
-                strokeWidth="1.9"
-                strokeLinecap="round"
-              />
-              <path
-                d="M12 19V5"
-                stroke="currentColor"
-                strokeWidth="1.9"
-                strokeLinecap="round"
-              />
-              <path
-                d="M19 19v-7"
-                stroke="currentColor"
-                strokeWidth="1.9"
-                strokeLinecap="round"
-              />
-              <path
-                d="M4 19h16"
-                stroke="currentColor"
-                strokeWidth="1.9"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-          <div className="engine-feature-text">
-            <strong>Anlık Veri</strong>
-            <span>Öğrenci hareketleri canlı izlenir</span>
-          </div>
-        </div>
+                        <div className="engine-feature-cards compact-cards engine-feature-grid">
+                          <div className="engine-feature-card compact-feature">
+                            <div className="engine-feature-icon" aria-hidden="true">
+                              <svg viewBox="0 0 24 24" fill="none">
+                                <path
+                                  d="M5 19V10M12 19V5M19 19v-7M4 19h16"
+                                  stroke="currentColor"
+                                  strokeWidth="1.9"
+                                  strokeLinecap="round"
+                                />
+                              </svg>
+                            </div>
+                            <div className="engine-feature-text">
+                              <strong>Anlık Takip</strong>
+                              <span>Öğrenci gelişimi anlık izlenir</span>
+                            </div>
+                          </div>
 
-        <div className="engine-feature-card compact-feature">
-          <div className="engine-feature-icon">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path
-                d="M7 4h10M8 4c0 3-2 4-2 7a6 6 0 0 0 12 0c0-3-2-4-2-7"
-                stroke="currentColor"
-                strokeWidth="1.9"
-                strokeLinecap="round"
-              />
-              <path
-                d="M9 18h6M8 21h8"
-                stroke="currentColor"
-                strokeWidth="1.9"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-          <div className="engine-feature-text">
-            <strong>Meydan Okuma</strong>
-            <span>Öğrenciler rekabet ederek ilerler</span>
-          </div>
-        </div>
+                          <div className="engine-feature-card compact-feature">
+                            <div className="engine-feature-icon" aria-hidden="true">
+                              <svg viewBox="0 0 24 24" fill="none">
+                                <path
+                                  d="M12 3 4.5 7v5c0 4.7 3.1 7.7 7.5 9 4.4-1.3 7.5-4.3 7.5-9V7L12 3Z"
+                                  stroke="currentColor"
+                                  strokeWidth="1.9"
+                                  strokeLinejoin="round"
+                                />
+                                <path
+                                  d="m9 12 2 2 4-4"
+                                  stroke="currentColor"
+                                  strokeWidth="1.9"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </div>
+                            <div className="engine-feature-text">
+                              <strong>Kişisel Egzersiz</strong>
+                              <span>Çalışmalar gelişime göre şekillenir</span>
+                            </div>
+                          </div>
 
-        <div className="engine-feature-card compact-feature">
-          <div className="engine-feature-icon">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path
-                d="M12 3c-3.5 0-6 2.4-6 5.5 0 1.7.7 3 1.8 4.1.7.7 1.2 1.5 1.2 2.4V16h6v-1c0-.9.5-1.7 1.2-2.4C17.3 11.5 18 10.2 18 8.5 18 5.4 15.5 3 12 3Z"
-                stroke="currentColor"
-                strokeWidth="1.9"
-              />
-              <path
-                d="M9.5 19h5M10 16h4M10.5 21h3"
-                stroke="currentColor"
-                strokeWidth="1.9"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-          <div className="engine-feature-text">
-            <strong>Akıllı Analiz</strong>
-            <span>Performans sürekli ölçülür ve raporlanır</span>
-          </div>
-        </div>
-      </div>
+                          <div className="engine-feature-card compact-feature">
+                            <div className="engine-feature-icon" aria-hidden="true">
+                              <svg viewBox="0 0 24 24" fill="none">
+                                <path
+                                  d="M4 17.5 9 12l3 3 7-8"
+                                  stroke="currentColor"
+                                  strokeWidth="1.9"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                                <path
+                                  d="M15 7h4v4M4 20h16"
+                                  stroke="currentColor"
+                                  strokeWidth="1.9"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </div>
+                            <div className="engine-feature-text">
+                              <strong>Gelişim Analizi</strong>
+                              <span>Sonuçlar düzenli ölçülür ve raporlanır</span>
+                            </div>
+                          </div>
 
-      <div className="engine-left-actions">
-        <button type="button" className="engine-cta-btn compact-btn">
-          Canlı Sistemi Keşfet
-          <span className="engine-cta-arrow">→</span>
-        </button>
-      </div>
-    </div>
-
-    <div className="engine-right engine-right-compact">
-      <div className="engine-panel-new compact-panel">
-        <div className="engine-panel-frame compact-frame">
-          <div className="engine-header">
-            <div className="engine-header-left">
-              <div className="engine-panel-logo">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M12 3c-3.5 0-6 2.4-6 5.5 0 1.7.7 3 1.8 4.1.7.7 1.2 1.5 1.2 2.4V16h6v-1c0-.9.5-1.7 1.2-2.4C17.3 11.5 18 10.2 18 8.5 18 5.4 15.5 3 12 3Z"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                  />
-                  <path
-                    d="M9.5 19h5M10 16h4M10.5 21h3"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </div>
-
-              <div>
-                <div className="engine-mini">Fixoku Live</div>
-                <div className="engine-title">Eğitim Motoru</div>
-              </div>
-            </div>
-
-            <div className="engine-live">
-              <span className="dot" />
-              AKTİF
-            </div>
-          </div>
-
-          <div className="engine-dashboard-grid compact-grid">
-            <div className="engine-side-modules compact-side-modules">
-              {engineModules.map((m, i) => (
-                <div
-                  key={m.key}
-                  className={`engine-side-module ${
-                    i === engineActiveModule ? "active" : ""
-                  } ${m.color}`}
-                >
-                  <span className="engine-side-module-icon">{m.icon}</span>
-                  <span className="engine-side-module-label">{m.short}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="engine-main-wrap compact-main-wrap">
-              <div className="engine-big-card compact-big-card">
-                <div className="engine-big-card-top">
-                  <div className="engine-big-card-label">
-                    {activeEngineModuleData.label}
-                  </div>
-                  <div className="engine-big-card-status">
-                    {activeEngineModuleData.badge}
-                  </div>
-                </div>
-
-                <div className="engine-big-card-title">
-                  {activeEngineModuleData.title}
-                </div>
-
-                <div className="engine-big-number">
-                  {activeEngineModuleData.value}
-                </div>
-
-                <div className="engine-big-unit">
-                  {activeEngineModuleData.unit}
-                </div>
-
-                <div className="engine-main-sub">
-                  {activeEngineModuleData.sub}
-                </div>
-
-                <div className="engine-performance-row">
-                  <span>Canlı Performans</span>
-                  <span className="engine-performance-rate">
-                    %{activeEngineModuleData.progress}
-                  </span>
-                </div>
-
-                <div className="engine-chart-box compact-chart">
-                  <div className="chart-grid-lines" />
-                  <div className="chart-line-green" />
-                  <div className="engine-chart-score">
-                    {activeEngineModuleData.score}
-                  </div>
-                </div>
-              </div>
-
-              <div className="engine-bottom-row compact-bottom-row">
-                <div className="engine-feed-card-wide">
-                  <div className="engine-feed-title">
-                    <span>Canlı Akış:</span>
-                    <span className="engine-feed-user">
-                      1 · ✏️ ✦ Ali Asaf
-                    </span>
-                  </div>
-
-                  <div className="engine-feed-list">
-                    {visibleFeed.map((item, i) => (
-                      <div key={i} className="engine-feed-item">
-                        <span
-                          className={`engine-feed-bullet ${item.tone}`}
-                        />
-                        <span className="engine-feed-text">{item.text}</span>
-                        <span className="engine-feed-value">{item.value}</span>
+                          <button
+                            type="button"
+                            className="engine-cta-btn compact-btn engine-grid-cta"
+                          >
+                            <span>Sistemi İncele</span>
+                            <span className="engine-cta-arrow" aria-hidden="true">
+                              →
+                            </span>
+                          </button>
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
 
-                <div className="engine-success-card">
-                  <div className="engine-success-label">BAŞARI ORANI</div>
-                  <div className="engine-success-value">%94</div>
-                  <div className="engine-success-desc">
-                    Bugün tamamlanan
-                    <br />
-                    görevler
+                      <div className="engine-right engine-right-compact">
+                        <LiveEducationEngine variant="desktop" />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <div className="engine-bottom-mark" />
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+                  <div className="engine-mobile-intro">
+                    <div className="engine-mobile-kicker">
+                      Fixoku Canlı Eğitim Sistemi
+                    </div>
+
+                    <HeroSlideHeading
+                      active={activeSlide === index}
+                      className="engine-mobile-title"
+                    >
+                      Fixoku’da Eğitim Süreci
+                      <span>Canlı Çalışır</span>
+                    </HeroSlideHeading>
+
+                    <p className="engine-mobile-desc">
+                      Gelişimi takip edin, kişisel egzersizlerle ilerleyin ve
+                      sonuçları tek ekranda görün.
+                    </p>
+
+                    <div className="engine-mobile-feature-grid">
+                      <div className="engine-mobile-feature">
+                        <strong>Anlık Takip</strong>
+                        <span>Gelişim görünür</span>
+                      </div>
+                      <div className="engine-mobile-feature">
+                        <strong>Kişisel Egzersiz</strong>
+                        <span>Seviyeye göre ilerler</span>
+                      </div>
+                      <div className="engine-mobile-feature">
+                        <strong>Gelişim Analizi</strong>
+                        <span>Sonuçlar ölçülür</span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="engine-mobile-cta"
+                      onClick={() => setActiveSlide(3)}
+                    >
+                      <span>Eğitim Motorunu İncele</span>
+                      <span aria-hidden="true">→</span>
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {slide.type === "engine-mobile" && (
+                <div className="engine-mobile-engine-slide">
+                  <div className="engine-mobile-panel-kicker">
+                    Fixoku Öğrenci Sistemi
+                  </div>
+                  <HeroSlideHeading
+                    active={activeSlide === index}
+                    className="engine-mobile-panel-heading"
+                  >
+                    Anlık Öğrenci Gelişimi
+                  </HeroSlideHeading>
+                  <LiveEducationEngine variant="mobile" />
+                </div>
+              )}
             </div>
           </div>
         ))}
 
         <div className="hero-slider-dots">
-          {sliderData.map((_, index) => (
+          {visibleSliderData.map((_, index) => (
             <button
               key={index}
               type="button"
@@ -1443,52 +1153,7 @@ function App() {
     </div>
   </div>
 </section>
-<section className="trainer-videos-section">
-  <div className="trainer-videos-container">
-    <div className="trainer-videos-heading">
-      <h2 className="trainer-videos-title"><span>Fixoku</span> Eğitmenleri Ne Söylüyor?</h2>
-      <p className="trainer-videos-subtitle">Fixoku eğitmenleri, sistemin öğrenciler üzerindeki etkilerini ve eğitim sürecindeki deneyimlerini anlatıyor.</p>
-    </div>
-    <div className="trainer-videos-panel">
-      <button type="button" className="trainer-slider-arrow trainer-slider-prev" onClick={goTrainerPrev} aria-label="Önceki video">‹</button>
-      <div className="trainer-videos-grid">
-        {trainerVisibleStories.map((story, index) => (
-          <button type="button" className="trainer-video-card" key={story.title + "-" + index} onClick={() => setActiveTrainerVideo(story)}>
-            <div className="trainer-video-badge">{story.badge}</div>
-            <div className="trainer-video-media" style={{ backgroundImage: "url(" + story.poster + ")" }}>
-              <div className="trainer-video-overlay" />
-              <div className="trainer-video-play">
-                <svg viewBox="0 0 64 64" fill="none">
-                  <circle cx="32" cy="32" r="30" fill="rgba(255,255,255,0.2)" />
-                  <circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.45)" strokeWidth="2" />
-                  <path d="M27 21l17 11-17 11V21z" fill="white" />
-                </svg>
-              </div>
-              <div className="trainer-video-meta">
-                <div className="trainer-video-name">{story.title}</div>
-                <div className="trainer-video-role">{story.role}</div>
-              </div>
-            </div>
-          </button>
-        ))}
-      </div>
-      <button type="button" className="trainer-slider-arrow trainer-slider-next" onClick={goTrainerNext} aria-label="Sonraki video">›</button>
-    </div>
-    <div className="trainer-apply-panel">
-      <h3>Siz de <span>Fixoku</span> Eğitmeni Olabilirsiniz</h3>
-      <p>Fixoku eğitmeni olarak kendi eğitim programınızı başlatabilir ve öğrencilerinizin gelişimine katkı sağlayabilirsiniz.</p>
-      <Link to="/egitmen-ol" className="trainer-apply-btn"><span>Eğitmen Başvurusu Yap</span><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg></Link>
-    </div>
-  </div>
-  {activeTrainerVideo && (
-    <div className="trainer-video-modal" onClick={() => setActiveTrainerVideo(null)}>
-      <div className="trainer-video-modal-inner" onClick={(e) => e.stopPropagation()}>
-        <button type="button" className="trainer-video-close" onClick={() => setActiveTrainerVideo(null)} aria-label="Videoyu kapat">×</button>
-        <video src={activeTrainerVideo.video} controls autoPlay playsInline className="trainer-video-player" />
-      </div>
-    </div>
-  )}
-</section>
+<TrainerStoriesSection />
 <section className="fixoku-experience-section">
   <div className="fixoku-experience-container">
     <div className="fixoku-experience-head">

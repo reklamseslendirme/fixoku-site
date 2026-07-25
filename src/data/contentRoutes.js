@@ -6,6 +6,11 @@ import { knowledgeCenterPages } from "./knowledgeCenterContent.js";
 import { legalPages } from "./legalContent.js";
 import { quickReadingPages } from "./quickReadingContent.js";
 import { trainingPages } from "./trainingContent.js";
+import { institutionReadingLandingRoute } from "./institutionReadingLanding.js";
+import { instructorReadingLandingRoute } from "./instructorReadingLanding.js";
+
+export { institutionReadingLandingRoute } from "./institutionReadingLanding.js";
+export { instructorReadingLandingRoute } from "./instructorReadingLanding.js";
 
 export const studentReadingLandingRoute = {
   path: "/ogrenciler-icin-hizli-okuma-egitimi",
@@ -48,6 +53,8 @@ const existingPublicRoutes = [
     ],
   },
   studentReadingLandingRoute,
+  institutionReadingLandingRoute,
+  instructorReadingLandingRoute,
 ];
 
 function createContentRoutes(pages, { collectionLabel, collectionPath }) {
